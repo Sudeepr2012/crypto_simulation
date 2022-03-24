@@ -14,7 +14,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #599190;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -35,4 +35,45 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.css-19kzrtu {
+  padding: 0px !important;
+  padding-top: 20px !important;
+
+}
+.css-mmst5v{
+  color: white !important;
+}
+.css-1q2h7u5{
+  color: white !important;
+}
+.css-1q2h7u5.Mui-selected {
+  background: #6ba9a8 !important;
+}
+.css-ptiqhd-MuiSvgIcon-root{
+  color:#6ba9a8 !important;
+}
+.css-1h9z7r5-MuiButtonBase-root-MuiTab-root{
+  color: white !important;
+}
+.css-1h9z7r5-MuiButtonBase-root-MuiTab-root.Mui-selected[aria-selected="true"]{
+background-color: #6ba9a8 !important;
+}
+
+
+a{
+  color: #befffe;
+  font-style: italic;
+}
+button {
+  background-color: #2d8a88;
+  color: white;
+  border-radius: 5px;
+  padding: 10px;
+  font-weight: bolder;
+  border: 0px;
+  font-size: 20px;
+  text-transform: uppercase;
+  box-shadow: 1px 1px #4ebcba61;
 }

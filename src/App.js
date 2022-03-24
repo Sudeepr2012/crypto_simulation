@@ -1,24 +1,20 @@
-import logo from './logo.svg';
 import './App.css';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
+  let navigate = useNavigate();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      Welcome to Blockchain and Cryptocurrency Demo
+      <p style={{ background: '#94d0cf21', padding: 50, }}>
+        To continue, kindly
+        <div style={{ display: 'flex', marginTop: 10, }}>
+          <button onClick={() => navigate("login")}>Login</button>
+          <span style={{ margin: '0px 20px' }}>or</span>
+          <button onClick={() => navigate("/join")}>Sign up</button>
+        </div>
+      </p>
+    </>
   );
 }
 
