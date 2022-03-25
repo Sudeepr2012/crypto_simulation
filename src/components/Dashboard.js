@@ -67,7 +67,6 @@ function Dashboard() {
         }
         fetchData();
         Object.values(UTXO).forEach(utxo => {
-            console.log(utxo)
             if (utxo[address] !== undefined) {
                 setMyUTXO(myUTXO => [...myUTXO, {
                     hash: utxo['hash'],

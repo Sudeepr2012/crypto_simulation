@@ -1,20 +1,22 @@
+import { Link } from "react-router-dom"
+
 function Header() {
     return (
         <my-header>
             <div className="myHeader-div">
-                Dashboard
+                <Link to='/dashboard'>Dashboard</Link>
             </div>
             <div className="myHeader-div">
-                Send
+                <Link to='/send'>Send</Link>
             </div>
             <div className="myHeader-div">
-                Blocks
+                <Link to='/blocks'>Blocks</Link>
             </div>
             <div className="myHeader-div">
-                Transactions
+                <Link to='/transactions'>Transactions</Link>
             </div>
             <div className="myHeader-div">
-                MINERS
+                <Link to='/miner'>MINERS</Link>
             </div>
         </my-header>
     )

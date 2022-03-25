@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  background-color: #599190;
 }
 
 .App-logo {
@@ -16,13 +17,14 @@
 .App-header {
   background-color: #599190;
   min-height: 100vh;
+  padding-top: 70px;
+  margin-bottom: 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  padding-top: 50px;
 }
 
 .App-link {
@@ -99,6 +101,12 @@ my-header{
   top:0;
 position: fixed;
 width: 100%;
+z-index: 2;
+}
+my-header a{
+  cursor: pointer;
+  font-style: normal;
+  text-decoration: none;
 }
 @media only screen and (max-width: 800px) {
   footer,my-header {

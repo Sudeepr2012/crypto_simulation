@@ -60,14 +60,24 @@ input[type=submit]{
 
   table {
     border-collapse: collapse;
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
     width: 100%;
   }
   
   tr {
+      display: flex;
     width: 100%;
-    display: flex;
     border-bottom: 1px solid #73c6c5;
+  }
+  thead{
+      font-size: 18px;
+      text-transform: uppercase;
+      text-align: left;
+  }
+  tbody tr{
+    display: table-row;
+    text-align: left;
   }
   td {
     padding: 5px;
