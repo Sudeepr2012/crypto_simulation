@@ -14,7 +14,7 @@ label{
    font-size: 20px;
    font-weight: bold;
 }
-input, select{
+input, select, Select{
     padding: 10px;
     background: #599190;
     border: 1px solid #75d3d1;
@@ -24,6 +24,10 @@ input, select{
     width: 100%;
     float: left;
 }
+.css-319lph-ValueContainer, .css-g1d714-ValueContainer{
+    border: 1px solid #75d3d1; 
+}
+/* .css-1hb7zxy-IndicatorsContainer, */
 option{
     font-size: 18px;
 }
@@ -75,3 +79,14 @@ input[type=submit]{
    td:last-child{
      flex: 1;
    }
+   td a{
+       font-style: normal;
+       text-decoration: none;
+   }
+
+   .utxo-list{
+    font-size:medium;
+    border-radius: 10px;
+    padding-bottom: 10px;
+    text-align: left;
+  }

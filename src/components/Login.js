@@ -27,7 +27,7 @@ function Login() {
             <div className='btn-div'>
                 <button>Login</button>
             </div>
-            <div style={{ fontSize: 28 }}>
+            <div className='btn-div' style={{ fontSize: 28 }}>
                 New? <Link to='/join'>join here</Link>
             </div>
         </form>

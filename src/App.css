@@ -22,6 +22,7 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  padding-top: 50px;
 }
 
 .App-link {
@@ -76,4 +77,70 @@ button {
   font-size: 20px;
   text-transform: uppercase;
   box-shadow: 1px 1px #4ebcba61;
+}
+footer, my-header{
+  padding: 20px 0px;
+  background: #166463;
+  border-top: 1px solid #ffedd1;
+  display: flex;
+  color: white;
+  justify-content: center;
+  align-items: center;
+ overflow-x: hidden;
+}
+footer .name{
+  font-size: 18px;
+   font-weight: bold;
+}
+footer div, my-header div{
+  width: 100%;
+}
+my-header{
+  top:0;
+position: fixed;
+width: 100%;
+}
+@media only screen and (max-width: 800px) {
+  footer,my-header {
+    float:none;
+    display:block; 
+    text-align:center; 
+  }
+
+  footer .footer-div{
+    width: 90%;
+    margin: auto;
+    margin-bottom: 20px;
+  }
+}
+.Toastify__progress-bar-theme--light{
+  background-image: linear-gradient(to right, #16c60c,#609998,#96f1f0,green,#6ba9a8,#6ba9a8,white) !important;
+}
+.loader {
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid #75d3d1;
+  width: 30px;
+  height: 30px;
+  /* margin: auto; */
+  animation: spin 2s linear infinite;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

@@ -25,7 +25,7 @@ function SignUp() {
                 <input type={'password'} value={password}
                     onChange={(e) => setPassword(e.target.value)} required />
             </div>
-            <div className='form-field'>
+            <div className='form-field' style={{ width: '95%', }}>
                 <label>Join as?</label>
                 <select value={acctType} onChange={(e) => setAcctType(e.target.value)}>
                     <option value={'normal'}>💸 Normal</option>
@@ -35,7 +35,7 @@ function SignUp() {
             <div className='btn-div'>
                 <button>Join</button>
             </div>
-            <div style={{ fontSize: 28 }}>
+            <div className='btn-div' style={{ fontSize: 28 }}>
                 Have an account? <Link to='/login'>login here</Link>
             </div>
         </form>
