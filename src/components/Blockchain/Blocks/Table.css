@@ -27,7 +27,7 @@
       
       .blocks-table table tr {
         border-bottom: 1px solid #68a9a7;
-        display: block;
+        display: inline-block;
         margin-bottom: 50px;
       }
       
@@ -44,6 +44,12 @@
         font-size: 14px;
         font-weight: bold;
         text-transform: uppercase;
+      }
+      .blocks-table table td .loader {
+        float: right;
+        height: 14px;
+        width: 14px;
+        margin-bottom: 10px;
       }
       
       .blocks-table table td:last-child {

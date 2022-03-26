@@ -2,6 +2,8 @@ const colors = {
     lighter: '#6ba9a8',
     light: '#609998',
     dark: '#599190',
+    link: '#befffe',
+    ligthGreen: '#76ff76',
     white: 'white'
 }
 

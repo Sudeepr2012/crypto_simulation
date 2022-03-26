@@ -2,6 +2,7 @@
 import { FaCopy } from 'react-icons/fa'
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import { FaReceipt } from 'react-icons/fa'
 import { colors } from '../../Others/Colors';
 
 
@@ -64,7 +65,7 @@ function ViewTX() {
     return (
         <div style={{ width: '1800px', maxWidth: '90%' }}>
             <ToastContainer />
-            <h4 style={{ textAlign: 'left' }}>Transaction Details</h4>
+            <h4 style={{ textAlign: 'left' }}><FaReceipt color={colors.link} /> Transaction Details</h4>
             <table>
                 <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
                     <tr><td>Hash</td> <td>{tx.hash} <FaCopy

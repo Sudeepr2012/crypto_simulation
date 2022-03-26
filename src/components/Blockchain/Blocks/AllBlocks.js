@@ -1,7 +1,10 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaCubes } from 'react-icons/fa'
 import './Table.css'
+import { colors } from '../../Others/Colors';
+
 const blockchain = {
     0: {
         hash: 'gdg',
@@ -67,7 +70,7 @@ function AllBlocks() {
                 <div style={{ fontStyle: 'italic', fontSize: 18 }}>Getting blocks...</div></center>
             :
             <div className='blocks-table'>
-                <h4 style={{ textAlign: 'left', marginLeft: '5%' }}>Blocks</h4>
+                <h4 style={{ textAlign: 'left', marginLeft: '5%' }}><FaCubes color={colors.link} /> Blocks</h4>
                 <table style={{ margin: 'auto', width: '90%' }}>
                     <thead>
                         <th scope="col">Height</th>

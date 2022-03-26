@@ -92,7 +92,7 @@ function MyTransactions({ UTXO }) {
                             <tr><td>Status</td> <td
                                 style={{
                                     color: transaction.status === 'Unconfirmed' ? 'yellow' :
-                                        transaction.status === 'Confirmed' ? '#76ff76' : 'red'
+                                        transaction.status === 'Confirmed' ? colors.ligthGreen : 'red'
                                 }}>{transaction.status}</td></tr>
                             <tr> <td>Block</td>
                                 {!isNaN(transaction.block) ?

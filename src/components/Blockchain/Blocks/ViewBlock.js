@@ -2,6 +2,7 @@ import { useState } from "react"
 import { FaCopy } from 'react-icons/fa'
 import { Link, useParams } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
+import { IoMdCube } from 'react-icons/io'
 import { colors } from "../../Others/Colors";
 
 const address = 'dfdjkfgshhsdfsgsfsbkksf-sgksbgkabhvkjvsvisvs'
@@ -71,7 +72,7 @@ function ViewBlock() {
     return (
         <div style={{ width: '1800px', maxWidth: '90%' }}>
             <ToastContainer />
-            <h4 style={{ textAlign: 'left' }}>Block #{bHeight}</h4>
+            <h4 style={{ textAlign: 'left' }}><IoMdCube color={colors.link} /> Block #{bHeight}</h4>
             <table>
                 <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
                     <tr><td>Hash</td> <td>{block.hash} <FaCopy
