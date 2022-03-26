@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { FaCopy } from 'react-icons/fa'
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import { colors } from "../../Others/Colors";
 
@@ -53,6 +53,8 @@ const transactions = [
 ]
 
 function ViewBlock() {
+
+    const { bHeight } = useParams()
     const [filterTx, setFilterTx] = useState('utxo')
 
     const notify = (msg) => toast(`✔️ ${msg} copied!`, {
@@ -69,7 +71,7 @@ function ViewBlock() {
     return (
         <div style={{ width: '1800px', maxWidth: '90%' }}>
             <ToastContainer />
-            <h4 style={{ textAlign: 'left' }}>Block #{block.height}</h4>
+            <h4 style={{ textAlign: 'left' }}>Block #{bHeight}</h4>
             <table>
                 <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
                     <tr><td>Hash</td> <td>{block.hash} <FaCopy
@@ -96,7 +98,7 @@ function ViewBlock() {
             <table>
                 {transactions.map((transaction, index) => (
                     <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                        <tr><td>Hash</td> <td>{transaction.hash} <FaCopy
+                        <tr><td>Hash</td> <td><Link to={`/tx/${transaction.hash}`}>{transaction.hash}</Link> <FaCopy
                             onClick={() => {
                                 navigator.clipboard.writeText(transaction.hash)
                                 notify('Hash')

@@ -14,6 +14,8 @@ import Footer from './components/Footer';
 import Header from './components/Header';
 import AllBlocks from './components/Blockchain/Blocks/AllBlocks';
 import ViewBlock from './components/Blockchain/Blocks/ViewBlock';
+import UnconfirmedTX from './components/Blockchain/Transactionss/Unconfirmed';
+import ViewTX from './components/Blockchain/Transactionss/ViewTX';
 
 const LOADING_TIME = 500;
 
@@ -26,6 +28,7 @@ function Index() {
 
   function pathChanged() {
     setShowLoading(true)
+    window.scroll(0, 0)
     setTimeout(() => setShowLoading(false), LOADING_TIME)
   }
   return (
@@ -72,6 +75,8 @@ function MyRoutes() {
       <Route path="/join" element={<SignUp />} />
       <Route path="/blocks" element={<AllBlocks />} />
       <Route path="/block/:bHeight" element={<ViewBlock />} />
+      <Route path="/unconfirmed-tx" element={<UnconfirmedTX />} />
+      <Route path="/tx/:txHash" element={<ViewTX />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/send" element={<SendTx />} />
       <Route path="*" element={<App />} />

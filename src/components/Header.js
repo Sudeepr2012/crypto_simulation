@@ -13,7 +13,7 @@ function Header() {
                 <Link to='/blocks'>Blocks</Link>
             </div>
             <div className="myHeader-div">
-                <Link to='/transactions'>Transactions</Link>
+                <Link to='/unconfirmed-tx'>Mempool</Link>
             </div>
             <div className="myHeader-div">
                 <Link to='/miner'>MINERS</Link>

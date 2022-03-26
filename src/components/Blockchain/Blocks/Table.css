@@ -1,6 +1,9 @@
 .blocks-table{
     width: 100%;
 }
+.blocks-table td a{
+  word-break: break-word;
+}
 @media screen and (max-width: 860px) {
 
     .blocks-table table {
