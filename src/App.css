@@ -69,7 +69,7 @@ a{
   color: #befffe;
   font-style: italic;
 }
-button {
+button, .my-button {
   background-color: #2d8a88;
   color: white;
   border-radius: 5px;

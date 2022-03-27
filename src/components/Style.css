@@ -21,8 +21,7 @@ input, select, Select{
     border-radius: 10px;
     color: white;
     margin-bottom: 20px;
-    width: 100%;
-    float: left;
+    width: 95%;
 }
 .css-319lph-ValueContainer, .css-g1d714-ValueContainer{
     border: 1px solid #75d3d1; 
@@ -49,7 +48,7 @@ input[type=submit]{
 }
 
 .form-field{
-    width: 90%;
+    width: 100%;
     margin-bottom: 10px;
 }
 .btn-div{
