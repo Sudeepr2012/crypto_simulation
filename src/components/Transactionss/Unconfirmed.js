@@ -5,7 +5,7 @@ import { BsCheckLg } from 'react-icons/bs'
 import { GiCancel } from 'react-icons/gi'
 import { IoMdCube } from 'react-icons/io'
 import { FaReceipt } from 'react-icons/fa'
-import { colors } from '../../Others/Colors';
+import { colors } from '../Others/Colors';
 
 const memPool = {
     'tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60': {

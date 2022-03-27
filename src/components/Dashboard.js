@@ -9,7 +9,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import TabPanel from './Others/TabPanel'
 import './Style.css'
-import MyTransactions from './Crypto/MyTransactions';
+import MyTransactions from './Transactionss/MyTransactions';
 import { colors } from './Others/Colors';
 
 const address = 'dfdjkfgshhsdfsgsfsbkksf-sgksbgkabhvkjvsvisvs'

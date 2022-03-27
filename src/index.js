@@ -14,9 +14,10 @@ import Footer from './components/Footer';
 import Header from './components/Header';
 import AllBlocks from './components/Blockchain/Blocks/AllBlocks';
 import ViewBlock from './components/Blockchain/Blocks/ViewBlock';
-import UnconfirmedTX from './components/Blockchain/Transactionss/Unconfirmed';
-import ViewTX from './components/Blockchain/Transactionss/ViewTX';
+import UnconfirmedTX from './components/Transactionss/Unconfirmed';
+import ViewTX from './components/Transactionss/ViewTX';
 import CandidateBlock from './components/Blockchain/Miner/CandidateBlock';
+import ViewAddress from './components/Crypto/ViewAddress';
 
 const LOADING_TIME = 500;
 
@@ -82,6 +83,7 @@ function MyRoutes() {
       <Route path="/block/:bHeight" element={<ViewBlock />} />
       <Route path="/unconfirmed-tx" element={<UnconfirmedTX />} />
       <Route path="/tx/:txHash" element={<ViewTX />} />
+      <Route path="/address/:address" element={<ViewAddress />} />
 
       <Route path="*" element={<App />} />
     </Routes>

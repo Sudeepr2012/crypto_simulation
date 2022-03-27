@@ -3,7 +3,7 @@ import { FaCopy } from 'react-icons/fa'
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { FaReceipt } from 'react-icons/fa'
-import { colors } from '../../Others/Colors';
+import { colors } from '../Others/Colors';
 
 
 const blockHeigth = 7;
