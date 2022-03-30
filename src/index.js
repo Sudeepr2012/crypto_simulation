@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import Gun from 'gun'
+
 import logo from './logo.png';
 import './index.css';
 import './PathChangedLoading.css'
@@ -18,6 +20,15 @@ import UnconfirmedTX from './components/Transactionss/Unconfirmed';
 import ViewTX from './components/Transactionss/ViewTX';
 import CandidateBlock from './components/Blockchain/Miner/CandidateBlock';
 import ViewAddress from './components/Crypto/ViewAddress';
+import ValidateBlock from './components/Blockchain/Miner/ValidateBlock';
+require('gun/sea')
+
+const gun = Gun({
+  peers: [
+    'https://bc-gun-server.herokuapp.com/gun',
+  ]
+})
+var user = gun.user().recall({ sessionStorage: true });
 
 const LOADING_TIME = 500;
 
@@ -72,20 +83,21 @@ ReactDOM.render(
 function MyRoutes() {
   return (
     <Routes>
-      <Route exact path="/" element={<App />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/join" element={<SignUp />} />
+      <Route exact path="/" element={<App user={user} />} />
+      <Route path="/login" element={<Login user={user} gun={gun} />} />
+      <Route path="/join" element={<SignUp user={user} gun={gun} />} />
       <Route path="/me/block" element={<CandidateBlock />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/miner" element={<ValidateBlock />} />
+      <Route path="/dashboard" element={<Dashboard user={user} />} />
       <Route path="/send" element={<SendTx />} />
 
       <Route path="/blocks" element={<AllBlocks />} />
       <Route path="/block/:bHeight" element={<ViewBlock />} />
-      <Route path="/unconfirmed-tx" element={<UnconfirmedTX />} />
+      <Route path="/unconfirmed-tx" element={<UnconfirmedTX user={user} gun={gun} />} />
       <Route path="/tx/:txHash" element={<ViewTX />} />
       <Route path="/address/:address" element={<ViewAddress />} />
 
-      <Route path="*" element={<App />} />
+      <Route path="*" element={<App user={user} />} />
     </Routes>
   )
 }
@@ -94,6 +106,21 @@ function PathTracker({ pathChangedFun }) {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    console.log(user.is)
+    // user.recall({
+    //   sessionStorage: true
+    // }, () => {
+    //   gun.on('auth', async (ack) => {
+    //     //user name and public key (wallet address)
+    //     console.log(user.is)
+    //     const ali = await user.get('info')
+    //     console.log(ali)
+    //   })
+    // })
+    let authPaths = ['dashboard', 'send', 'me', 'miner']
+    let path = pathname.split('/')
+    if (path.some((p) => { return authPaths.includes(p); }) && user.is === undefined)
+      window.location.href = '/'
     pathChangedFun()
   }, [pathname])
   return (null)

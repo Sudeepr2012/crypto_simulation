@@ -4,13 +4,13 @@ import { IoMdCube } from 'react-icons/io'
 import { colors } from '../../Others/Colors';
 const SHA256 = require("crypto-js/sha256");
 
-const difficulty = 4;
+const difficulty = 0;
 const blockTX = [
     {
         hash: 'tx-gsfdh566bes5ggmmhgjoh484hehe4rg',
         fee: 0.39,
         reward: 6.39,
-        timestamp: + new Date(),
+        timestamp: new Date(),
         to: 'sc-dffvfog05954jnknb9hthm9je3ngn9ijslmkfzgreg9'
     },
     {
@@ -38,7 +38,7 @@ function CandidateBlock() {
     const [tempNoncee, settempNoncee] = useState(0);
     const [block, setBlock] = useState({
         hash: findHash("0eb6638c4f44e941942a5d8dd51fc92e1bacec92a78a154522060fdbeb2daf0e", + new Date(), 'tx-tl79jg5hk8reh3hdfjd90wpo5gd83s', 0),
-        timestamp: + new Date(),
+        timestamp: new Date(),
         data: 'tx-tl79jg5hk8reh3hdfjd90wpo5gd83s',
         nonce: 0,
         prevHash: "0eb6638c4f44e941942a5d8dd51fc92e1bacec92a78a154522060fdbeb2daf0e"
@@ -49,6 +49,15 @@ function CandidateBlock() {
     const [loading, setLoading] = useState(false);
     const [blockTime, setBlockTime] = useState(0)
 
+    useEffect(() => {
+        //find merkle root
+        let tx = [];
+        for (let i = 0; i < blockTX.length; i++)
+            tx.push(blockTX[i].hash)
+
+        calculateMerkleRoot(tx);
+
+    }, [])
     useEffect(() => {
         setTimeout(() => setBlockTime(Math.round((+ new Date() - block.timestamp) / 1000)), 1000)
     }, [blockTime])
@@ -103,6 +112,23 @@ function CandidateBlock() {
         }
     }, [block])
 
+    function calculateMerkleRoot(tx) {
+        console.log(tx)
+        if (tx.length === 1) {
+            setBlock(block => ({ ...block, data: tx[0] }))
+            return
+        }
+        if (tx.length % 2 !== 0)
+            tx.push(tx[tx.length - 1])
+
+        let txTemp = [];
+        let i = 0;
+        while (i < tx.length - 1) {
+            txTemp.push(SHA256(tx[i] + tx[i + 1]).toString());
+            i += 2;
+        }
+        calculateMerkleRoot(txTemp)
+    }
     function findHash(previousHash, timestamp, data, nonce) {
         return SHA256(previousHash + timestamp + data + nonce).toString();
     }
@@ -117,7 +143,7 @@ function CandidateBlock() {
 
     return (
         <>
-            {createBlock ?
+            {!createBlock ?
                 <button onClick={() => {
                     setCreateBlock(true)
                     setBlock(block => ({ ...block, timestamp: + new Date() }));

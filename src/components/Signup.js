@@ -1,15 +1,44 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { colors } from './Others/Colors';
 import './Style.css'
 
-function SignUp() {
+function SignUp({ user, gun }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [acctType, setAcctType] = useState('normal');
+    const [loading, setLoading] = useState(false);
+    const [invalidAuth, setInvalidAuth] = useState(false);
+    const navigate = useNavigate();
+
+
+    // useEffect(() => {
+    //     user.delete('TesterLiam', 'TesterLiam', (ack) => {
+    //         console.log(ack)
+    //     })
+    // }, [])
+
+    useEffect(() => {
+        if (user.is !== undefined)
+            navigate("/dashboard");
+    }, [])
 
     function signup(e) {
         e.preventDefault();
+        setLoading(true)
+        setInvalidAuth(false)
+        user.create(username, password, (ack) => {
+            console.log(ack)
+            setLoading(false)
+            if (ack.err)
+                setInvalidAuth(ack.err)
+            else
+                gun.user(ack.pub).get('info').put({
+                    acctType: acctType
+                });
+        })
     }
 
     return (
@@ -33,7 +62,18 @@ function SignUp() {
                 </select>
             </div>
             <div className='btn-div'>
-                <button>Join</button>
+                {loading ?
+                    <div className='loader'></div>
+                    :
+                    <button>Join</button>
+                }
+            </div>
+            <div className='btn-div' style={{ fontSize: 20, color: colors.link }}>
+                {invalidAuth ?
+                    invalidAuth
+                    :
+                    null
+                }
             </div>
             <div className='btn-div' style={{ fontSize: 28 }}>
                 Have an account? <Link to='/login'>login here</Link>

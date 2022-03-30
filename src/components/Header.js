@@ -1,22 +1,31 @@
 import { Link } from "react-router-dom"
+import { VscListFlat } from 'react-icons/vsc'
+import { useState } from "react";
 
 function Header() {
+
+    const [headerClass, setHeaderClass] = useState("default");
+
+    function handleHeader() {
+        console.log(headerClass)
+        if (headerClass === "default") {
+            setHeaderClass("responsive");
+        } else {
+            setHeaderClass("default");
+        }
+    }
+
     return (
         <my-header>
-            <div className="myHeader-div">
+            <div className={headerClass}>
                 <Link to='/dashboard'>Dashboard</Link>
-            </div>
-            <div className="myHeader-div">
                 <Link to='/send'>Send</Link>
-            </div>
-            <div className="myHeader-div">
                 <Link to='/blocks'>Blocks</Link>
-            </div>
-            <div className="myHeader-div">
                 <Link to='/unconfirmed-tx'>Mempool</Link>
-            </div>
-            <div className="myHeader-div">
                 <Link to='/miner'>MINERS</Link>
+                <a href="javascript:void(0);" className="icon" onClick={() => handleHeader()} >
+                    <VscListFlat />
+                </a>
             </div>
         </my-header>
     )

@@ -17,7 +17,6 @@
 .App-header {
   background-color: #599190;
   min-height: 100vh;
-  padding-top: 70px;
   margin-bottom: 50px;
   display: flex;
   flex-direction: column;
@@ -80,7 +79,7 @@ button, .my-button {
   text-transform: uppercase;
   box-shadow: 1px 1px #4ebcba61;
 }
-footer, my-header{
+footer{
   padding: 20px 0px;
   background: #166463;
   border-top: 1px solid #ffedd1;
@@ -94,22 +93,12 @@ footer .name{
   font-size: 18px;
    font-weight: bold;
 }
-footer div, my-header div{
+footer div{
   width: 100%;
 }
-my-header{
-  top:0;
-position: fixed;
-width: 100%;
-z-index: 2;
-}
-my-header a{
-  cursor: pointer;
-  font-style: normal;
-  text-decoration: none;
-}
+
 @media only screen and (max-width: 800px) {
-  footer,my-header {
+  footer {
     float:none;
     display:block; 
     text-align:center; 

@@ -1,8 +1,16 @@
 import './App.css';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
-function App() {
-  let navigate = useNavigate();
+function App({ user }) {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user.is !== undefined)
+      navigate("/dashboard");
+  }, [])
+
   return (
     <>
       Welcome to Blockchain and Cryptocurrency Demo

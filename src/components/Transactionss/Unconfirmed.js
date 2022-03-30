@@ -46,8 +46,9 @@ const memPool = {
     },
 }
 
-function UnconfirmedTX() {
+function UnconfirmedTX({ user, gun }) {
     const [loading, setLoading] = useState(true)
+    const [acctType, setAcctType] = useState(false);
     const [uTX, setUTX] = useState([])
     const [txLoading, setTxLoading] = useState([])
     const [candidateBlockRef, setCandidateBlockRef] = useState([])
@@ -65,6 +66,20 @@ function UnconfirmedTX() {
             setTxLoading(uTxLoading)
         }, 1000);
     }, [])
+
+
+    async function getAcctType() {
+        const curUser = await user.get('info')
+        if (curUser)
+            setAcctType(curUser.acctType)
+        else
+            setAcctType(!acctType)
+    }
+    useEffect(() => {
+        if (user.is && (acctType === true || acctType === false))
+            getAcctType()
+    }, [acctType])
+
 
     useEffect(() => {
         if (uTX.length > 0)
@@ -95,8 +110,11 @@ function UnconfirmedTX() {
             <div className='blocks-table'>
                 <div style={{ width: '100%', display: 'flex' }}>
                     <h4 style={{ textAlign: 'left', flex: 1, marginLeft: '5%' }}><FaReceipt color={colors.link} /> Unconfirmed Transactions</h4>
-                    <h4 style={{ textAlign: 'right', marginRight: '5%' }}>
+                    {acctType === 'miner' ? <h4 style={{ textAlign: 'right', marginRight: '5%' }}>
                         <Link to={`/me/block`}><IoMdCube /></Link></h4>
+                        :
+                        null
+                    }
                 </div>
 
                 <table style={{ margin: 'auto', width: '90%' }}>
@@ -105,7 +123,7 @@ function UnconfirmedTX() {
                         <th scope="col">Timestamp</th>
                         <th scope="col">Amount</th>
                         <th scope="col">Fee</th>
-                        <th scope="col">CB</th>
+                        {acctType === 'miner' ? <th scope="col">CB</th> : null}
                     </thead>
 
                     <tbody>
@@ -115,14 +133,18 @@ function UnconfirmedTX() {
                                 <td data-label="Timestamp">{utx.timestamp}</td>
                                 <td data-label="Amount">{utx.totalOP} SC</td>
                                 <td data-label="Fee">{utx.fee} SC</td>
-                                <td data-label="CB" style={{ cursor: 'pointer' }}>
-                                    {txLoading[i] ? <div className='loader'></div> :
-                                        candidateBlockRef.includes(utx.hash) ?
-                                            <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash, i)} />
-                                            :
-                                            <BsCheckLg color={colors.ligthGreen} onClick={() => addTxToBlock(utx.hash, i)} />
-                                    }
-                                </td>
+                                {acctType === 'miner' ?
+                                    <td data-label="CB" style={{ cursor: 'pointer' }}>
+                                        {txLoading[i] ? <div className='loader'></div> :
+                                            candidateBlockRef.includes(utx.hash) ?
+                                                <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash, i)} />
+                                                :
+                                                <BsCheckLg color={colors.ligthGreen} onClick={() => addTxToBlock(utx.hash, i)} />
+                                        }
+                                    </td>
+                                    :
+                                    null
+                                }
                             </tr>
                         ))
                         }

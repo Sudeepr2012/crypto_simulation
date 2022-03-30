@@ -46,8 +46,9 @@ const UTXO = {
 }
 
 
-function Dashboard() {
-    const [username, setUsername] = useState('User1');
+function Dashboard({ user }) {
+    const [username, setUsername] = useState('');
+    const [acctType, setAcctType] = useState('');
     const [currency, setCurrency] = useState('inr');
     const [exchangeRate, setExchangeRate] = useState(null);
     const [amount, setAmount] = useState('');
@@ -60,7 +61,10 @@ function Dashboard() {
     };
 
     useEffect(() => {
+
         async function fetchData() {
+            setUsername(await user.get('alias'))
+            setAcctType((await user.get('info')).acctType)
             const getExchange = await fetch('http://www.floatrates.com/daily/usd.json')
             const exchangeValue = await getExchange.json()
             setExchangeRate(exchangeValue)
@@ -104,7 +108,7 @@ function Dashboard() {
 
     return (
         <div className='container' style={{ width: '1800px' }}>
-            <h4>DASHBOARD</h4>
+            <h4>{username}</h4>
             <ToastContainer />
             <Box display="flex" justifyContent="center" width="100%">
                 <Tabs value={value} onChange={handleChange}
@@ -133,7 +137,7 @@ function Dashboard() {
                 </div>
                 <br />
                 <div style={{ textAlign: 'left' }}>
-                    {username}<br />
+                    <b>Type</b>: {acctType}<br />
                     <b>SudoCoin</b>: {totalUTXO}<GiTwoCoins /><br />
                     <b>Amount</b>: {amount}<br />
                     <b>Address</b>: <FaCopy onClick={() => {
