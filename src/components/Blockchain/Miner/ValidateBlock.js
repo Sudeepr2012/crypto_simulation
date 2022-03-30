@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { FaCopy } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom';
 import { Link, useParams } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
-import { IoMdCube } from 'react-icons/io'
+import { getAcctType } from '../../Others/GetAcctType';
 import { colors } from "../../Others/Colors";
 
 const address = 'dfdjkfgshhsdfsgsfsbkksf-sgksbgkabhvkjvsvisvs'
@@ -39,7 +39,8 @@ const blocks = [
 function ValidateBlock() {
 
     const [validateLoading, setValidateLoading] = useState({})
-    const { bHeight } = useParams()
+    const [acctType, setAcctType] = useState(false);
+    const navigate = useNavigate()
 
     useEffect(() => {
         for (let i = 0; i < blocks.length; i++) {
@@ -49,6 +50,21 @@ function ValidateBlock() {
             }))
         }
     }, [])
+
+    useEffect(() => {
+        if (acctType === true || acctType === false)
+            updateDet()
+        else
+            if (acctType !== 'miner')
+                navigate('/dashboard')
+            else {
+                //get miner dets
+            }
+        async function updateDet() {
+            setAcctType(await getAcctType(acctType))
+        }
+    }, [acctType])
+
     const notify = (msg) => toast(`✔️ ${msg} copied!`, {
         position: "top-right",
         autoClose: 1000,

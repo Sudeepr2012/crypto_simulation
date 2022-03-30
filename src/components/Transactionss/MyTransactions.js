@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { colors } from '../Others/Colors';
 
-const address = 'dfdjkfgshhsdfsgsfsbkksf-sgksbgkabhvkjvsvisvs'
 const blockHeigth = 7;
 const myTransactions = [
     {
@@ -53,7 +52,9 @@ const myTransactions = [
     },
 ]
 myTransactions.reverse()
+
 function MyTransactions({ UTXO }) {
+
     const [filterTx, setFilterTx] = useState('utxo')
 
     const notify = () => toast('✔️ Transaction hash copied!', {

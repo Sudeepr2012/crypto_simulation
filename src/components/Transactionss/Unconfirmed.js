@@ -6,7 +6,9 @@ import { GiCancel } from 'react-icons/gi'
 import { IoMdCube } from 'react-icons/io'
 import { FaReceipt } from 'react-icons/fa'
 import { colors } from '../Others/Colors';
+import { getAcctType } from '../Others/GetAcctType';
 
+const AUTHORIZED_TYPE = 'miner';
 const memPool = {
     'tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60': {
         hash: 'tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60',
@@ -68,16 +70,12 @@ function UnconfirmedTX({ user, gun }) {
     }, [])
 
 
-    async function getAcctType() {
-        const curUser = await user.get('info')
-        if (curUser)
-            setAcctType(curUser.acctType)
-        else
-            setAcctType(!acctType)
-    }
     useEffect(() => {
         if (user.is && (acctType === true || acctType === false))
-            getAcctType()
+            updateDet()
+        async function updateDet() {
+            setAcctType(await getAcctType(acctType))
+        }
     }, [acctType])
 
 
@@ -110,7 +108,7 @@ function UnconfirmedTX({ user, gun }) {
             <div className='blocks-table'>
                 <div style={{ width: '100%', display: 'flex' }}>
                     <h4 style={{ textAlign: 'left', flex: 1, marginLeft: '5%' }}><FaReceipt color={colors.link} /> Unconfirmed Transactions</h4>
-                    {acctType === 'miner' ? <h4 style={{ textAlign: 'right', marginRight: '5%' }}>
+                    {acctType === AUTHORIZED_TYPE ? <h4 style={{ textAlign: 'right', marginRight: '5%' }}>
                         <Link to={`/me/block`}><IoMdCube /></Link></h4>
                         :
                         null
@@ -123,7 +121,7 @@ function UnconfirmedTX({ user, gun }) {
                         <th scope="col">Timestamp</th>
                         <th scope="col">Amount</th>
                         <th scope="col">Fee</th>
-                        {acctType === 'miner' ? <th scope="col">CB</th> : null}
+                        {acctType === AUTHORIZED_TYPE ? <th scope="col">CB</th> : null}
                     </thead>
 
                     <tbody>
@@ -133,7 +131,7 @@ function UnconfirmedTX({ user, gun }) {
                                 <td data-label="Timestamp">{utx.timestamp}</td>
                                 <td data-label="Amount">{utx.totalOP} SC</td>
                                 <td data-label="Fee">{utx.fee} SC</td>
-                                {acctType === 'miner' ?
+                                {acctType === AUTHORIZED_TYPE ?
                                     <td data-label="CB" style={{ cursor: 'pointer' }}>
                                         {txLoading[i] ? <div className='loader'></div> :
                                             candidateBlockRef.includes(utx.hash) ?

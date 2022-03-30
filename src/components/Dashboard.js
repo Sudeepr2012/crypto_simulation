@@ -11,14 +11,13 @@ import TabPanel from './Others/TabPanel'
 import './Style.css'
 import MyTransactions from './Transactionss/MyTransactions';
 import { colors } from './Others/Colors';
-
-const address = 'dfdjkfgshhsdfsgsfsbkksf-sgksbgkabhvkjvsvisvs'
+import { getAcctType } from './Others/GetAcctType';
 
 //UTXO[tid][address]
 const UTXO = {
     'tx-dkhfkhskfhskggmmhgjoh484hehe4rg': {
         hash: 'tx-dkhfkhskfhskggmmhgjoh484hehe4rg',
-        'dfdjkfgshhsdfsgsfsbkksf-sgksbgkabhvkjvsvisvs': {
+        'IcZUrC1er80KQ-BWwME8f096iczZTK5z83WsoA7UDrE.tPjQlWiR3lnNuQPJaM-KUsHotsbOORKppQS3JlKH2K0': {
             amount: 124,
         },
         'osjsf34jw-4tnbk5hketgk487d8b9hfl5lll26if8b4l': {
@@ -36,7 +35,7 @@ const UTXO = {
     },
     'tx-jhkl7khskfhkg86jd90we3fgjoh48fh': {
         hash: 'tx-jhkl7khskfhkg86jd90we3fgjoh48fh',
-        'dfdjkfgshhsdfsgsfsbkksf-sgksbgkabhvkjvsvisvs': {
+        'IcZUrC1er80KQ-BWwME8f096iczZTK5z83WsoA7UDrE.tPjQlWiR3lnNuQPJaM-KUsHotsbOORKppQS3JlKH2K0': {
             amount: 76,
         },
         'osjsf34jw-4tnbk5hketgk487d8b9hfl5lll26if8b4l': {
@@ -48,7 +47,8 @@ const UTXO = {
 
 function Dashboard({ user }) {
     const [username, setUsername] = useState('');
-    const [acctType, setAcctType] = useState('');
+    const [acctType, setAcctType] = useState(false);
+    const [address, setAddress] = useState('');
     const [currency, setCurrency] = useState('inr');
     const [exchangeRate, setExchangeRate] = useState(null);
     const [amount, setAmount] = useState('');
@@ -60,16 +60,29 @@ function Dashboard({ user }) {
         setValue(newValue);
     };
 
-    useEffect(() => {
 
-        async function fetchData() {
+    useEffect(() => {
+        if (user.is) {
+            if (acctType === true || acctType === false) {
+                updateDet();
+            }
+        }
+        async function updateDet() {
+            setAcctType(await getAcctType(acctType))
             setUsername(await user.get('alias'))
-            setAcctType((await user.get('info')).acctType)
+        }
+    }, [acctType])
+
+    useEffect(() => {
+        setAddress(user.is.pub)
+        async function fetchData() {
             const getExchange = await fetch('http://www.floatrates.com/daily/usd.json')
             const exchangeValue = await getExchange.json()
             setExchangeRate(exchangeValue)
         }
         fetchData();
+    }, [])
+    useEffect(() => {
         Object.values(UTXO).forEach(utxo => {
             if (utxo[address] !== undefined) {
                 setMyUTXO(myUTXO => [...myUTXO, {
@@ -79,7 +92,7 @@ function Dashboard({ user }) {
                 setTotalUTXO(totalUTXO => totalUTXO + utxo[address].amount)
             }
         })
-    }, [])
+    }, [address])
 
     useEffect(() => {
         if (exchangeRate !== null) {

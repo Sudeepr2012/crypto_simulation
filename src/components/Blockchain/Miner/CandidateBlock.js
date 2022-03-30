@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GiMiner } from 'react-icons/gi'
 import { IoMdCube } from 'react-icons/io'
 import { colors } from '../../Others/Colors';
+import { getAcctType } from '../../Others/GetAcctType';
 const SHA256 = require("crypto-js/sha256");
 
 const difficulty = 0;
@@ -27,15 +29,12 @@ const blockTX = [
     },
 ]
 
-function CandidateBlock() {
-    const [ipUTXO, setIpUTXO] = useState([]);
-    const [blockHash, setBlockHash] = useState('');
+function CandidateBlock({ user, gun }) {
     const [blockIsValid, setBlockIsValid] = useState(false);
     const [autoMining, setAutoMining] = useState(false);
     const [autoMiningStart, setAutoMiningStart] = useState(0);
     const [autoMiningEnd, setAutoMiningEnd] = useState(0);
     const [nonce, setNonce] = useState(0);
-    const [tempNoncee, settempNoncee] = useState(0);
     const [block, setBlock] = useState({
         hash: findHash("0eb6638c4f44e941942a5d8dd51fc92e1bacec92a78a154522060fdbeb2daf0e", + new Date(), 'tx-tl79jg5hk8reh3hdfjd90wpo5gd83s', 0),
         timestamp: new Date(),
@@ -43,21 +42,34 @@ function CandidateBlock() {
         nonce: 0,
         prevHash: "0eb6638c4f44e941942a5d8dd51fc92e1bacec92a78a154522060fdbeb2daf0e"
     });
-    const [ipUTXOamount, setIpUTXOamount] = useState(0);
+    const [acctType, setAcctType] = useState(false);
     const [showSubmitButton, setShowSubmitButton] = useState(false);
     const [createBlock, setCreateBlock] = useState(false);
     const [loading, setLoading] = useState(false);
     const [blockTime, setBlockTime] = useState(0)
 
+    const navigate = useNavigate()
     useEffect(() => {
-        //find merkle root
         let tx = [];
         for (let i = 0; i < blockTX.length; i++)
             tx.push(blockTX[i].hash)
-
         calculateMerkleRoot(tx);
-
     }, [])
+
+    useEffect(() => {
+        if (acctType === true || acctType === false)
+            updateDet()
+        else
+            if (acctType !== 'miner')
+                navigate('/dashboard')
+            else {
+                //get miner candidate block
+            }
+        async function updateDet() {
+            setAcctType(await getAcctType(acctType))
+        }
+    }, [acctType])
+
     useEffect(() => {
         setTimeout(() => setBlockTime(Math.round((+ new Date() - block.timestamp) / 1000)), 1000)
     }, [blockTime])
@@ -97,10 +109,8 @@ function CandidateBlock() {
     }, [autoMining])
 
     useEffect(() => {
-        console.log(block)
         if (block.hash !== undefined) {
             if (autoMining) {
-                console.log('Mining Time: ', autoMiningEnd - autoMiningStart);
                 setShowSubmitButton(true)
                 setBlockIsValid(true)
                 setNonce(block.nonce)
@@ -120,7 +130,6 @@ function CandidateBlock() {
         }
         if (tx.length % 2 !== 0)
             tx.push(tx[tx.length - 1])
-
         let txTemp = [];
         let i = 0;
         while (i < tx.length - 1) {
@@ -129,9 +138,11 @@ function CandidateBlock() {
         }
         calculateMerkleRoot(txTemp)
     }
+
     function findHash(previousHash, timestamp, data, nonce) {
         return SHA256(previousHash + timestamp + data + nonce).toString();
     }
+
     function checkDifficulty(hash, difficulty) {
         return hash.substr(0, difficulty) === "0".repeat(difficulty)
     }

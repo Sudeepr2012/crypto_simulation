@@ -21,12 +21,11 @@ import ViewTX from './components/Transactionss/ViewTX';
 import CandidateBlock from './components/Blockchain/Miner/CandidateBlock';
 import ViewAddress from './components/Crypto/ViewAddress';
 import ValidateBlock from './components/Blockchain/Miner/ValidateBlock';
+import { PEERS } from './components/Others/Peers';
 require('gun/sea')
 
 const gun = Gun({
-  peers: [
-    'https://bc-gun-server.herokuapp.com/gun',
-  ]
+  peers: PEERS
 })
 var user = gun.user().recall({ sessionStorage: true });
 
@@ -86,7 +85,7 @@ function MyRoutes() {
       <Route exact path="/" element={<App user={user} />} />
       <Route path="/login" element={<Login user={user} gun={gun} />} />
       <Route path="/join" element={<SignUp user={user} gun={gun} />} />
-      <Route path="/me/block" element={<CandidateBlock />} />
+      <Route path="/me/block" element={<CandidateBlock user={user} gun={gun} />} />
       <Route path="/miner" element={<ValidateBlock />} />
       <Route path="/dashboard" element={<Dashboard user={user} />} />
       <Route path="/send" element={<SendTx />} />
@@ -106,7 +105,15 @@ function PathTracker({ pathChangedFun }) {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    console.log(user.is)
+    // console.log(user.is.pub)
+    //  gun.user('9NVyZB3JLAywYsacGSJQFUBdEdS_ZyNRn4MresxbGzk.x89U95w2N2StV147jGtM2MV__4izDt2ZGpNuaeOeyqA').once((val, key) => console.log(val, key))
+    // gun.user('7DTJkNatJMXqOqfAoLd9Gl02cQI1v75NXeKlXVHqNH4.ViTQrFuMqaZMb_FfZjihg24Cwj5DaqN72VnwuCdh5fw').once((val, key) => console.log(val, key))
+    // gun.get('~@TesterLiam').once((data, key) => { console.log(data, key) });
+    let ky = Object.keys(gun.get('miners'))
+    console.log(ky)
+    gun.get('miners').map((miner) => console.log(miner))
+
+    // console.log(user.is)
     // user.recall({
     //   sessionStorage: true
     // }, () => {
@@ -119,7 +126,7 @@ function PathTracker({ pathChangedFun }) {
     // })
     let authPaths = ['dashboard', 'send', 'me', 'miner']
     let path = pathname.split('/')
-    if (path.some((p) => { return authPaths.includes(p); }) && user.is === undefined)
+    if (path.some((p) => { return authPaths.includes(p); }) && !user.is)
       window.location.href = '/'
     pathChangedFun()
   }, [pathname])

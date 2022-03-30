@@ -27,6 +27,7 @@ function Login({ user, gun }) {
             if (ack.err)
                 setInvalidAuth(ack.err)
             else {
+                // alert(user.is.pub)
                 navigate("/dashboard");
             }
         });

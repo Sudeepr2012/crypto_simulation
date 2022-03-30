@@ -15,8 +15,12 @@ function SignUp({ user, gun }) {
 
 
     // useEffect(() => {
-    //     user.delete('TesterLiam', 'TesterLiam', (ack) => {
+    //     localStorage.clear()
+    //     user.delete('MinerLiam', 'MinerLiam', (ack) => {
     //         console.log(ack)
+    //         gun.get('miners').put({
+    //             'M0c2Z7T319v-vn3x3TBxFvH4yiwAFFvce0yHJZwzdX8.dS-_7wpKK8bnhS1psjFZo6vYRCbrXfH4fvUsHpXEAyc': null
+    //         })
     //     })
     // }, [])
 
@@ -34,10 +38,16 @@ function SignUp({ user, gun }) {
             setLoading(false)
             if (ack.err)
                 setInvalidAuth(ack.err)
-            else
+            else {
                 gun.user(ack.pub).get('info').put({
                     acctType: acctType
-                });
+                })
+                if (acctType === 'miner') {
+                    gun.get('miners').put({
+                        [ack.pub]: + new Date()
+                    })
+                }
+            }
         })
     }
 
