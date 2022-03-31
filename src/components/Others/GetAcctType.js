@@ -9,6 +9,7 @@ var user = gun.user().recall({ sessionStorage: true });
 
 async function getAcctType(acctType) {
     const curUser = await user.get('info')
+    // console.log(curUser)
     if (curUser)
         return (curUser.acctType)
     else

@@ -44,7 +44,7 @@ function SignUp({ user, gun }) {
                 })
                 if (acctType === 'miner') {
                     gun.get('miners').put({
-                        [ack.pub]: + new Date()
+                        [ack.pub]: {}
                     })
                 }
             }

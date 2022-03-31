@@ -1,33 +1,27 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { GiMiner } from 'react-icons/gi'
+import { ToastContainer, toast } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
 import { colors } from '../../Others/Colors';
 import { getAcctType } from '../../Others/GetAcctType';
 const SHA256 = require("crypto-js/sha256");
 
-const difficulty = 0;
-const blockTX = [
-    {
-        hash: 'tx-gsfdh566bes5ggmmhgjoh484hehe4rg',
-        fee: 0.39,
-        reward: 6.39,
-        timestamp: new Date(),
-        to: 'sc-dffvfog05954jnknb9hthm9je3ngn9ijslmkfzgreg9'
-    },
-    {
-        hash: 'tx-dkhfkhskfhskggmmhgjoh484hehe4rg',
-        amount: 0,
-    },
-    {
-        hash: 'tx-tl79jg5hk8reh3hdfjd90wpo5gd83s',
-        amount: 0.3,
-    },
-    {
-        hash: 'tx-jhkl7khskfhkg86jd90we3fgjoh48fh',
-        amount: 0.09,
-    },
-]
+const difficulty = 4;
+const blockReward = 10;
+
+
+const notify = (msg) => toast(msg, {
+    position: "top-right",
+    autoClose: 3000,
+    style: { background: colors.lighter, color: colors.white },
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+});
+
 
 function CandidateBlock({ user, gun }) {
     const [blockIsValid, setBlockIsValid] = useState(false);
@@ -35,26 +29,37 @@ function CandidateBlock({ user, gun }) {
     const [autoMiningStart, setAutoMiningStart] = useState(0);
     const [autoMiningEnd, setAutoMiningEnd] = useState(0);
     const [nonce, setNonce] = useState(0);
-    const [block, setBlock] = useState({
-        hash: findHash("0eb6638c4f44e941942a5d8dd51fc92e1bacec92a78a154522060fdbeb2daf0e", + new Date(), 'tx-tl79jg5hk8reh3hdfjd90wpo5gd83s', 0),
-        timestamp: new Date(),
-        data: 'tx-tl79jg5hk8reh3hdfjd90wpo5gd83s',
-        nonce: 0,
-        prevHash: "0eb6638c4f44e941942a5d8dd51fc92e1bacec92a78a154522060fdbeb2daf0e"
-    });
+    const [blockTx, setBlockTx] = useState(null);
+    const [blockCBTx, setBlockCBTx] = useState([]);
     const [acctType, setAcctType] = useState(false);
     const [showSubmitButton, setShowSubmitButton] = useState(false);
-    const [createBlock, setCreateBlock] = useState(false);
+    const [candidateBlock, setCandidateBlock] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [blockLoading, setBlockLoading] = useState(true);
     const [blockTime, setBlockTime] = useState(0)
+
+    const location = useLocation();
 
     const navigate = useNavigate()
     useEffect(() => {
-        let tx = [];
-        for (let i = 0; i < blockTX.length; i++)
-            tx.push(blockTX[i].hash)
-        calculateMerkleRoot(tx);
+        setBlockTx(location.state)
+        gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => {
+            setCandidateBlock(val)
+        })
+        window.history.replaceState({}, document.title)
     }, [])
+
+    useEffect(() => {
+        if (blockTx !== null && candidateBlock) {
+            if (candidateBlock.merkleRoot === '') {
+                let tx = [];
+                tx.push(candidateBlock.tempCoinBaseHash)
+                for (let i = 0; i < blockTx.length; i++)
+                    tx.push(blockTx[i])
+                calculateMerkleRoot(tx);
+            }
+        }
+    }, [blockTx, candidateBlock])
 
     useEffect(() => {
         if (acctType === true || acctType === false)
@@ -71,37 +76,39 @@ function CandidateBlock({ user, gun }) {
     }, [acctType])
 
     useEffect(() => {
-        setTimeout(() => setBlockTime(Math.round((+ new Date() - block.timestamp) / 1000)), 1000)
-    }, [blockTime])
+        if (candidateBlock)
+            setTimeout(() => setBlockTime(Math.round((+ new Date() - candidateBlock.timestamp) / 1000)), 1000)
+    }, [blockTime, candidateBlock])
 
     useEffect(() => {
         setBlockIsValid(false)
         setShowSubmitButton(false)
         if (!autoMining) {
-            setBlock(block => ({ ...block, hash: findHash(block.prevHash, block.timestamp, block.data, nonce), nonce: nonce }))
+            if (candidateBlock && candidateBlock.merkleRoot !== '')
+                setCandidateBlock(candidateBlock => ({ ...candidateBlock, hash: findHash(candidateBlock.prevHash, candidateBlock.timestamp, candidateBlock.merkleRoot, nonce), nonce: nonce }))
         }
         else {
             setBlockIsValid(true)
             setShowSubmitButton(true)
             setAutoMining(false)
         }
-    }, [nonce, blockTX])
+    }, [nonce, blockTx])
 
     useEffect(() => {
         if (autoMining) {
             let tempNonce = nonce;
-            let hash = block.hash;
+            let hash = candidateBlock.hash;
             if (!checkDifficulty(hash, difficulty)) {
                 setAutoMiningStart(+ new Date())
                 setShowSubmitButton(false)
                 setBlockIsValid(false)
                 while (!checkDifficulty(hash, difficulty)) {
                     tempNonce++
-                    hash = findHash(block.prevHash, block.timestamp, block.data, tempNonce)
+                    hash = findHash(candidateBlock.prevHash, candidateBlock.timestamp, candidateBlock.merkleRoot, tempNonce)
                     // affects time
                     // console.log(tempNonce)
                 }
-                setBlock(block => ({ ...block, hash: hash, nonce: tempNonce }));
+                setCandidateBlock(candidateBlock => ({ ...candidateBlock, hash: hash, nonce: tempNonce }));
                 setAutoMiningEnd(+ new Date())
             } else
                 setAutoMining(false)
@@ -109,23 +116,97 @@ function CandidateBlock({ user, gun }) {
     }, [autoMining])
 
     useEffect(() => {
-        if (block.hash !== undefined) {
+        if (candidateBlock) {
             if (autoMining) {
                 setShowSubmitButton(true)
                 setBlockIsValid(true)
-                setNonce(block.nonce)
+                setNonce(candidateBlock.nonce)
             } else {
-                let isBlockValid = checkDifficulty(block.hash, difficulty);
+                let isBlockValid = checkDifficulty(candidateBlock.hash, difficulty);
                 setShowSubmitButton(isBlockValid)
                 setBlockIsValid(isBlockValid)
             }
+
         }
-    }, [block])
+        else {
+            if (!location.state)
+                navigate('/unconfirmed-tx')
+        }
+    }, [candidateBlock])
+
+
+    async function createBlock() {
+        const timestamp = +new Date();
+        gun.get('blockchain').once((blocks) => {
+            let tempCoinBaseHash = SHA256(blockReward + timestamp + user.is.pub).toString();
+            if (blocks !== undefined) {
+                let prevHash, height;
+                gun.get('blockchain').get(Object.keys(blocks).length - 2).once((val) => {
+                    prevHash = val.hash;
+                    height = Object.keys(blocks).length - 1;
+                }).then(() => {
+                    gun.get('miners').get(user.is.pub).put({
+                        candidateBlock: {
+                            timestamp: timestamp,
+                            hash: '',
+                            prevHash: prevHash,
+                            height: height,
+                            merkleRoot: '',
+                            tempCoinBaseHash: tempCoinBaseHash
+                        },
+                    }).then(() => {
+                        notify('Block created!')
+                        setCandidateBlock({
+                            timestamp: timestamp,
+                            transactions: {},
+                            hash: '',
+                            prevHash: prevHash,
+                            height: height,
+                            merkleRoot: '',
+                            tempCoinBaseHash: tempCoinBaseHash
+                        })
+                    })
+                })
+            } else {
+                gun.get('miners').get(user.is.pub).put({
+                    candidateBlock: {
+                        timestamp: timestamp,
+                        hash: '',
+                        prevHash: '0000000000000000000000000000000000000000000000000000000000000000',
+                        merkleRoot: '',
+                        tempCoinBaseHash: tempCoinBaseHash
+                    },
+                }).then(() => {
+                    notify('Block created!')
+                    setCandidateBlock({
+                        timestamp: timestamp,
+                        transactions: {},
+                        hash: '',
+                        prevHash: '0000000000000000000000000000000000000000000000000000000000000000',
+                        merkleRoot: '',
+                        tempCoinBaseHash: tempCoinBaseHash
+                    })
+                })
+            }
+
+        })
+    }
 
     function calculateMerkleRoot(tx) {
         console.log(tx)
         if (tx.length === 1) {
-            setBlock(block => ({ ...block, data: tx[0] }))
+            setCandidateBlock(candidateBlock => ({ ...candidateBlock, merkleRoot: tx[0] }), setBlockLoading(false))
+            let feeReward = 0;
+            blockTx.map((bTx) => {
+                gun.get('mempool').get(bTx).once((val) => feeReward += val.fee)
+            })
+            setBlockCBTx(blockCBTx => [...blockCBTx, {
+                hash: candidateBlock.tempCoinBaseHash,
+                fee: feeReward,
+                reward: feeReward + blockReward,
+                timestamp: +new Date(),
+                to: user.is.pub
+            }]);
             return
         }
         if (tx.length % 2 !== 0)
@@ -139,8 +220,8 @@ function CandidateBlock({ user, gun }) {
         calculateMerkleRoot(txTemp)
     }
 
-    function findHash(previousHash, timestamp, data, nonce) {
-        return SHA256(previousHash + timestamp + data + nonce).toString();
+    function findHash(previousHash, timestamp, merkleRoot, nonce) {
+        return SHA256(previousHash + timestamp + merkleRoot + nonce).toString();
     }
 
     function checkDifficulty(hash, difficulty) {
@@ -154,87 +235,104 @@ function CandidateBlock({ user, gun }) {
 
     return (
         <>
-            {!createBlock ?
+            <ToastContainer />
+            {candidateBlock === null ?
                 <button onClick={() => {
-                    setCreateBlock(true)
-                    setBlock(block => ({ ...block, timestamp: + new Date() }));
+                    createBlock()
                 }}>Create Block</button>
                 :
-                <form onSubmit={BroadcastBlock} className='container' style={{
-                    width: '100%',
-                    backgroundColor: blockIsValid ? '' : '#6c3c3c'
-                }}>
-                    <div style={{ width: '100%', display: 'flex' }}>
-                        <h4 style={{ textAlign: 'left', flex: 1 }}>Block #14</h4>
-                        <div style={{ display: 'inline-grid', justifyContent: 'center', alignContent: 'center' }}>
-                            <h4 style={{ textAlign: 'right', fontSize: 20, margin: 0 }}>
-                                <GiMiner color='#e5f9ff' /> Mining Duration: {((autoMiningEnd - autoMiningStart) / 1000).toFixed(1)}s</h4>
-                            <h4 style={{ textAlign: 'right', fontSize: 20, margin: 0 }}>
-                                <IoMdCube color={colors.link} /> Total Block time: {blockTime}s</h4>
+                blockLoading ?
+                    <div className='loader'></div>
+                    :
+                    <form onSubmit={BroadcastBlock} className='container' style={{
+                        width: '100%',
+                        backgroundColor: blockIsValid ? '' : '#6c3c3c'
+                    }}>
+                        <div style={{ width: '100%', display: 'flex' }}>
+                            <h4 style={{ textAlign: 'left', flex: 1 }}>Block #14</h4>
+                            <div style={{ display: 'inline-grid', justifyContent: 'center', alignContent: 'center' }}>
+                                <h4 style={{ textAlign: 'right', fontSize: 20, margin: 0 }}>
+                                    <GiMiner color='#e5f9ff' /> Mining Duration: {((autoMiningEnd - autoMiningStart) / 1000).toFixed(1)}s</h4>
+                                <h4 style={{ textAlign: 'right', fontSize: 20, margin: 0 }}>
+                                    <IoMdCube color={colors.link} /> Total Block time: {blockTime}s</h4>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className='form-field'>
-                        <table style={{ fontSize: 16 }}>
-                            <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
-                                <tr><td>Prev. Hash</td> <td>{block.prevHash}</td></tr>
-                                <tr><td>Difficulty</td> <td>{difficulty}</td></tr>
-                                <tr><td>Merkle Root</td> <td>{block.data}</td></tr>
-                                <tr><td>Hash (POW)</td> <td>{autoMining ?
-                                    <div className='loader'
-                                        style={{ width: 20, height: 20 }}></div>
+                        <div className='form-field'>
+                            <table style={{ fontSize: 16 }}>
+                                <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
+                                    <tr><td>Prev. Hash</td> <td>{candidateBlock.prevHash}</td></tr>
+                                    <tr><td>Difficulty</td> <td>{difficulty}</td></tr>
+                                    <tr><td>Merkle Root</td> <td>{candidateBlock.merkleRoot}</td></tr>
+                                    <tr><td>Hash (POW)</td> <td>{autoMining ?
+                                        <div className='loader'
+                                            style={{ width: 20, height: 20 }}></div>
+                                        :
+                                        candidateBlock.hash}</td></tr>
+                                </div>
+                            </table>
+                        </div>
+                        <div className='form-field'>
+                            <label>Transactions</label>
+
+                            <table style={{ fontSize: 16 }}>
+                                {blockTx.length > 0 ?
+                                    <>
+                                        <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
+                                            <tr><td>Hash</td> <td>{blockCBTx[0].hash}</td></tr>
+                                            <tr><td>Block Reward</td> <td>{blockCBTx[0].reward} SC</td></tr>
+                                            <tr><td>Fee Reward</td> <td>{blockCBTx[0].fee} SC</td></tr>
+                                        </div>
+                                        {blockTx.map((transaction, index) => (
+                                            <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
+                                                <tr><td>Hash</td> <td>{transaction}</td></tr>
+                                                {/* <tr><td>Fee</td> <td>{transaction.amount} SC</td></tr> */}
+                                            </div>
+                                        ))
+                                        }
+                                    </>
                                     :
-                                    block.hash}</td></tr>
-                            </div>
-                        </table>
-                    </div>
-                    <div className='form-field'>
-                        <label>Transactions</label>
-                        <table style={{ fontSize: 16 }}>
-                            <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
-                                <tr><td>Block Reward</td> <td>{blockTX[0].reward} SC</td></tr>
-                                <tr><td>Fee Reward</td> <td>{blockTX[0].fee} SC</td></tr>
-                            </div>
-                            {blockTX.map((transaction, index) => (
-                                index !== 0 ?
                                     <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
-                                        <tr><td>Hash</td> <td>{transaction.hash}</td></tr>
-                                        <tr><td>Fee</td> <td>{transaction.amount} SC</td></tr>
+                                        <tr>Block has no transaction,&nbsp;<Link to={'/unconfirmed-tx'}>add now</Link></tr>
                                     </div>
-                                    :
-                                    null
-                            ))
-                            }
-                        </table>
-                    </div>
-                    <div className='form-field'>
-                        <label>Nonce</label>
-                        <input type={'number'} value={nonce}
-                            onChange={(e) => setNonce(+e.target.value)} required readOnly={loading} />
-                    </div>
-                    <div className='btn-div'>
-                        {showSubmitButton ?
-                            loading ?
-                                <div className='loader'></div>
-                                : <button disabled={!blockIsValid}
-                                    style={{ background: blockIsValid ? colors.lighter : '' }}>Broadcast</button>
+                                }
+                            </table>
+
+                        </div>
+                        {blockTx.length > 0 ?
+                            <>
+                                <div className='form-field'>
+                                    <label>Nonce</label>
+                                    <input type={'number'} value={nonce}
+                                        onChange={(e) => setNonce(+e.target.value)} required readOnly={loading} />
+                                </div>
+                                <div className='btn-div'>
+                                    {showSubmitButton ?
+                                        loading ?
+                                            <div className='loader'></div>
+                                            : <button disabled={!blockIsValid}
+                                                style={{ background: blockIsValid ? colors.lighter : '' }}>Broadcast</button>
+                                        :
+                                        <center>
+                                            <div style={{ fontStyle: 'italic', fontSize: 18 }}>
+                                                {autoMining ? 'Mining...' : 'Block invalid'}</div></center>}
+                                </div>
+                                <div className='btn-div'>
+                                    {autoMining ?
+                                        <center><div className='loader'></div>
+                                        </center>
+                                        :
+                                        <GiMiner
+                                            onClick={() => {
+                                                setAutoMining(true)
+                                            }}
+                                            color='#e5f9ff' size={40} />}
+                                </div>
+                            </>
                             :
-                            <center>
-                                <div style={{ fontStyle: 'italic', fontSize: 18 }}>
-                                    {autoMining ? 'Mining...' : 'Block invalid'}</div></center>}
-                    </div>
-                    <div className='btn-div'>
-                        {autoMining ?
-                            <center><div className='loader'></div>
-                            </center>
-                            :
-                            <GiMiner
-                                onClick={() => {
-                                    setAutoMining(true)
-                                }}
-                                color='#e5f9ff' size={40} />}
-                    </div>
-                </form>
+                            null
+                        }
+                    </form>
             }
         </>
     )

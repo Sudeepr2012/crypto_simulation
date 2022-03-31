@@ -109,9 +109,6 @@ function PathTracker({ pathChangedFun }) {
     //  gun.user('9NVyZB3JLAywYsacGSJQFUBdEdS_ZyNRn4MresxbGzk.x89U95w2N2StV147jGtM2MV__4izDt2ZGpNuaeOeyqA').once((val, key) => console.log(val, key))
     // gun.user('7DTJkNatJMXqOqfAoLd9Gl02cQI1v75NXeKlXVHqNH4.ViTQrFuMqaZMb_FfZjihg24Cwj5DaqN72VnwuCdh5fw').once((val, key) => console.log(val, key))
     // gun.get('~@TesterLiam').once((data, key) => { console.log(data, key) });
-    let ky = Object.keys(gun.get('miners'))
-    console.log(ky)
-    gun.get('miners').map((miner) => console.log(miner))
 
     // console.log(user.is)
     // user.recall({

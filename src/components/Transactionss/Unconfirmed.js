@@ -1,10 +1,12 @@
 
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BsCheckLg } from 'react-icons/bs'
+import { BiErrorCircle } from 'react-icons/bi'
 import { GiCancel } from 'react-icons/gi'
 import { IoMdCube } from 'react-icons/io'
 import { FaReceipt } from 'react-icons/fa'
+import { ToastContainer, toast } from 'react-toastify';
 import { colors } from '../Others/Colors';
 import { getAcctType } from '../Others/GetAcctType';
 
@@ -53,9 +55,18 @@ function UnconfirmedTX({ user, gun }) {
     const [acctType, setAcctType] = useState(false);
     const [uTX, setUTX] = useState([])
     const [txLoading, setTxLoading] = useState([])
-    const [candidateBlockRef, setCandidateBlockRef] = useState([])
+    const [candidateBlockTx, setCandidateBlockTx] = useState([])
+    const [candidateBlock, setCandidateBlock] = useState(null)
 
+    const navigate = useNavigate()
     useEffect(() => {
+        // console.log(user.is.pub)
+        // gun.get('miners').get(user.is.pub).map((miner, key) => console.log(miner, key))
+        if (user.is)
+            gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => setCandidateBlock(val))
+        // gun.get('miners').get(user.is.pub).put({
+        //     candidateBlock: null,
+        // })
         setTimeout(() => {
             let uTx = [];
             let uTxLoading = [];
@@ -87,7 +98,7 @@ function UnconfirmedTX({ user, gun }) {
     function addTxToBlock(txHash, index) {
         setTxLoading(txLoading => ({ ...txLoading, [index]: true }))
         setTimeout(() => {
-            setCandidateBlockRef(candidateBlockRef => [...candidateBlockRef, txHash])
+            setCandidateBlockTx(candidateBlockTx => [...candidateBlockTx, txHash])
             setTxLoading(txLoading => ({ ...txLoading, [index]: false }))
         }, 2000)
     }
@@ -95,60 +106,79 @@ function UnconfirmedTX({ user, gun }) {
     function removeTxFromBlock(txHash, index) {
         setTxLoading(txLoading => ({ ...txLoading, [index]: true }))
         setTimeout(() => {
-            setCandidateBlockRef(candidateBlockRef.filter(newTxHash => newTxHash !== txHash))
+            setCandidateBlockTx(candidateBlockTx.filter(newTxHash => newTxHash !== txHash))
             setTxLoading(txLoading => ({ ...txLoading, [index]: false }))
         }, 2000)
     }
 
+
+    const notify = (msg) => toast(msg, {
+        position: "top-right",
+        autoClose: 3000,
+        style: { background: colors.lighter, color: colors.white },
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+
     return (
-        loading ?
-            <center><div className='loader'></div>
-                <div style={{ fontStyle: 'italic', fontSize: 18 }}>Getting transactions...</div></center>
-            :
-            <div className='blocks-table'>
-                <div style={{ width: '100%', display: 'flex' }}>
-                    <h4 style={{ textAlign: 'left', flex: 1, marginLeft: '5%' }}><FaReceipt color={colors.link} /> Unconfirmed Transactions</h4>
-                    {acctType === AUTHORIZED_TYPE ? <h4 style={{ textAlign: 'right', marginRight: '5%' }}>
-                        <Link to={`/me/block`}><IoMdCube /></Link></h4>
-                        :
-                        null
-                    }
-                </div>
-
-                <table style={{ margin: 'auto', width: '90%' }}>
-                    <thead>
-                        <th scope="col">Hash</th>
-                        <th scope="col">Timestamp</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Fee</th>
-                        {acctType === AUTHORIZED_TYPE ? <th scope="col">CB</th> : null}
-                    </thead>
-
-                    <tbody>
-                        {uTX.map((utx, i) => (
-                            <tr key={i}>
-                                <td data-label="Hash"><Link to={`/tx/${utx.hash}`}>{utx.hash}</Link></td>
-                                <td data-label="Timestamp">{utx.timestamp}</td>
-                                <td data-label="Amount">{utx.totalOP} SC</td>
-                                <td data-label="Fee">{utx.fee} SC</td>
-                                {acctType === AUTHORIZED_TYPE ?
-                                    <td data-label="CB" style={{ cursor: 'pointer' }}>
-                                        {txLoading[i] ? <div className='loader'></div> :
-                                            candidateBlockRef.includes(utx.hash) ?
-                                                <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash, i)} />
-                                                :
-                                                <BsCheckLg color={colors.ligthGreen} onClick={() => addTxToBlock(utx.hash, i)} />
-                                        }
-                                    </td>
-                                    :
-                                    null
-                                }
-                            </tr>
-                        ))
+        <>
+            <ToastContainer />
+            {loading ?
+                <center><div className='loader'></div>
+                    <div style={{ fontStyle: 'italic', fontSize: 18 }}>Getting transactions...</div></center>
+                :
+                <div className='blocks-table'>
+                    <div style={{ width: '100%', display: 'flex' }}>
+                        <h4 style={{ textAlign: 'left', flex: 1, marginLeft: '5%' }}><FaReceipt color={colors.link} /> Unconfirmed Transactions</h4>
+                        {acctType === AUTHORIZED_TYPE ? <h4 style={{ textAlign: 'right', marginRight: '5%' }}>
+                            <IoMdCube onClick={() => navigate('/me/block', { state: candidateBlockTx })} /></h4>
+                            :
+                            null
                         }
-                    </tbody>
-                </table>
-            </div>
+                    </div>
+
+                    <table style={{ margin: 'auto', width: '90%' }}>
+                        <thead>
+                            <th scope="col">Hash</th>
+                            <th scope="col">Timestamp</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Fee</th>
+                            {acctType === AUTHORIZED_TYPE ? <th scope="col">CB</th> : null}
+                        </thead>
+
+                        <tbody>
+                            {uTX.map((utx, i) => (
+                                <tr key={i}>
+                                    <td data-label="Hash"><Link to={`/tx/${utx.hash}`}>{utx.hash}</Link></td>
+                                    <td data-label="Timestamp">{utx.timestamp}</td>
+                                    <td data-label="Amount">{utx.totalOP} SC</td>
+                                    <td data-label="Fee">{utx.fee} SC</td>
+                                    {acctType === AUTHORIZED_TYPE ?
+                                        <td data-label="CB" style={{ cursor: 'pointer' }}>
+                                            {candidateBlock !== null ?
+                                                txLoading[i] ? <div className='loader'></div> :
+                                                    candidateBlockTx.includes(utx.hash) ?
+                                                        <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash, i)} />
+                                                        :
+                                                        <BsCheckLg color={colors.ligthGreen} onClick={() => addTxToBlock(utx.hash, i)} />
+                                                :
+                                                <BiErrorCircle color={colors.ligthGreen} onClick={() => notify('You need to create block first!')} />
+                                            }
+                                        </td>
+                                        :
+                                        null
+                                    }
+                                </tr>
+                            ))
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </>
     )
 }
 export default UnconfirmedTX
