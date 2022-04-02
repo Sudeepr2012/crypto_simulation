@@ -112,16 +112,21 @@ function MyTransactions({ UTXO }) {
                         </div>
                     ))
                     :
-                    UTXO.map((transaction, index) => (
+                    UTXO.length > 0 ?
+                        UTXO.map((transaction, index) => (
+                            <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                                <tr><td>Hash</td> <td>{transaction.hash} <FaCopy
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(transaction.hash)
+                                        notify()
+                                    }} /></td></tr>
+                                <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
+                            </div>
+                        ))
+                        :
                         <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                            <tr><td>Hash</td> <td>{transaction.hash} <FaCopy
-                                onClick={() => {
-                                    navigator.clipboard.writeText(transaction.hash)
-                                    notify()
-                                }} /></td></tr>
-                            <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
+                            <tr>You do not have any unspent transaction output</tr>
                         </div>
-                    ))
                 }
             </table>
         </>

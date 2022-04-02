@@ -12,6 +12,7 @@ import './Style.css'
 import MyTransactions from './Transactionss/MyTransactions';
 import { colors } from './Others/Colors';
 import { getAcctType } from './Others/GetAcctType';
+import { getAddressUTXO } from './Blockchain/UTXO';
 
 //UTXO[tid][address]
 const UTXO = {
@@ -46,13 +47,13 @@ const UTXO = {
 
 
 function Dashboard({ user }) {
+    const address = user.is.pub;
     const [username, setUsername] = useState('');
     const [acctType, setAcctType] = useState(false);
-    const [address, setAddress] = useState('');
     const [currency, setCurrency] = useState('inr');
     const [exchangeRate, setExchangeRate] = useState(null);
     const [amount, setAmount] = useState('');
-    const [myUTXO, setMyUTXO] = useState([]);
+    const [userUTXO, setUserUTXO] = useState({});
     const [totalUTXO, setTotalUTXO] = useState(0);
     const [value, setValue] = useState(0);
 
@@ -60,39 +61,30 @@ function Dashboard({ user }) {
         setValue(newValue);
     };
 
+    // useEffect(() => {
+    //     if (user.is) {
+    //         if (acctType === true || acctType === false) {
+    //             updateDet();
+    //         }
+    //     }
+    //     async function updateDet() {
+    //         setAcctType(await getAcctType(acctType))
+    //     }
+    // }, [acctType])
 
     useEffect(() => {
-        if (user.is) {
-            if (acctType === true || acctType === false) {
-                updateDet();
-            }
-        }
-        async function updateDet() {
-            setAcctType(await getAcctType(acctType))
-            setUsername(await user.get('alias'))
-        }
-    }, [acctType])
-
-    useEffect(() => {
-        setAddress(user.is.pub)
         async function fetchData() {
             const getExchange = await fetch('http://www.floatrates.com/daily/usd.json')
             const exchangeValue = await getExchange.json()
             setExchangeRate(exchangeValue)
+            setUsername(await user.get('alias'))
+            setAcctType(await getAcctType(acctType))
+            const UTXO = await getAddressUTXO(user.is.pub);
+            setUserUTXO(UTXO[0])
+            setTotalUTXO(UTXO[1])
         }
         fetchData();
     }, [])
-    useEffect(() => {
-        Object.values(UTXO).forEach(utxo => {
-            if (utxo[address] !== undefined) {
-                setMyUTXO(myUTXO => [...myUTXO, {
-                    hash: utxo['hash'],
-                    amount: utxo[address].amount
-                }])
-                setTotalUTXO(totalUTXO => totalUTXO + utxo[address].amount)
-            }
-        })
-    }, [address])
 
     useEffect(() => {
         if (exchangeRate !== null) {
@@ -160,7 +152,12 @@ function Dashboard({ user }) {
                 </div>
             </TabPanel>
             <TabPanel value={value} index={1} className='tabPanel'>
-                <MyTransactions UTXO={myUTXO} />
+                <MyTransactions UTXO={
+                    Object.keys(userUTXO).map(key => ({
+                        hash: key,
+                        amount: userUTXO[key]
+                    }))
+                } />
             </TabPanel>
 
         </div>
