@@ -7,7 +7,6 @@ function Header() {
     const [headerClass, setHeaderClass] = useState("default");
 
     function handleHeader() {
-        console.log(headerClass)
         if (headerClass === "default") {
             setHeaderClass("responsive");
         } else {
@@ -23,7 +22,7 @@ function Header() {
                 <Link to='/blocks'>Blocks</Link>
                 <Link to='/unconfirmed-tx'>Mempool</Link>
                 <Link to='/miner'>MINERS</Link>
-                <a href="javascript:void(0);" className="icon" onClick={() => handleHeader()} >
+                <a className="icon" onClick={() => handleHeader()} >
                     <VscListFlat />
                 </a>
             </div>

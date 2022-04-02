@@ -73,11 +73,13 @@ function AllBlocks() {
                 <h4 style={{ textAlign: 'left', marginLeft: '5%' }}><FaCubes color={colors.link} /> Blocks</h4>
                 <table style={{ margin: 'auto', width: '90%' }}>
                     <thead>
-                        <th scope="col">Height</th>
-                        <th scope="col">Hash</th>
-                        <th scope="col">Timestamp</th>
-                        <th scope="col">Miner</th>
-                        <th scope="col">TX. Volume</th>
+                        <tr style={{ display: 'contents' }}>
+                            <th scope="col">Height</th>
+                            <th scope="col">Hash</th>
+                            <th scope="col">Timestamp</th>
+                            <th scope="col">Miner</th>
+                            <th scope="col">TX. Volume</th>
+                        </tr>
                     </thead>
 
                     <tbody>

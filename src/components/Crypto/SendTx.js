@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Select from 'react-select'
 import { selectTheme } from '../Others/Colors';
+import SendTxWallet from './SendTxWallet';
 
 //UTXO[tid][address]
 const myUTXO = [
@@ -26,6 +27,7 @@ function SendTx() {
     const [fee, setFee] = useState(0);
     const [ipUTXOamount, setIpUTXOamount] = useState(0);
     const [showSendButton, setShowSendButton] = useState(false);
+    const [sendMethod, setSendMethod] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -51,52 +53,69 @@ function SendTx() {
     }
 
     return (
-        <form onSubmit={sendTx} className='container'>
-            <h4>Send SC</h4>
-            <div className='form-field'>
-                <label>Address</label>
-                <input type='text' value={address}
-                    onChange={(e) => setAddress(e.target.value)} required readOnly={loading} />
-            </div>
-            <div className='form-field'>
-                <label>Amount</label>
-                <input type='number' value={amount}
-                    onChange={(e) => setAmount(+e.target.value)} required readOnly={loading} />
-            </div>
-            <div className='form-field'>
-                <label>Fee</label>
-                <input type={'number'} value={fee}
-                    onChange={(e) => setFee(+e.target.value)} required readOnly={loading} />
-            </div>
-            <div className='form-field'
-                style={{ display: 'flex', flexDirection: 'column', width: '100%', textAlign: 'left' }}>
-                <label>Inputs</label>
-                <Select theme={selectTheme}
-                    isDisabled={loading}
-                    value={ipUTXO} onChange={(e) => handleInputs(e)}
-                    isMulti
-                    className='utxo-list'
-                    options={ipUTXOamount >= amount + fee ? [] : myUTXO}
-                    noOptionsMessage={() => {
-                        return ipUTXOamount >= amount + fee
-                            ? 'Required input amount reached'
-                            : 'No UTXO found';
-                    }}
-                    getOptionLabel={e => e.hash}
-                    getOptionValue={e => e.amount}
-                    placeholder='Select inputs' />
-            </div>
-            <div className='btn-div'>
-                {showSendButton && (amount > 0) ?
-                    loading ?
-                        <div className='loader'></div>
-                        : <button>Send</button> :
-                    <span style={{ fontSize: 18 }}>Please select inputs to proceed</span>}
-            </div>
-            <div className='btn-div' style={{ fontSize: 28 }}>
-                - Manual method -
-            </div>
-        </form>
+        <>
+            {sendMethod === '' ?
+                <div className='container'>
+                    Select send method
+                    <br />
+                    <select value='' onChange={(e) => setSendMethod(e.target.value)}>
+                        <option value='' disabled>Send method ?</option>
+                        <option value='wallet'>Wallet</option>
+                        <option value='manual'>Manual</option>
+                    </select>
+                </div>
+                :
+                sendMethod === 'manual' ?
+                    <form onSubmit={sendTx} className='container'>
+                        <h4>Send SC</h4>
+                        <div className='form-field'>
+                            <label>Address</label>
+                            <input type='text' value={address}
+                                onChange={(e) => setAddress(e.target.value)} required readOnly={loading} />
+                        </div>
+                        <div className='form-field'>
+                            <label>Amount</label>
+                            <input type='number' value={amount}
+                                onChange={(e) => setAmount(+e.target.value)} required readOnly={loading} />
+                        </div>
+                        <div className='form-field'>
+                            <label>Fee</label>
+                            <input type={'number'} value={fee}
+                                onChange={(e) => setFee(+e.target.value)} required readOnly={loading} />
+                        </div>
+                        <div className='form-field'
+                            style={{ display: 'flex', flexDirection: 'column', width: '100%', textAlign: 'left' }}>
+                            <label>Inputs</label>
+                            <Select theme={selectTheme}
+                                isDisabled={loading}
+                                value={ipUTXO} onChange={(e) => handleInputs(e)}
+                                isMulti
+                                className='utxo-list'
+                                options={ipUTXOamount >= amount + fee ? [] : myUTXO}
+                                noOptionsMessage={() => {
+                                    return ipUTXOamount >= amount + fee
+                                        ? 'Required input amount reached'
+                                        : 'No UTXO found';
+                                }}
+                                getOptionLabel={e => e.hash}
+                                getOptionValue={e => e.amount}
+                                placeholder='Select inputs' />
+                        </div>
+                        <div className='btn-div'>
+                            {showSendButton && (amount > 0) ?
+                                loading ?
+                                    <div className='loader'></div>
+                                    : <button>Send</button> :
+                                <span style={{ fontSize: 18 }}>Please select inputs to proceed</span>}
+                        </div>
+                        <div className='btn-div' style={{ fontSize: 28 }}>
+                            - Manual method -
+                        </div>
+                    </form>
+                    :
+                    <SendTxWallet />
+            }
+        </>
     )
 }
 export default SendTx

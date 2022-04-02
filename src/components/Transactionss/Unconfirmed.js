@@ -142,11 +142,13 @@ function UnconfirmedTX({ user, gun }) {
 
                     <table style={{ margin: 'auto', width: '90%' }}>
                         <thead>
-                            <th scope="col">Hash</th>
-                            <th scope="col">Timestamp</th>
-                            <th scope="col">Amount</th>
-                            <th scope="col">Fee</th>
-                            {acctType === AUTHORIZED_TYPE ? <th scope="col">CB</th> : null}
+                            <tr style={{ display: 'contents' }}>
+                                <th scope="col">Hash</th>
+                                <th scope="col">Timestamp</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Fee</th>
+                                {acctType === AUTHORIZED_TYPE ? <th scope="col">CB</th> : null}
+                            </tr>
                         </thead>
 
                         <tbody>

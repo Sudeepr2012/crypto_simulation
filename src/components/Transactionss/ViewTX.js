@@ -66,63 +66,57 @@ function ViewTX() {
         <div style={{ width: '1800px', maxWidth: '90%' }}>
             <ToastContainer />
             <h4 style={{ textAlign: 'left' }}><FaReceipt color={colors.link} /> Transaction Details</h4>
-            <table>
-                <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                    <tr><td>Hash</td> <td>{tx.hash} <FaCopy
-                        onClick={() => {
-                            navigator.clipboard.writeText(tx.hash)
-                            notify('Hash')
-                        }} /></td></tr>
-                    <tr><td>Time</td> <td>{tx.time}</td></tr>
-                    <tr><td>Status</td> <td
-                        style={{
-                            color: tx.status === 'Unconfirmed' ? 'yellow' : '#76ff76'
-                        }}>{tx.status}</td></tr>
-                    <tr> <td>Block</td>
-                        {!isNaN(tx.block) ?
-                            <td><Link to={`/block/${tx.block}`}>#{tx.block}</Link></td>
-                            :
-                            <td>{tx.block}</td>
-                        }
-                    </tr>
-                    <tr> <td>Confirmations</td> <td>
-                        {!isNaN(tx.block) ? ((blockHeigth - tx.block) + 1) : 0}</td></tr>
-                    <tr><td>Total Input</td> <td>{tx.totalIP} SC</td></tr>
-                    <tr><td>Total Output</td> <td>{tx.totalOP} SC</td></tr>
-                    <tr><td>Fee</td> <td>{tx.fee} SC</td></tr>
-                    <tr><td>Value</td> <td>{tx.value}</td></tr>
-                </div>
+            <table style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                <tr><td>Hash</td><td>{tx.hash} <FaCopy
+                    onClick={() => {
+                        navigator.clipboard.writeText(tx.hash)
+                        notify('Hash')
+                    }} /></td></tr>
+                <tr><td>Time</td><td>{tx.time}</td></tr>
+                <tr><td>Status</td><td
+                    style={{
+                        color: tx.status === 'Unconfirmed' ? 'yellow' : '#76ff76'
+                    }}>{tx.status}</td></tr>
+                <tr> <td>Block</td>
+                    {!isNaN(tx.block) ?
+                        <td><Link to={`/block/${tx.block}`}>#{tx.block}</Link></td>
+                        :
+                        <td>{tx.block}</td>
+                    }
+                </tr>
+                <tr><td>Confirmations</td>
+                    <td>{!isNaN(tx.block) ? ((blockHeigth - tx.block) + 1) : 0}</td></tr>
+                <tr><td>Total Input</td><td>{tx.totalIP} SC</td></tr>
+                <tr><td>Total Output</td><td>{tx.totalOP} SC</td></tr>
+                <tr><td>Fee</td><td>{tx.fee} SC</td></tr>
+                <tr><td>Value</td><td>{tx.value}</td></tr>
             </table>
 
             <h4 style={{ textAlign: 'left' }}>Inputs</h4>
-            <table>
-                {tx.inputs.map((transaction, index) => (
-                    <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                        <tr><td>Index</td> <td>{index}</td></tr>
-                        <tr><td>Address</td> <td>{UTXO[transaction].address} <FaCopy
-                            onClick={() => {
-                                navigator.clipboard.writeText(UTXO[transaction].address)
-                                notify('Address')
-                            }} /></td></tr>
-                        <tr><td>Output</td> <td>{UTXO[transaction].amount}</td></tr>
-                    </div>
-                ))}
-            </table>
+            {tx.inputs.map((transaction, index) => (
+                <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                    <tr><td>Index</td> <td>{index}</td></tr>
+                    <tr><td>Address</td> <td>{UTXO[transaction].address} <FaCopy
+                        onClick={() => {
+                            navigator.clipboard.writeText(UTXO[transaction].address)
+                            notify('Address')
+                        }} /></td></tr>
+                    <tr><td>Output</td> <td>{UTXO[transaction].amount}</td></tr>
+                </table>
+            ))}
 
             <h4 style={{ textAlign: 'left' }}>Outputs</h4>
-            <table>
-                {tx.outputs.map((transaction, index) => (
-                    <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                        <tr><td>Index</td> <td>{index}</td></tr>
-                        <tr><td>Address</td> <td>{transaction.address} <FaCopy
-                            onClick={() => {
-                                navigator.clipboard.writeText(transaction.address)
-                                notify('Address')
-                            }} /></td></tr>
-                        <tr><td>Output</td> <td>{transaction.amount}</td></tr>
-                    </div>
-                ))}
-            </table>
+            {tx.outputs.map((transaction, index) => (
+                <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                    <tr><td>Index</td> <td>{index}</td></tr>
+                    <tr><td>Address</td> <td>{transaction.address} <FaCopy
+                        onClick={() => {
+                            navigator.clipboard.writeText(transaction.address)
+                            notify('Address')
+                        }} /></td></tr>
+                    <tr><td>Output</td> <td>{transaction.amount}</td></tr>
+                </table>
+            ))}
         </div>
     )
 }

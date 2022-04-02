@@ -80,22 +80,28 @@ ReactDOM.render(
 
 
 function MyRoutes() {
+  const defaultScreen = <App user={user} />
   return (
     <Routes>
       <Route exact path="/" element={<App user={user} />} />
       <Route path="/login" element={<Login user={user} gun={gun} />} />
       <Route path="/join" element={<SignUp user={user} gun={gun} />} />
-      <Route path="/me/block" element={<CandidateBlock user={user} gun={gun} />} />
-      <Route path="/miner" element={<ValidateBlock />} />
-      <Route path="/dashboard" element={<Dashboard user={user} />} />
-      <Route path="/send" element={<SendTx />} />
-
       <Route path="/blocks" element={<AllBlocks />} />
       <Route path="/block/:bHeight" element={<ViewBlock />} />
       <Route path="/unconfirmed-tx" element={<UnconfirmedTX user={user} gun={gun} />} />
       <Route path="/tx/:txHash" element={<ViewTX />} />
       <Route path="/address/:address" element={<ViewAddress />} />
 
+      {user.is ?
+        <>
+          <Route path="/me/block" element={<CandidateBlock user={user} gun={gun} />} />
+          <Route path="/miner" element={<ValidateBlock />} />
+          <Route path="/dashboard" element={<Dashboard user={user} />} />
+          <Route path="/send" element={<SendTx />} />
+        </>
+        :
+        null
+      }
       <Route path="*" element={<App user={user} />} />
     </Routes>
   )

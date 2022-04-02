@@ -73,52 +73,48 @@ function ViewBlock() {
         <div style={{ width: '1800px', maxWidth: '90%' }}>
             <ToastContainer />
             <h4 style={{ textAlign: 'left' }}><IoMdCube color={colors.link} /> Block #{bHeight}</h4>
-            <table>
-                <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                    <tr><td>Hash</td> <td>{block.hash} <FaCopy
-                        onClick={() => {
-                            navigator.clipboard.writeText(block.hash)
-                            notify('Hash')
-                        }} /></td></tr>
-                    <tr><td>Confirmations</td> <td>8</td></tr>
-                    <tr> <td>Height</td>
-                        <td><Link to={`/block/${block.height}`}>#{block.height}</Link></td>
-                    </tr>
-                    <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
-                    <tr><td>Miner</td> <td>{block.miner.name}</td></tr>
-                    <tr><td>Nonce</td> <td>{block.nonce}</td></tr>
-                    <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
-                    <tr><td>Merkle Root</td> <td>{block.merkleRoot}</td></tr>
-                    <tr><td>No. of Transactions</td> <td>{block.transactions.length}</td></tr>
-                    <tr><td>Transaction Volume</td> <td>{block.txVolume} SC</td></tr>
-                    <tr><td>Block Reward</td> <td>{block.blockReward} SC</td></tr>
-                    <tr><td>Fee Reward</td> <td>{block.feeReward} SC</td></tr>
-                </div>
+            <table style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                <tr><td>Hash</td> <td>{block.hash} <FaCopy
+                    onClick={() => {
+                        navigator.clipboard.writeText(block.hash)
+                        notify('Hash')
+                    }} /></td></tr>
+                <tr><td>Confirmations</td> <td>8</td></tr>
+                <tr> <td>Height</td>
+                    <td><Link to={`/block/${block.height}`}>#{block.height}</Link></td>
+                </tr>
+                <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
+                <tr><td>Miner</td> <td>{block.miner.name}</td></tr>
+                <tr><td>Nonce</td> <td>{block.nonce}</td></tr>
+                <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
+                <tr><td>Merkle Root</td> <td>{block.merkleRoot}</td></tr>
+                <tr><td>No. of Transactions</td> <td>{block.transactions.length}</td></tr>
+                <tr><td>Transaction Volume</td> <td>{block.txVolume} SC</td></tr>
+                <tr><td>Block Reward</td> <td>{block.blockReward} SC</td></tr>
+                <tr><td>Fee Reward</td> <td>{block.feeReward} SC</td></tr>
             </table>
             <h4 style={{ textAlign: 'left' }}>Block Transactions</h4>
-            <table>
-                {transactions.map((transaction, index) => (
-                    <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                        <tr><td>Hash</td> <td><Link to={`/tx/${transaction.hash}`}>{transaction.hash}</Link> <FaCopy
-                            onClick={() => {
-                                navigator.clipboard.writeText(transaction.hash)
-                                notify('Hash')
-                            }} /></td></tr>
-                        <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
-                        <tr><td>Fee</td> <td>{transaction.fee} SC</td></tr>
-                        <tr><td>From</td> <td>{transaction.from} <FaCopy
-                            onClick={() => {
-                                navigator.clipboard.writeText(transaction.from)
-                                notify('Address')
-                            }} /></td></tr>
-                        <tr><td>To</td> <td>{transaction.to} <FaCopy
-                            onClick={() => {
-                                navigator.clipboard.writeText(transaction.to)
-                                notify('Address')
-                            }} /></td></tr>
-                    </div>
-                ))}
-            </table>
+            {transactions.map((transaction, index) => (
+                <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                    <tr><td>Hash</td> <td><Link to={`/tx/${transaction.hash}`}>{transaction.hash}</Link> <FaCopy
+                        onClick={() => {
+                            navigator.clipboard.writeText(transaction.hash)
+                            notify('Hash')
+                        }} /></td></tr>
+                    <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
+                    <tr><td>Fee</td> <td>{transaction.fee} SC</td></tr>
+                    <tr><td>From</td> <td>{transaction.from} <FaCopy
+                        onClick={() => {
+                            navigator.clipboard.writeText(transaction.from)
+                            notify('Address')
+                        }} /></td></tr>
+                    <tr><td>To</td> <td>{transaction.to} <FaCopy
+                        onClick={() => {
+                            navigator.clipboard.writeText(transaction.to)
+                            notify('Address')
+                        }} /></td></tr>
+                </table>
+            ))}
         </div>
     )
 }

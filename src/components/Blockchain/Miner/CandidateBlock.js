@@ -259,17 +259,15 @@ function CandidateBlock({ user, gun }) {
                         </div>
 
                         <div className='form-field'>
-                            <table style={{ fontSize: 16 }}>
-                                <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
-                                    <tr><td>Prev. Hash</td> <td>{candidateBlock.prevHash}</td></tr>
-                                    <tr><td>Difficulty</td> <td>{difficulty}</td></tr>
-                                    <tr><td>Merkle Root</td> <td>{candidateBlock.merkleRoot}</td></tr>
-                                    <tr><td>Hash (POW)</td> <td>{autoMining ?
-                                        <div className='loader'
-                                            style={{ width: 20, height: 20 }}></div>
-                                        :
-                                        candidateBlock.hash}</td></tr>
-                                </div>
+                            <table style={{ fontSize: 16, textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
+                                <tr><td>Prev. Hash</td> <td>{candidateBlock.prevHash}</td></tr>
+                                <tr><td>Difficulty</td> <td>{difficulty}</td></tr>
+                                <tr><td>Merkle Root</td> <td>{candidateBlock.merkleRoot}</td></tr>
+                                <tr><td>Hash (POW)</td> <td>{autoMining ?
+                                    <div className='loader'
+                                        style={{ width: 20, height: 20 }}></div>
+                                    :
+                                    candidateBlock.hash}</td></tr>
                             </table>
                         </div>
                         <div className='form-field'>
@@ -284,7 +282,7 @@ function CandidateBlock({ user, gun }) {
                                             <tr><td>Fee Reward</td> <td>{blockCBTx[0].fee} SC</td></tr>
                                         </div>
                                         {blockTx.map((transaction, index) => (
-                                            <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
+                                            <div key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
                                                 <tr><td>Hash</td> <td>{transaction}</td></tr>
                                                 {/* <tr><td>Fee</td> <td>{transaction.amount} SC</td></tr> */}
                                             </div>

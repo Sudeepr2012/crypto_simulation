@@ -80,43 +80,41 @@ function ValidateBlock() {
         <div style={{ width: '1800px', maxWidth: '90%' }}>
             <ToastContainer />
             <h4 style={{ textAlign: 'left' }}>Pending Blocks</h4>
-            <table>
-                {blocks.map((block, index) => (
-                    <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                        <tr><td>Block</td> <td>#{block.heigth}</td></tr>
-                        <tr><td>Hash</td> <td>{block.hash}</td></tr>
-                        <tr><td>Previous Hash</td> <td><Link to={`/block/${block.heigth - 1}`}>{block.prevHash}</Link></td></tr>
-                        <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
-                        <tr><td>Transactions</td> <td>
-                            {block.transactions.map((tx, ind) => (
-                                <tr>
-                                    <Link to={`/tx/${tx}`}>{tx}</Link>
-                                </tr>
-                            ))}
-                        </td></tr>
-                        <tr><td>Nonce</td> <td>{block.nonce}</td></tr>
-                        <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
-                        <tr><td>Miner</td> <td>{block.miner.name}</td></tr>
+            {blocks.map((block, index) => (
+                <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                    <tr><td>Block</td> <td>#{block.heigth}</td></tr>
+                    <tr><td>Hash</td> <td>{block.hash}</td></tr>
+                    <tr><td>Previous Hash</td> <td><Link to={`/block/${block.heigth - 1}`}>{block.prevHash}</Link></td></tr>
+                    <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
+                    <tr><td>Transactions</td> <td>
+                        {block.transactions.map((tx, ind) => (
+                            <div key={ind}>
+                                <Link to={`/tx/${tx}`}>{tx}</Link>
+                            </div>
+                        ))}
+                    </td></tr>
+                    <tr><td>Nonce</td> <td>{block.nonce}</td></tr>
+                    <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
+                    <tr><td>Miner</td> <td>{block.miner.name}</td></tr>
 
-                        {validateLoading[index] ?
-                            <div className="loader"></div>
-                            :
-                            <tr>
-                                <td><button style={{ background: '#00cb00' }}
-                                    onClick={() => setValidateLoading(validateLoading => ({
-                                        ...validateLoading,
-                                        [index]: true
-                                    }))}>Valid</button></td>
-                                <td><button style={{ background: 'red' }}
-                                    onClick={() => setValidateLoading(validateLoading => ({
-                                        ...validateLoading,
-                                        [index]: true
-                                    }))}>Invalid</button></td>
-                            </tr>
-                        }
-                    </div>
-                ))}
-            </table>
+                    {validateLoading[index] ?
+                        <div className="loader"></div>
+                        :
+                        <tr>
+                            <td><button style={{ background: '#00cb00' }}
+                                onClick={() => setValidateLoading(validateLoading => ({
+                                    ...validateLoading,
+                                    [index]: true
+                                }))}>Valid</button></td>
+                            <td><button style={{ background: 'red' }}
+                                onClick={() => setValidateLoading(validateLoading => ({
+                                    ...validateLoading,
+                                    [index]: true
+                                }))}>Invalid</button></td>
+                        </tr>
+                    }
+                </table>
+            ))}
         </div>
     )
 }

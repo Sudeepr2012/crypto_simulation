@@ -55,22 +55,22 @@ function Dashboard({ user }) {
     const [amount, setAmount] = useState('');
     const [userUTXO, setUserUTXO] = useState({});
     const [totalUTXO, setTotalUTXO] = useState(0);
+    const [loading, setLoading] = useState(true);
     const [value, setValue] = useState(0);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
-    // useEffect(() => {
-    //     if (user.is) {
-    //         if (acctType === true || acctType === false) {
-    //             updateDet();
-    //         }
-    //     }
-    //     async function updateDet() {
-    //         setAcctType(await getAcctType(acctType))
-    //     }
-    // }, [acctType])
+    useEffect(() => {
+        if (acctType === true || acctType === false)
+            updateDet();
+
+        async function updateDet() {
+            setAcctType(await getAcctType(acctType))
+        }
+
+    }, [acctType])
 
     useEffect(() => {
         async function fetchData() {
@@ -78,7 +78,6 @@ function Dashboard({ user }) {
             const exchangeValue = await getExchange.json()
             setExchangeRate(exchangeValue)
             setUsername(await user.get('alias'))
-            setAcctType(await getAcctType(acctType))
             const UTXO = await getAddressUTXO(user.is.pub);
             setUserUTXO(UTXO[0])
             setTotalUTXO(UTXO[1])
@@ -90,6 +89,7 @@ function Dashboard({ user }) {
         if (exchangeRate !== null) {
             // Object.values(exchangeRate).forEach(exRate => (console.log(exRate)))
             changeCurrency('inr')
+            setLoading(false)
         }
     }, [exchangeRate])
 
@@ -111,56 +111,73 @@ function Dashboard({ user }) {
         progress: undefined,
     });
 
+    function logout() {
+        setLoading(true)
+        user.leave().then(() => {
+            window.location.href = '/';
+        })
+    }
     return (
-        <div className='container' style={{ width: '1800px' }}>
-            <h4>{username}</h4>
-            <ToastContainer />
-            <Box display="flex" justifyContent="center" width="100%">
-                <Tabs value={value} onChange={handleChange}
-                    TabIndicatorProps={{ style: { backgroundColor: "white" } }}
-                    variant="scrollable"
-                    scrollButtons="auto"
-                    allowScrollButtonsMobile
-                    aria-label="scrollable force tabs example"
-                    centered
-                >
-                    <Tab label="Wallet" />
-                    <Tab label="Transactions" />
-                </Tabs>
-            </Box>
-            <TabPanel value={value} index={0} className='tabPanel'>
-                <div style={{ width: '100%' }}>
-                    <select style={{ maxWidth: 80, float: 'right' }}
-                        value={currency} onChange={(e) => {
-                            setCurrency(e.target.value)
-                            changeCurrency(e.target.value)
-                        }
-                        }>
-                        <option value={'inr'}>INR</option>
-                        <option value={'usd'}>USD</option>
-                    </select>
-                </div>
-                <br />
-                <div style={{ textAlign: 'left' }}>
-                    <b>Type</b>: {acctType}<br />
-                    <b>SudoCoin</b>: {totalUTXO}<GiTwoCoins /><br />
-                    <b>Amount</b>: {amount}<br />
-                    <b>Address</b>: <FaCopy onClick={() => {
-                        navigator.clipboard.writeText(address)
-                        notify()
-                    }} /><br />
-                </div>
-            </TabPanel>
-            <TabPanel value={value} index={1} className='tabPanel'>
-                <MyTransactions UTXO={
-                    Object.keys(userUTXO).map(key => ({
-                        hash: key,
-                        amount: userUTXO[key]
-                    }))
-                } />
-            </TabPanel>
+        <>
+            <div className='container' style={{ width: '1800px' }}>
+                {loading ?
+                    <center><div className='loader'></div></center>
+                    :
+                    <>
+                        <h4>{username}</h4>
+                        <ToastContainer />
+                        <Box display="flex" justifyContent="center" width="100%">
+                            <Tabs value={value} onChange={handleChange}
+                                TabIndicatorProps={{ style: { backgroundColor: "white" } }}
+                                variant="scrollable"
+                                scrollButtons="auto"
+                                allowScrollButtonsMobile
+                                aria-label="scrollable force tabs example"
+                                centered
+                            >
+                                <Tab label="Wallet" />
+                                <Tab label="Transactions" />
+                            </Tabs>
+                        </Box>
+                        <TabPanel value={value} index={0} className='tabPanel'>
+                            <div style={{ width: '100%' }}>
+                                <select style={{ maxWidth: 80, float: 'right' }}
+                                    value={currency} onChange={(e) => {
+                                        setCurrency(e.target.value)
+                                        changeCurrency(e.target.value)
+                                    }
+                                    }>
+                                    <option value={'inr'}>INR</option>
+                                    <option value={'usd'}>USD</option>
+                                </select>
+                            </div>
+                            <br />
+                            <div style={{ textAlign: 'left' }}>
+                                <b>Type</b>: {acctType}<br />
+                                <b>SudoCoin</b>: {totalUTXO}<GiTwoCoins /><br />
+                                <b>Amount</b>: {amount}<br />
+                                <b>Address</b>: <FaCopy onClick={() => {
+                                    navigator.clipboard.writeText(address)
+                                    notify()
+                                }} /><br />
+                            </div>
+                        </TabPanel>
+                        <TabPanel value={value} index={1} className='tabPanel'>
+                            <MyTransactions UTXO={
+                                Object.keys(userUTXO).map(key => ({
+                                    hash: key,
+                                    amount: userUTXO[key]
+                                }))
+                            } />
+                        </TabPanel>
 
-        </div>
+                    </>
+                }
+            </div>
+            <br />
+            <button style={{ background: 'red' }}
+                onClick={() => logout()}>Logout</button>
+        </>
     )
 }
 export default Dashboard;

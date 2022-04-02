@@ -7,7 +7,7 @@ function App({ user }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user.is !== undefined)
+    if (user.is)
       navigate("/dashboard");
   }, [])
 
