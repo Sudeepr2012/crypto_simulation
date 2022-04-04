@@ -10,7 +10,6 @@ const SHA256 = require("crypto-js/sha256");
 const difficulty = 4;
 const blockReward = 10;
 
-
 const notify = (msg) => toast(msg, {
     position: "top-right",
     autoClose: 3000,
@@ -30,7 +29,7 @@ function CandidateBlock({ user, gun }) {
     const [autoMiningEnd, setAutoMiningEnd] = useState(0);
     const [nonce, setNonce] = useState(0);
     const [blockTx, setBlockTx] = useState(null);
-    const [blockCBTx, setBlockCBTx] = useState([]);
+    const [blockCBTx, setBlockCBTx] = useState({});
     const [acctType, setAcctType] = useState(false);
     const [showSubmitButton, setShowSubmitButton] = useState(false);
     const [candidateBlock, setCandidateBlock] = useState(null);
@@ -92,7 +91,7 @@ function CandidateBlock({ user, gun }) {
             setShowSubmitButton(true)
             setAutoMining(false)
         }
-    }, [nonce, blockTx])
+    }, [nonce])
 
     useEffect(() => {
         if (autoMining) {
@@ -137,55 +136,50 @@ function CandidateBlock({ user, gun }) {
 
     async function createBlock() {
         const timestamp = +new Date();
-        gun.get('blockchain').once((blocks) => {
+        gun.get('blockchain').once(async (blocks) => {
             let tempCoinBaseHash = SHA256(blockReward + timestamp + user.is.pub).toString();
+            const username = await user.get('alias');
             if (blocks !== undefined) {
                 let prevHash, height;
                 gun.get('blockchain').get(Object.keys(blocks).length - 2).once((val) => {
                     prevHash = val.hash;
                     height = Object.keys(blocks).length - 1;
                 }).then(() => {
+                    let tempCB = {
+                        timestamp: timestamp,
+                        hash: '',
+                        prevHash: prevHash,
+                        height: height,
+                        difficulty: difficulty,
+                        miner: username,
+                        merkleRoot: '',
+                        tempCoinBaseHash: tempCoinBaseHash,
+                    }
                     gun.get('miners').get(user.is.pub).put({
-                        candidateBlock: {
-                            timestamp: timestamp,
-                            hash: '',
-                            prevHash: prevHash,
-                            height: height,
-                            merkleRoot: '',
-                            tempCoinBaseHash: tempCoinBaseHash
-                        },
+                        candidateBlock: tempCB
                     }).then(() => {
                         notify('Block created!')
-                        setCandidateBlock({
-                            timestamp: timestamp,
-                            transactions: {},
-                            hash: '',
-                            prevHash: prevHash,
-                            height: height,
-                            merkleRoot: '',
-                            tempCoinBaseHash: tempCoinBaseHash
-                        })
+                        tempCB.transactions = {}
+                        setCandidateBlock(tempCB)
                     })
                 })
             } else {
+                let tempCB = {
+                    timestamp: timestamp,
+                    hash: '',
+                    prevHash: '0000000000000000000000000000000000000000000000000000000000000000',
+                    height: 0,
+                    difficulty: difficulty,
+                    miner: username,
+                    merkleRoot: '',
+                    tempCoinBaseHash: tempCoinBaseHash
+                }
                 gun.get('miners').get(user.is.pub).put({
-                    candidateBlock: {
-                        timestamp: timestamp,
-                        hash: '',
-                        prevHash: '0000000000000000000000000000000000000000000000000000000000000000',
-                        merkleRoot: '',
-                        tempCoinBaseHash: tempCoinBaseHash
-                    },
+                    candidateBlock: tempCB
                 }).then(() => {
                     notify('Block created!')
-                    setCandidateBlock({
-                        timestamp: timestamp,
-                        transactions: {},
-                        hash: '',
-                        prevHash: '0000000000000000000000000000000000000000000000000000000000000000',
-                        merkleRoot: '',
-                        tempCoinBaseHash: tempCoinBaseHash
-                    })
+                    tempCB.transactions = {}
+                    setCandidateBlock(tempCB)
                 })
             }
 
@@ -200,13 +194,13 @@ function CandidateBlock({ user, gun }) {
             blockTx.map((bTx) => {
                 gun.get('mempool').get(bTx).once((val) => feeReward += val.fee)
             })
-            setBlockCBTx(blockCBTx => [...blockCBTx, {
+            setBlockCBTx({
                 hash: candidateBlock.tempCoinBaseHash,
                 fee: feeReward,
                 reward: feeReward + blockReward,
                 timestamp: +new Date(),
                 to: user.is.pub
-            }]);
+            });
             return
         }
         if (tx.length % 2 !== 0)
@@ -231,6 +225,23 @@ function CandidateBlock({ user, gun }) {
     function BroadcastBlock(e) {
         e.preventDefault();
         setLoading(true)
+        let tempCB = candidateBlock;
+        delete tempCB.tempCoinBaseHash;
+        tempCB.coinBase = blockCBTx;
+        tempCB.transactions = Object.assign({}, blockTx);
+        tempCB.accepted = {
+            // [user.is.pub] : true
+        };
+        tempCB.rejected = {};
+        console.log(tempCB)
+        gun.get('pending-blocks').put({ [tempCB.hash]: tempCB }).then(() => {
+            gun.get('miners').get(user.is.pub).put({
+                candidateBlock: null
+            }).then(() => {
+                console.log('Block broadcast successful!')
+                setLoading(false)
+            })
+        })
     }
 
     return (
@@ -249,7 +260,7 @@ function CandidateBlock({ user, gun }) {
                         backgroundColor: blockIsValid ? '' : '#6c3c3c'
                     }}>
                         <div style={{ width: '100%', display: 'flex' }}>
-                            <h4 style={{ textAlign: 'left', flex: 1 }}>Block #14</h4>
+                            <h4 style={{ textAlign: 'left', flex: 1 }}>Block #{candidateBlock.height}</h4>
                             <div style={{ display: 'inline-grid', justifyContent: 'center', alignContent: 'center' }}>
                                 <h4 style={{ textAlign: 'right', fontSize: 20, margin: 0 }}>
                                     <GiMiner color='#e5f9ff' /> Mining Duration: {((autoMiningEnd - autoMiningStart) / 1000).toFixed(1)}s</h4>
@@ -274,13 +285,13 @@ function CandidateBlock({ user, gun }) {
                             <label>Transactions</label>
 
                             <table style={{ fontSize: 16 }}>
+                                <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
+                                    <tr><td>Hash</td> <td>{blockCBTx.hash}</td></tr>
+                                    <tr><td>Block Reward</td> <td>{blockCBTx.reward} SC</td></tr>
+                                    <tr><td>Fee Reward</td> <td>{blockCBTx.fee} SC</td></tr>
+                                </div>
                                 {blockTx.length > 0 ?
                                     <>
-                                        <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
-                                            <tr><td>Hash</td> <td>{blockCBTx[0].hash}</td></tr>
-                                            <tr><td>Block Reward</td> <td>{blockCBTx[0].reward} SC</td></tr>
-                                            <tr><td>Fee Reward</td> <td>{blockCBTx[0].fee} SC</td></tr>
-                                        </div>
                                         {blockTx.map((transaction, index) => (
                                             <div key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
                                                 <tr><td>Hash</td> <td>{transaction}</td></tr>
@@ -291,45 +302,42 @@ function CandidateBlock({ user, gun }) {
                                     </>
                                     :
                                     <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
-                                        <tr>Block has no transaction,&nbsp;<Link to={'/unconfirmed-tx'}>add now</Link></tr>
+                                        <tr>Block has no other transaction,&nbsp;<Link to={'/unconfirmed-tx'}>add now</Link></tr>
                                     </div>
                                 }
                             </table>
 
                         </div>
-                        {blockTx.length > 0 ?
-                            <>
-                                <div className='form-field'>
-                                    <label>Nonce</label>
-                                    <input type={'number'} value={nonce}
-                                        onChange={(e) => setNonce(+e.target.value)} required readOnly={loading} />
-                                </div>
-                                <div className='btn-div'>
-                                    {showSubmitButton ?
-                                        loading ?
-                                            <div className='loader'></div>
-                                            : <button disabled={!blockIsValid}
-                                                style={{ background: blockIsValid ? colors.lighter : '' }}>Broadcast</button>
-                                        :
-                                        <center>
-                                            <div style={{ fontStyle: 'italic', fontSize: 18 }}>
-                                                {autoMining ? 'Mining...' : 'Block invalid'}</div></center>}
-                                </div>
-                                <div className='btn-div'>
-                                    {autoMining ?
-                                        <center><div className='loader'></div>
-                                        </center>
-                                        :
-                                        <GiMiner
-                                            onClick={() => {
-                                                setAutoMining(true)
-                                            }}
-                                            color='#e5f9ff' size={40} />}
-                                </div>
-                            </>
-                            :
-                            null
-                        }
+
+
+                        <div className='form-field'>
+                            <label>Nonce</label>
+                            <input type={'number'} value={nonce}
+                                onChange={(e) => setNonce(+e.target.value)} required readOnly={loading} />
+                        </div>
+                        <div className='btn-div'>
+                            {showSubmitButton ?
+                                loading ?
+                                    <div className='loader'></div>
+                                    : <button disabled={!blockIsValid}
+                                        style={{ background: blockIsValid ? colors.lighter : '' }}>Broadcast</button>
+                                :
+                                <center>
+                                    <div style={{ fontStyle: 'italic', fontSize: 18 }}>
+                                        {autoMining ? 'Mining...' : 'Block invalid'}</div></center>}
+                        </div>
+                        <div className='btn-div'>
+                            {autoMining ?
+                                <center><div className='loader'></div>
+                                </center>
+                                :
+                                <GiMiner
+                                    onClick={() => {
+                                        setAutoMining(true)
+                                    }}
+                                    color='#e5f9ff' size={40} />}
+                        </div>
+
                     </form>
             }
         </>

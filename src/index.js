@@ -95,7 +95,7 @@ function MyRoutes() {
       {user.is ?
         <>
           <Route path="/me/block" element={<CandidateBlock user={user} gun={gun} />} />
-          <Route path="/miner" element={<ValidateBlock />} />
+          <Route path="/miner" element={<ValidateBlock user={user} gun={gun} />} />
           <Route path="/dashboard" element={<Dashboard user={user} />} />
           <Route path="/send" element={<SendTx />} />
         </>
@@ -111,6 +111,8 @@ function PathTracker({ pathChangedFun }) {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    //no. of miners in our network
+    gun.get('miners').then((miners) => console.log(Object.keys(miners).length - 1))
     // console.log(user.is.pub)
     //  gun.user('9NVyZB3JLAywYsacGSJQFUBdEdS_ZyNRn4MresxbGzk.x89U95w2N2StV147jGtM2MV__4izDt2ZGpNuaeOeyqA').once((val, key) => console.log(val, key))
     // gun.user('7DTJkNatJMXqOqfAoLd9Gl02cQI1v75NXeKlXVHqNH4.ViTQrFuMqaZMb_FfZjihg24Cwj5DaqN72VnwuCdh5fw').once((val, key) => console.log(val, key))
