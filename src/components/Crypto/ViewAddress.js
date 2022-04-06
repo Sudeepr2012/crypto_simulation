@@ -79,12 +79,12 @@ function ViewAddress() {
                                 notify('Hash')
                             }} /></td></tr>
                         <tr><td>Timestamp</td> <td>{transaction.timestamp}</td></tr>
-                        <tr><td>From</td> <td>{transaction.from} <FaCopy
+                        <tr><td>From</td> <td><Link to={`/address/${transaction.from}`}>{transaction.from}</Link> <FaCopy
                             onClick={() => {
                                 navigator.clipboard.writeText(transaction.from)
                                 notify('Address')
                             }} /></td></tr>
-                        <tr><td>To</td> <td>{transaction.to} <FaCopy
+                        <tr><td>To</td> <td><Link to={`/address/${transaction.to}`}>{transaction.to}</Link> <FaCopy
                             onClick={() => {
                                 navigator.clipboard.writeText(transaction.to)
                                 notify('Address')

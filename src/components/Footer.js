@@ -44,7 +44,8 @@ function Footer() {
             </div>
             <div>B.Tech CSE (R18)<br />
                 IV Year, II Semester - 2022<br />
-                <b>©2022</b></div>
+                <b>©{new Date().getUTCFullYear()}</b>
+            </div>
         </footer>
     )
 }

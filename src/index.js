@@ -89,14 +89,14 @@ function MyRoutes() {
       <Route path="/blocks" element={<AllBlocks />} />
       <Route path="/block/:bHeight" element={<ViewBlock />} />
       <Route path="/unconfirmed-tx" element={<UnconfirmedTX user={user} gun={gun} />} />
-      <Route path="/tx/:txHash" element={<ViewTX />} />
+      <Route path="/tx/:txHash" element={<ViewTX gun={gun} />} />
       <Route path="/address/:address" element={<ViewAddress />} />
 
       {user.is ?
         <>
           <Route path="/me/block" element={<CandidateBlock user={user} gun={gun} />} />
           <Route path="/miner" element={<ValidateBlock user={user} gun={gun} />} />
-          <Route path="/dashboard" element={<Dashboard user={user} />} />
+          <Route path="/dashboard" element={<Dashboard user={user} gun={gun} />} />
           <Route path="/send" element={<SendTx />} />
         </>
         :

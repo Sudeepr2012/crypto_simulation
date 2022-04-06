@@ -13,40 +13,12 @@ import MyTransactions from './Transactionss/MyTransactions';
 import { colors } from './Others/Colors';
 import { getAcctType } from './Others/GetAcctType';
 import { getAddressUTXO } from './Blockchain/UTXO';
+import { getLastBlock } from './Blockchain/Blocks/GetLastBlock';
+import { calculateDate } from './Others/CalculateDate';
 
-//UTXO[tid][address]
-const UTXO = {
-    'tx-dkhfkhskfhskggmmhgjoh484hehe4rg': {
-        hash: 'tx-dkhfkhskfhskggmmhgjoh484hehe4rg',
-        'IcZUrC1er80KQ-BWwME8f096iczZTK5z83WsoA7UDrE.tPjQlWiR3lnNuQPJaM-KUsHotsbOORKppQS3JlKH2K0': {
-            amount: 124,
-        },
-        'osjsf34jw-4tnbk5hketgk487d8b9hfl5lll26if8b4l': {
-            amount: 20,
-        }
-    },
-    'tx-tl79jg5hk8reh3hdfjd90wpo5gd83s': {
-        hash: 'tx-tl79jg5hk8reh3hdfjd90wpo5gd83s',
-        'vvfhnfsgsfsddh-5e6yjfhsgfhgdsa56cchdfdyi674h': {
-            amount: 200,
-        },
-        'osjsf34jw-4tnbk5hketgk487d8b9hfl5lll26if8b4l': {
-            amount: 5,
-        }
-    },
-    'tx-jhkl7khskfhkg86jd90we3fgjoh48fh': {
-        hash: 'tx-jhkl7khskfhkg86jd90we3fgjoh48fh',
-        'IcZUrC1er80KQ-BWwME8f096iczZTK5z83WsoA7UDrE.tPjQlWiR3lnNuQPJaM-KUsHotsbOORKppQS3JlKH2K0': {
-            amount: 76,
-        },
-        'osjsf34jw-4tnbk5hketgk487d8b9hfl5lll26if8b4l': {
-            amount: 5,
-        }
-    },
-}
+const coinToDollar = 2;
 
-
-function Dashboard({ user }) {
+function Dashboard({ user, gun }) {
     const address = user.is.pub;
     const [username, setUsername] = useState('');
     const [acctType, setAcctType] = useState(false);
@@ -54,7 +26,8 @@ function Dashboard({ user }) {
     const [exchangeRate, setExchangeRate] = useState(null);
     const [amount, setAmount] = useState('');
     const [userUTXO, setUserUTXO] = useState({});
-    const [totalUTXO, setTotalUTXO] = useState(0);
+    const [totalUTXO, setTotalUTXO] = useState();
+    const [myTx, setMyTx] = useState({})
     const [loading, setLoading] = useState(true);
     const [value, setValue] = useState(0);
 
@@ -83,18 +56,46 @@ function Dashboard({ user }) {
             setTotalUTXO(UTXO[1])
         }
         fetchData();
+        gun.get('transactions').then((txs) => {
+            Object.keys(txs).map((key) => {
+                if (key !== '_') {
+                    let myTX = {};
+                    gun.get(`transactions/${key}`).then(async (tx) => {
+                        myTX = {
+                            hash: key,
+                            block: tx.block,
+                            timestamp: calculateDate(new Date(tx.timestamp)),
+                            confirmations: (await getLastBlock() - tx.block) + 1,
+                        }
+                    }).then(() => {
+                        gun.get(`transactions/${key}/outputs/0`).then((op) => {
+                            gun.get(`transactions/${key}/inputs/0`).then((ip) => {
+                                if (op.address === user.is.pub) {
+                                    myTX.from = ip.address;
+                                    myTX.amount = ip.amount;
+                                }
+                                if (ip.address === user.is.pub) {
+                                    myTX.to = op.address;
+                                    myTX.amount = op.amount;
+                                    myTX.fee = op.fee;
+                                }
+                            }).then(() => setMyTx(myTx => ({ ...myTx, [key]: myTX })))
+                        })
+                    })
+                }
+            })
+        })
     }, [])
 
     useEffect(() => {
-        if (exchangeRate !== null) {
-            // Object.values(exchangeRate).forEach(exRate => (console.log(exRate)))
+        if (totalUTXO) {
             changeCurrency('inr')
             setLoading(false)
         }
-    }, [exchangeRate])
+    }, [totalUTXO])
 
     function changeCurrency(cur) {
-        let amount = 1000;
+        let amount = totalUTXO / coinToDollar;
         if (cur !== 'usd')
             amount = Math.round(exchangeRate[cur].rate * amount);
         setAmount(<>{cur === 'inr' ? '₹' : '$'}{amount}</>)
@@ -163,7 +164,7 @@ function Dashboard({ user }) {
                             </div>
                         </TabPanel>
                         <TabPanel value={value} index={1} className='tabPanel'>
-                            <MyTransactions UTXO={
+                            <MyTransactions myTx={myTx} UTXO={
                                 Object.keys(userUTXO).map(key => ({
                                     hash: key,
                                     amount: userUTXO[key]
