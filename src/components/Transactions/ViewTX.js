@@ -5,8 +5,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { FaReceipt } from 'react-icons/fa'
 import { colors } from '../Others/Colors';
 import { useEffect, useState } from 'react';
-import { getLastBlock } from '../Blockchain/Blocks/GetLastBlock';
-import { calculateDate } from '../Others/CalculateDate';
+import { getLastBlock } from '../Blocks/GetLastBlock';
+import { getTDate } from '../Others/GetDate';
 
 function ViewTX({ gun }) {
 
@@ -24,7 +24,7 @@ function ViewTX({ gun }) {
                         inputs: [],
                         outputs: [],
                         status: isNaN(tx.block) ? 'Unconfirmed' : 'Confirmed',
-                        timestamp: calculateDate(new Date(tx.timestamp)),
+                        timestamp: getTDate(new Date(tx.timestamp)),
                         confirmations: (await getLastBlock() - tx.block) + 1,
                         block: tx.block,
                         fee: 0,
@@ -55,7 +55,7 @@ function ViewTX({ gun }) {
             )
         }
         getTx();
-    }, [])
+    }, [txHash])
 
     useEffect(() => {
         if (tx || tx === null)

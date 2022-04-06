@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { GiMiner } from 'react-icons/gi'
 import { ToastContainer, toast } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
-import { colors } from '../../Others/Colors';
-import { getAcctType } from '../../Others/GetAcctType';
+import { colors } from '../Others/Colors';
+import { getAcctType } from '../Others/GetAcctType';
 const SHA256 = require("crypto-js/sha256");
 
 const difficulty = 4;

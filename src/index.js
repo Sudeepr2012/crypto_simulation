@@ -8,19 +8,19 @@ import './index.css';
 import './PathChangedLoading.css'
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import Login from './components/Login';
-import SignUp from './components/Signup';
+import Login from './components/Authentication/Login';
+import SignUp from './components/Authentication/Signup';
 import Dashboard from './components/Dashboard';
-import SendTx from './components/Crypto/SendTx';
+import SendTx from './components/Transactions/SendTx';
 import Footer from './components/Footer';
 import Header from './components/Header';
-import AllBlocks from './components/Blockchain/Blocks/AllBlocks';
-import ViewBlock from './components/Blockchain/Blocks/ViewBlock';
-import UnconfirmedTX from './components/Transactionss/Unconfirmed';
-import ViewTX from './components/Transactionss/ViewTX';
-import CandidateBlock from './components/Blockchain/Miner/CandidateBlock';
-import ViewAddress from './components/Crypto/ViewAddress';
-import ValidateBlock from './components/Blockchain/Miner/ValidateBlock';
+import AllBlocks from './components/Blocks/AllBlocks';
+import ViewBlock from './components/Blocks/ViewBlock';
+import UnconfirmedTX from './components/Transactions/Unconfirmed';
+import ViewTX from './components/Transactions/ViewTX';
+import CandidateBlock from './components/Miner/CandidateBlock';
+import ViewAddress from './components/ViewAddress';
+import ValidateBlock from './components/Miner/ValidateBlock';
 import { PEERS } from './components/Others/Peers';
 require('gun/sea')
 
@@ -87,17 +87,17 @@ function MyRoutes() {
       <Route path="/login" element={<Login user={user} gun={gun} />} />
       <Route path="/join" element={<SignUp user={user} gun={gun} />} />
       <Route path="/blocks" element={<AllBlocks />} />
-      <Route path="/block/:bHeight" element={<ViewBlock />} />
+      <Route path="/block/:bHeight" element={<ViewBlock gun={gun} />} />
       <Route path="/unconfirmed-tx" element={<UnconfirmedTX user={user} gun={gun} />} />
       <Route path="/tx/:txHash" element={<ViewTX gun={gun} />} />
-      <Route path="/address/:address" element={<ViewAddress />} />
+      <Route path="/address/:address" element={<ViewAddress gun={gun} />} />
 
       {user.is ?
         <>
           <Route path="/me/block" element={<CandidateBlock user={user} gun={gun} />} />
           <Route path="/miner" element={<ValidateBlock user={user} gun={gun} />} />
           <Route path="/dashboard" element={<Dashboard user={user} gun={gun} />} />
-          <Route path="/send" element={<SendTx />} />
+          <Route path="/send" element={<SendTx user={user} gun={gun} />} />
         </>
         :
         null

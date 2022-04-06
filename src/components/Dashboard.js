@@ -8,13 +8,13 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import TabPanel from './Others/TabPanel'
-import './Style.css'
-import MyTransactions from './Transactionss/MyTransactions';
+import UserTransactions from './Transactions/UserTransactions';
 import { colors } from './Others/Colors';
 import { getAcctType } from './Others/GetAcctType';
-import { getAddressUTXO } from './Blockchain/UTXO';
-import { getLastBlock } from './Blockchain/Blocks/GetLastBlock';
-import { calculateDate } from './Others/CalculateDate';
+import { getAddressUTXO } from './Transactions/UTXO';
+import { getLastBlock } from './Blocks/GetLastBlock';
+import { getTDate } from './Others/GetDate';
+import { getUserTx } from './Transactions/GetUserTx';
 
 const coinToDollar = 2;
 
@@ -54,37 +54,10 @@ function Dashboard({ user, gun }) {
             const UTXO = await getAddressUTXO(user.is.pub);
             setUserUTXO(UTXO[0])
             setTotalUTXO(UTXO[1])
+            const tempUserTx = await getUserTx(address)
+            setMyTx(tempUserTx[0])
         }
         fetchData();
-        gun.get('transactions').then((txs) => {
-            Object.keys(txs).map((key) => {
-                if (key !== '_') {
-                    let myTX = {};
-                    gun.get(`transactions/${key}`).then(async (tx) => {
-                        myTX = {
-                            hash: key,
-                            block: tx.block,
-                            timestamp: calculateDate(new Date(tx.timestamp)),
-                            confirmations: (await getLastBlock() - tx.block) + 1,
-                        }
-                    }).then(() => {
-                        gun.get(`transactions/${key}/outputs/0`).then((op) => {
-                            gun.get(`transactions/${key}/inputs/0`).then((ip) => {
-                                if (op.address === user.is.pub) {
-                                    myTX.from = ip.address;
-                                    myTX.amount = ip.amount;
-                                }
-                                if (ip.address === user.is.pub) {
-                                    myTX.to = op.address;
-                                    myTX.amount = op.amount;
-                                    myTX.fee = op.fee;
-                                }
-                            }).then(() => setMyTx(myTx => ({ ...myTx, [key]: myTX })))
-                        })
-                    })
-                }
-            })
-        })
     }, [])
 
     useEffect(() => {
@@ -164,7 +137,7 @@ function Dashboard({ user, gun }) {
                             </div>
                         </TabPanel>
                         <TabPanel value={value} index={1} className='tabPanel'>
-                            <MyTransactions myTx={myTx} UTXO={
+                            <UserTransactions myTx={myTx} UTXO={
                                 Object.keys(userUTXO).map(key => ({
                                     hash: key,
                                     amount: userUTXO[key]

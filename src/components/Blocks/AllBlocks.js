@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaCubes } from 'react-icons/fa'
 import './Table.css'
-import { colors } from '../../Others/Colors';
+import { colors } from '../Others/Colors';
 
 const blockchain = {
     0: {

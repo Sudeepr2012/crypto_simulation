@@ -1,11 +1,11 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FaCopy } from 'react-icons/fa'
 import { Link, useParams } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
-import { colors } from "../../Others/Colors";
-
-const address = 'dfdjkfgshhsdfsgsfsbkksf-sgksbgkabhvkjvsvisvs'
+import { colors } from "../Others/Colors";
+import { getTDate } from "../Others/GetDate";
+import { getLastBlock } from "./GetLastBlock";
 
 const block = {
     hash: '0000d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60',
@@ -53,10 +53,26 @@ const transactions = [
     }
 ]
 
-function ViewBlock() {
+function ViewBlock({ gun }) {
 
     const { bHeight } = useParams()
-    const [filterTx, setFilterTx] = useState('utxo')
+    const [blocks, setBlock] = useState()
+
+    useEffect(() => {
+        setBlock(gun.get(`blockchain/${bHeight}`).once(async (block) => {
+            if (block) {
+                let tempBlock = {
+                    hash: block.hash,
+                    timestamp: getTDate(new Date(block.timestamp)),
+                    confirmations: (await getLastBlock() - bHeight) + 1,
+                    nonce: block.nonce,
+                    miner: block.miner,
+                    difficulty: block.difficulty,
+                }
+            } else
+                return null
+        }))
+    }, [bHeight])
 
     const notify = (msg) => toast(`✔️ ${msg} copied!`, {
         position: "top-right",

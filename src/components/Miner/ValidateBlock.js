@@ -2,9 +2,9 @@ import { useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom';
 import { Link, useParams } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
-import { getAcctType } from '../../Others/GetAcctType';
-import { colors } from "../../Others/Colors";
-import { deleteUTXO, putUTXO } from "../UTXO";
+import { getAcctType } from '../Others/GetAcctType';
+import { colors } from "../Others/Colors";
+import { deleteUTXO, putUTXO } from "../Transactions/UTXO";
 
 function ValidateBlock({ gun, user }) {
 

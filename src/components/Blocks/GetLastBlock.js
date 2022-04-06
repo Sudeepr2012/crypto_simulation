@@ -1,5 +1,5 @@
 import Gun from 'gun'
-import { PEERS } from '../../Others/Peers';
+import { PEERS } from '../Others/Peers';
 require('gun/sea')
 
 const gun = Gun({
