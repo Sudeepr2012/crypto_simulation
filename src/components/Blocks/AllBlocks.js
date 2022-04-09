@@ -47,7 +47,7 @@ function AllBlocks({ gun }) {
                             <th scope="col">Hash</th>
                             <th scope="col">Timestamp</th>
                             <th scope="col">Miner</th>
-                            <th scope="col">TX. Volume</th>
+                            <th scope="col">TXs</th>
                         </tr>
                     </thead>
 

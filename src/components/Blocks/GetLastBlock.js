@@ -8,7 +8,7 @@ const gun = Gun({
 
 async function getLastBlock() {
     const rHeight = gun.get('blockchain').then((blocks) => {
-        return (Object.keys(blocks).length - 1)
+        return (Object.keys(blocks).length - 2)
     })
     return rHeight
 }

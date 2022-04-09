@@ -19,7 +19,8 @@ function ViewBlock({ gun }) {
         setLoading(true)
         setBlockTx([])
         setBlock({})
-        gun.get(`blockchain/${bHeight}`).once((block) => {
+        gun.get(`blockchain/${bHeight}`).once(async (block) => {
+            block.confirmations = (await getLastBlock() - block.height) + 1
             setBlock(block)
             if (block)
                 gun.get(`blockchain/${bHeight}/transactions`).once((txs) => {
@@ -60,12 +61,12 @@ function ViewBlock({ gun }) {
                                     navigator.clipboard.writeText(block.hash)
                                     notify('Hash')
                                 }} /></td></tr>
-                            <tr><td>Confirmations</td> <td>8</td></tr>
+                            <tr><td>Confirmations</td> <td>{block.confirmations}</td></tr>
                             <tr> <td>Height</td>
                                 <td><Link to={`/block/${block.height}`}>#{block.height}</Link></td>
                             </tr>
-                            <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
-                            <tr><td>Miner</td> <td>{block.miner.name}</td></tr>
+                            <tr><td>Timestamp</td> <td>{getTDate(new Date(block.timestamp))}</td></tr>
+                            <tr><td>Miner</td> <td>{block.miner}</td></tr>
                             <tr><td>Nonce</td> <td>{block.nonce}</td></tr>
                             <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
                             <tr><td>Merkle Root</td> <td>{block.merkleRoot}</td></tr>
