@@ -32,11 +32,7 @@ function SendTxWallet() {
                 <label>Amount</label>
                 <input type='number' value={amount}
                     onChange={(e) => setAmount(+e.target.value)} required readOnly={loading} />
-            </div>
-            <div className='form-field'>
-                <label>Fee ({feeCharge}%)</label>
-                <input type={'number'} value={fee}
-                    required readOnly />
+                <div style={{ float: 'right', fontSize: 20, color: '#f0f0f0' }}>Fee: {fee}</div>
             </div>
             <div className='btn-div'>
                 {loading ?
@@ -48,7 +44,7 @@ function SendTxWallet() {
                 }
             </div>
             <div className='btn-div' style={{ fontSize: 28 }}>
-                - Wallet method -
+                - Wallet method (fee: {feeCharge}%)-
             </div>
         </form >
     )

@@ -5,6 +5,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { getAcctType } from '../Others/GetAcctType';
 import { colors } from "../Others/Colors";
 import { deleteUTXO, putUTXO } from "../Transactions/UTXO";
+import { addToBC } from "../Blocks/AddBlockToBC";
+import { confirmTx } from "../Transactions/PutUserTx";
 
 function ValidateBlock({ gun, user }) {
 
@@ -24,10 +26,13 @@ function ValidateBlock({ gun, user }) {
         // gun.get('UTXO/a7c7ae8855503f2c62ceb77723c582562393207ea064e0b501f9a2346f869859').once((tx) => console.log(tx))
         setPendingBlocks({})
         gun.get('pending-blocks').once((blocks) => {
+            console.log(blocks)
             Object.keys(blocks).map((key) => {
                 if (key !== '_') {
                     gun.get('pending-blocks').get(key).then((block) => {
+                        console.log(block)
                         gun.get(`pending-blocks/${key}/coinBase`).once((cb) => {
+                            console.log(cb)
                             block.coinBaseTx = cb
                         })
                         gun.get(`pending-blocks/${key}/accepted`).once((accepted) => {
@@ -47,6 +52,7 @@ function ValidateBlock({ gun, user }) {
 
     }, [validationTracker])
 
+    console.log(pendingBlocks)
     useEffect(() => {
         setValidateLoading({})
         Object.keys(pendingBlocks).map(key => (
@@ -80,7 +86,7 @@ function ValidateBlock({ gun, user }) {
             [user.is.pub]: true
         }).then(() =>
             gun.get(`pending-blocks/${key}/${action}`).once((count) => {
-                gun.get('miners').then((miners) => {
+                gun.get('miners').then(async (miners) => {
                     if ((((Object.keys(count).length - 1) / (Object.keys(miners).length - 1)) * 100) > 50) {
                         if (action === 'accepted') {
                             let txOP = {
@@ -97,17 +103,36 @@ function ValidateBlock({ gun, user }) {
                                 }
                             }
                             //ToDo: push block to blockchain
-                            gun.get('transactions').put({
-                                [pendingBlocks[key].coinBaseTx.hash]: {
+                            const blockTx = [
+                                {
+                                    hash: pendingBlocks[key].coinBaseTx.hash,
+                                    amount: pendingBlocks[key].coinBaseTx.reward,
+                                    fee: 0,
+                                    from: 'CoinBase Reward',
+                                    to: pendingBlocks[key].coinBaseTx.to,
                                     timestamp: pendingBlocks[key].coinBaseTx.timestamp,
-                                    block: pendingBlocks[key].height,
                                     inputs: txIP,
                                     outputs: txOP
                                 }
-                            }).then(async () => {
-                                await putUTXO(pendingBlocks[key].coinBaseTx.hash, txOP);
-                                await deleteUTXO(pendingBlocks[key].coinBaseTx.hash, txIP)
-                            })
+                            ]
+                            // blockTx.push()
+                            const blockToAdd = {
+                                hash: pendingBlocks[key].hash,
+                                height: pendingBlocks[key].height,
+                                nonce: pendingBlocks[key].nonce,
+                                timestamp: pendingBlocks[key].timestamp,
+                                miner: pendingBlocks[key].miner,
+                                difficulty: pendingBlocks[key].difficulty,
+                                merkleRoot: pendingBlocks[key].merkleRoot,
+                                txCount: blockTx.length,
+                                blockReward: pendingBlocks[key].coinBaseTx.reward,
+                                feeReward: pendingBlocks[key].coinBaseTx.fee,
+
+                            }
+                            await confirmTx(blockTx, pendingBlocks[key].height)
+                            await addToBC(blockToAdd, blockTx);
+                            await putUTXO(pendingBlocks[key].coinBaseTx.hash, txOP);
+                            await deleteUTXO(pendingBlocks[key].coinBaseTx.hash, txIP)
                         }
                         gun.get('pending-blocks').put({ [key]: null }).then(() => {
                             setValidationTracker(!validationTracker)
@@ -139,7 +164,13 @@ function ValidateBlock({ gun, user }) {
                     <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
                         <tr><td>Block</td> <td>#{block.height}</td></tr>
                         <tr><td>Hash</td> <td>{block.hash}</td></tr>
-                        <tr><td>Previous Hash</td> <td><Link to={`/block/${block.height - 1}`}>{block.prevHash}</Link></td></tr>
+                        <tr><td>Previous Hash</td>
+                            <td>{block.height > 0 ?
+                                <Link to={`/block/${block.height - 1}`}>{block.prevHash}</Link>
+                                :
+                                block.prevHash
+                            }</td>
+                        </tr>
                         <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
                         <tr><td>Transactions</td> <td>
                             {/* {block.transactions.map((tx, ind) => (

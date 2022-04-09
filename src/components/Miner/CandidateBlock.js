@@ -43,7 +43,11 @@ function CandidateBlock({ user, gun }) {
     useEffect(() => {
         setBlockTx(location.state)
         gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => {
-            setCandidateBlock(val)
+            if (val)
+                setCandidateBlock(val)
+            else
+                setBlockLoading(false)
+            console.log(val)
         })
         window.history.replaceState({}, document.title)
     }, [])
@@ -227,7 +231,8 @@ function CandidateBlock({ user, gun }) {
         setLoading(true)
         let tempCB = candidateBlock;
         delete tempCB.tempCoinBaseHash;
-        tempCB.coinBase = blockCBTx;
+        delete tempCB['_'];
+        // tempCB.coinBase = blockCBTx;
         tempCB.transactions = Object.assign({}, blockTx);
         tempCB.accepted = {
             // [user.is.pub] : true
@@ -235,11 +240,15 @@ function CandidateBlock({ user, gun }) {
         tempCB.rejected = {};
         console.log(tempCB)
         gun.get('pending-blocks').put({ [tempCB.hash]: tempCB }).then(() => {
-            gun.get('miners').get(user.is.pub).put({
-                candidateBlock: null
+            gun.get('pending-blocks').get(tempCB.hash).put({
+                coinBase: blockCBTx
             }).then(() => {
-                console.log('Block broadcast successful!')
-                setLoading(false)
+                gun.get('miners').get(user.is.pub).put({
+                    candidateBlock: null
+                }).then(() => {
+                    console.log('Block broadcast successful!')
+                    setLoading(false)
+                })
             })
         })
     }

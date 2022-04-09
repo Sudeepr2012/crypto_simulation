@@ -61,7 +61,7 @@ function Dashboard({ user, gun }) {
     }, [])
 
     useEffect(() => {
-        if (totalUTXO) {
+        if (totalUTXO >= 0) {
             changeCurrency('inr')
             setLoading(false)
         }

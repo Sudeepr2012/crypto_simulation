@@ -86,7 +86,7 @@ function MyRoutes() {
       <Route exact path="/" element={<App user={user} />} />
       <Route path="/login" element={<Login user={user} gun={gun} />} />
       <Route path="/join" element={<SignUp user={user} gun={gun} />} />
-      <Route path="/blocks" element={<AllBlocks />} />
+      <Route path="/blocks" element={<AllBlocks gun={gun} />} />
       <Route path="/block/:bHeight" element={<ViewBlock gun={gun} />} />
       <Route path="/unconfirmed-tx" element={<UnconfirmedTX user={user} gun={gun} />} />
       <Route path="/tx/:txHash" element={<ViewTX gun={gun} />} />
