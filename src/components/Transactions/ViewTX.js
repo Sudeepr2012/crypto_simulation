@@ -12,47 +12,62 @@ function ViewTX({ gun }) {
 
     const { txHash } = useParams();
     const [tx, setTx] = useState()
+    const [txIP, setTxIP] = useState([])
+    const [txOP, setTxOP] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        setTx()
         const txPath = gun.get(`transactions/${txHash}`);
         async function getTx() {
-            setTx(await txPath.then(async (tx) => {
+            let tempTx = await txPath.then(async (tx) => {
                 if (tx) {
                     let txData = {
                         hash: txHash,
-                        inputs: [],
-                        outputs: [],
+                        by: {
+                            adress: ''
+                        },
                         status: isNaN(tx.block) ? 'Unconfirmed' : 'Confirmed',
                         timestamp: getTDate(new Date(tx.timestamp)),
-                        confirmations: (await getLastBlock() - tx.block) + 1,
+                        confirmations: isNaN(tx.block) ? 0 : (await getLastBlock() - tx.block) + 1,
                         block: tx.block,
                         fee: 0,
                         totalIP: 0,
                         totalOP: 0
                     };
-                    txPath.get('inputs').map((ip) => {
-                        //remove condition later (error due to change in data structure)
-                        if (ip.amount) {
-                            txData.fee += ip.fee ? ip.fee : 0; ///feein only first ip
-                            txData.totalIP += ip.amount;
-                            txData.inputs.push(ip);
-                        }
-                    })
-                    txPath.get('outputs').map((op) => {
-                        if (op.amount) {
-                            txData.totalOP += op.amount
-                            txData.outputs.push(op)
-                        }
-                    })
-                    //remove first input (inputs[0] = from address, total amount & fee. inputs[1+] = UTXOs)
-                    txData.by = txData.inputs.shift()
                     return txData
-                } else {
-                    return null
-                }
+                } else
+                    setTx(null)
             })
-            )
+            if (tempTx) {
+                setTx(tempTx)
+                txPath.get('inputs').once((ips) => {
+                    Object.keys(ips).map((key) => {
+                        if (key !== '_')
+                            gun.get(`transactions/${txHash}/inputs/${key}`).once((ip) => {
+                                if (key == 0)
+                                    setTx(tx => ({ ...tx, by: ip }))
+                                else
+                                    setTxIP(txIP => [...txIP, ip])
+                                console.log(ip)
+                                if (ip.fee)
+                                    setTx(tx => ({ ...tx, fee: tx.fee + ip.fee }))
+                                else
+                                    setTx(tx => ({ ...tx, totalIP: tx.totalIP + ip.amount }))
+                            })
+                    })
+
+                })
+                txPath.get('outputs').then((ops) => {
+                    Object.keys(ops).map((key) => {
+                        if (key !== '_')
+                            gun.get(`transactions/${txHash}/outputs/${key}`).once((op) => {
+                                setTx(tx => ({ ...tx, totalOP: tx.totalOP + op.amount }))
+                                setTxOP(txOP => [...txOP, op])
+                            })
+                    })
+                })
+            }
         }
         getTx();
     }, [txHash])
@@ -114,13 +129,13 @@ function ViewTX({ gun }) {
 
                     <h4 style={{ textAlign: 'left' }}>Inputs</h4>
 
-                    {tx.inputs.length > 0 ?
-                        tx.inputs.map((transaction, index) => (
+                    {txIP.length > 0 ?
+                        txIP.map((transaction, index) => (
                             <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
                                 <tr><td>Index</td> <td>{index}</td></tr>
-                                <tr><td>Address</td> <td><Link to={`/tx/${transaction.address}`}>{transaction.address}</Link> <FaCopy
+                                <tr><td>Address</td> <td><Link to={`/tx/${transaction.address}`}>{transaction.hash}</Link> <FaCopy
                                     onClick={() => {
-                                        navigator.clipboard.writeText(transaction.address)
+                                        navigator.clipboard.writeText(transaction.hash)
                                         notify('Address')
                                     }} /></td></tr>
                                 <tr><td>Output</td> <td>{transaction.amount} SC</td></tr>
@@ -132,7 +147,7 @@ function ViewTX({ gun }) {
                         </table>}
 
                     <h4 style={{ textAlign: 'left' }}>Outputs</h4>
-                    {tx.outputs.map((transaction, index) => (
+                    {txOP.map((transaction, index) => (
                         <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
                             <tr><td>Index</td> <td>{index}</td></tr>
                             <tr><td>Address</td> <td><Link to={`/address/${transaction.address}`}>{transaction.address}</Link> <FaCopy

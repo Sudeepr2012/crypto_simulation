@@ -137,12 +137,7 @@ function Dashboard({ user, gun }) {
                             </div>
                         </TabPanel>
                         <TabPanel value={value} index={1} className='tabPanel'>
-                            <UserTransactions myTx={myTx} UTXO={
-                                Object.keys(userUTXO).map(key => ({
-                                    hash: key,
-                                    amount: userUTXO[key]
-                                }))
-                            } />
+                            <UserTransactions myTx={myTx} UTXO={userUTXO} />
                         </TabPanel>
 
                     </>

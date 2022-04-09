@@ -24,7 +24,7 @@ async function getUserTx(address) {
                             hash: key,
                             block: tx.block,
                             timestamp: getTDate(new Date(tx.timestamp)),
-                            confirmations: (await getLastBlock() - tx.block) + 1,
+                            confirmations: isNaN(tx.block) ? 0 : (await getLastBlock() - tx.block) + 1,
                         }
                     }).then(() => {
                         gun.get(`transactions/${key}/outputs/0`).once((op) => {

@@ -102,7 +102,6 @@ function ValidateBlock({ gun, user }) {
                                     fee: 0
                                 }
                             }
-                            //ToDo: push block to blockchain
                             const blockTx = [
                                 {
                                     hash: pendingBlocks[key].coinBaseTx.hash,

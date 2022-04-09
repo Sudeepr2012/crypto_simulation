@@ -1,10 +1,11 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FaCopy } from 'react-icons/fa'
 import { Link } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { colors } from '../Others/Colors';
 
 function UserTransactions({ myTx, UTXO }) {
+
     const [filterTx, setFilterTx] = useState('utxo')
 
     function notify(msg) {
@@ -33,7 +34,7 @@ function UserTransactions({ myTx, UTXO }) {
             <table>
                 {filterTx === 'all' ?
                     Object.keys(myTx).length > 0 ?
-                        Object.keys(myTx).map((key, index) => (
+                        Object.keys(myTx).reverse().map((key, index) => (
                             <div key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
                                 <tr><td>Hash</td> <td><Link to={`/tx/${myTx[key].hash}`}>{myTx[key].hash}</Link> <FaCopy
                                     onClick={() => {
@@ -77,15 +78,15 @@ function UserTransactions({ myTx, UTXO }) {
                             <tr>Address do not have any transaction </tr>
                         </div>
                     :
-                    UTXO.length > 0 ?
-                        UTXO.map((transaction, index) => (
-                            <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                                <tr><td>Hash</td> <td><Link to={`/tx/${transaction.hash}`}>{transaction.hash}</Link> <FaCopy
+                    Object.keys(UTXO).length > 0 ?
+                        Object.keys(UTXO).reverse().map((key, index) => (
+                            <div key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                                <tr><td>Hash</td> <td><Link to={`/tx/${key}`}>{key}</Link> <FaCopy
                                     onClick={() => {
-                                        navigator.clipboard.writeText(transaction.hash)
+                                        navigator.clipboard.writeText(key)
                                         notify('Transaction hash')
                                     }} /></td></tr>
-                                <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
+                                <tr><td>Amount</td> <td>{UTXO[key]} SC</td></tr>
                             </div>
                         ))
                         :

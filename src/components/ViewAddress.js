@@ -34,8 +34,9 @@ function ViewAddress({ gun }) {
     }, [address])
 
     useEffect(() => {
-        if (userTx && userUTXO)
+        if (userTx && userUTXO) {
             setLoading(false)
+        }
     }, [userTx, userUTXO])
 
     const notify = (msg) => toast(`✔️ ${msg} copied!`, {
@@ -73,10 +74,7 @@ function ViewAddress({ gun }) {
                 </table>
                 <h4 style={{ textAlign: 'left' }}>Transactions</h4>
                 <UserTransactions myTx={userTx}
-                    UTXO={Object.keys(userUTXO).map(key => ({
-                        hash: key,
-                        amount: userUTXO[key]
-                    }))} />
+                    UTXO={userUTXO} />
             </div>
     )
 }

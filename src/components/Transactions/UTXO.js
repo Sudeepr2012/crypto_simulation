@@ -17,7 +17,8 @@ async function getAddressUTXO(address) {
     // })
     const rUTXO = gun.get('UTXO').then((data) => {
         if (!data) {
-            return [{}, 0]
+            return [{
+            }, 0]
         }
         else {
             let totalAmount = 0;
