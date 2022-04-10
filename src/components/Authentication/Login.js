@@ -13,8 +13,8 @@ function Login({ user, gun }) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user.is !== undefined)
-            navigate("/dashboard");
+        if (user.is)
+            window.location.href = '/Dashboard'
     }, [])
 
     function login(e) {
@@ -27,7 +27,9 @@ function Login({ user, gun }) {
                 setInvalidAuth(ack.err)
             else {
                 alert(user.is.pub)
-                navigate("/dashboard");
+                // navigate("/dashboard"); using window.location (to properly fetch data on login)
+                window.location.href = '/Dashboard'
+
             }
         });
     }

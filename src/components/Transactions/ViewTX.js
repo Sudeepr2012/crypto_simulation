@@ -21,6 +21,7 @@ function ViewTX({ gun }) {
         const txPath = gun.get(`transactions/${txHash}`);
         async function getTx() {
             let tempTx = await txPath.then(async (tx) => {
+                console.log(tx)
                 if (tx) {
                     let txData = {
                         hash: txHash,

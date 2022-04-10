@@ -4,69 +4,112 @@ import { Link, useParams } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import { getAcctType } from '../Others/GetAcctType';
 import { colors } from "../Others/Colors";
-import { deleteUTXO, putUTXO } from "../Transactions/UTXO";
+import { deleteUTXO, putAllUTXO, putUTXO } from "../Transactions/UTXO";
 import { addToBC } from "../Blocks/AddBlockToBC";
 import { confirmTx } from "../Transactions/PutUserTx";
 
 function ValidateBlock({ gun, user }) {
 
     const [validateLoading, setValidateLoading] = useState({})
+    const [loading, setLoading] = useState(true)
     const [validationTracker, setValidationTracker] = useState(false)
-    const [pendingBlocks, setPendingBlocks] = useState({})
+    const [pendingBlocks, setPendingBlocks] = useState()
     const [acctType, setAcctType] = useState(false);
     const navigate = useNavigate()
 
     useEffect(() => {
-        setPendingBlocks({})
+        setLoading(true)
+        setPendingBlocks()
         gun.get('pending-blocks').once((blocks) => {
-            console.log(blocks)
-            Object.keys(blocks).map((key) => {
-                if (key !== '_' && blocks[key]) {
-                    gun.get('pending-blocks').get(key).then((block) => {
-                        gun.get(`pending-blocks/${key}/transactions`).once((tx) => {
-                            console.log(tx)
+            setPendingBlocks({})
+            if (blocks)
+                Object.keys(blocks).map((key) => {
+                    if (key !== '_' && blocks[key]) {
+                        gun.get('pending-blocks').get(key).then((block) => {
+                            console.log(block)
+                            gun.get(`pending-blocks/${key}/coinBase`).once((cb) => {
+                                block.coinBaseTx = cb
+                            })
+                            gun.get(`pending-blocks/${key}/accepted`).once((accepted) => {
+                                if (!accepted || !accepted[user.is.pub]) {
+                                    gun.get(`pending-blocks/${key}/rejected`).once((rejected) => {
+                                        if (!rejected || !rejected[user.is.pub]) {
+                                            block.key = key;
+                                            gun.get(`pending-blocks/${key}/transactions`).once((txs) => {
+                                                console.log(txs)
+                                                block.txs = [];
+                                                if (txs) {
+                                                    Object.values(txs).map((key) => {
+                                                        if (key !== '_') {
+                                                            gun.get(`transactions/${key}`).once(async (tx) => {
+                                                                let tempTx = {
+                                                                    hash: tx.hash,
+                                                                    block: block.height,
+                                                                    amount: tx.amount,
+                                                                    fee: tx.fee,
+                                                                    from: tx.from,
+                                                                    to: tx.to,
+                                                                    timestamp: tx.timestamp,
+                                                                    inputs: {},
+                                                                    outputs: {}
+                                                                }
+                                                                await gun.get(`transactions/${key}/inputs`).once((txIPs) => {
+                                                                    block.fee = 0;
+                                                                    Object.keys(txIPs).map((index) => {
+                                                                        if (index !== '_')
+                                                                            gun.get(`transactions/${key}/inputs/${index}`).once((txIP) => {
+                                                                                console.log(txIP)
+                                                                                if (txIP.fee)
+                                                                                    block.fee += txIP.fee
+                                                                                tempTx.inputs[index] = txIP
+                                                                            })
+                                                                    })
+                                                                })
+                                                                await gun.get(`transactions/${key}/outputs`).once((txOPs) => {
+                                                                    Object.keys(txOPs).map((index) => {
+                                                                        if (index !== '_')
+                                                                            gun.get(`transactions/${key}/outputs/${index}`).once((txOP) => {
+                                                                                tempTx.outputs[index] = txOP
+                                                                            })
+                                                                    })
+                                                                })
+                                                                block.txs.push(tempTx)
+                                                            })
+                                                        }
+                                                    })
+                                                }
+                                            })
+                                            setPendingBlocks(pendingBlocks => ({ ...pendingBlocks, [key]: block }))
+                                        }
+                                    })
+                                }
+                            })
                         })
-                        gun.get(`pending-blocks/${key}/coinBase`).once((cb) => {
-                            console.log(cb)
-                            block.coinBaseTx = cb
-                        })
-                        gun.get(`pending-blocks/${key}/accepted`).once((accepted) => {
-                            if (!accepted || !accepted[user.is.pub]) {
-                                gun.get(`pending-blocks/${key}/rejected`).once((rejected) => {
-                                    if (!rejected || !rejected[user.is.pub]) {
-                                        block.key = key;
-                                        setPendingBlocks(pendingBlocks => ({ ...pendingBlocks, [key]: block }))
-                                    }
-                                })
-                            }
-                        })
-                    })
-                }
-            })
+                    }
+                })
         })
 
     }, [validationTracker])
 
-    console.log(pendingBlocks)
     useEffect(() => {
-        setValidateLoading({})
-        Object.keys(pendingBlocks).map(key => (
-            setValidateLoading(validateLoading => ({
-                ...validateLoading,
-                [key]: false
-            }))
-        ))
+        if (pendingBlocks) {
+            setLoading(false)
+            setValidateLoading({})
+            Object.keys(pendingBlocks).map(key => (
+                setValidateLoading(validateLoading => ({
+                    ...validateLoading,
+                    [key]: false
+                }))
+            ))
+        }
     }, [pendingBlocks])
-
+    console.log(pendingBlocks)
     useEffect(() => {
         if (acctType === true || acctType === false)
             updateDet()
         else
             if (acctType !== 'miner')
                 navigate('/dashboard')
-            else {
-                //get miner dets
-            }
         async function updateDet() {
             setAcctType(await getAcctType(acctType))
         }
@@ -87,30 +130,34 @@ function ValidateBlock({ gun, user }) {
                             let txOP = {
                                 0: {
                                     address: pendingBlocks[key].coinBaseTx.to,
-                                    amount: pendingBlocks[key].coinBaseTx.reward,
+                                    amount: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
                                 }
                             }
                             let txIP = {
                                 0: {
                                     address: 'CoinBase Reward',
-                                    amount: pendingBlocks[key].coinBaseTx.reward,
+                                    amount: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
                                     fee: 0,
                                     hash: pendingBlocks[key].coinBaseTx.hash,
                                 }
                             }
-                            const blockTx = [
+                            const blockTx = pendingBlocks[key].txs;
+                            blockTx.unshift(
                                 {
                                     hash: pendingBlocks[key].coinBaseTx.hash,
-                                    amount: pendingBlocks[key].coinBaseTx.reward,
+                                    amount: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
                                     fee: 0,
+                                    block: pendingBlocks[key].height,
                                     from: 'CoinBase Reward',
                                     to: pendingBlocks[key].coinBaseTx.to,
                                     timestamp: pendingBlocks[key].coinBaseTx.timestamp,
                                     inputs: txIP,
                                     outputs: txOP
-                                }
-                            ]
-                            // blockTx.push()
+                                })
+                            // for (let i = 0; i < pendingBlocks[key].txs.length; i++) {
+                            //     Object.values(pendingBlocks[key].txs[i].outputs).map((op) => txOP.push(op))
+                            //     Object.values(pendingBlocks[key].txs[i].inputs).map((ip) => txIP.push(ip))
+                            // }
                             const blockToAdd = {
                                 hash: pendingBlocks[key].hash,
                                 height: pendingBlocks[key].height,
@@ -120,14 +167,13 @@ function ValidateBlock({ gun, user }) {
                                 difficulty: pendingBlocks[key].difficulty,
                                 merkleRoot: pendingBlocks[key].merkleRoot,
                                 txCount: blockTx.length,
-                                blockReward: pendingBlocks[key].coinBaseTx.reward,
-                                feeReward: pendingBlocks[key].coinBaseTx.fee,
-
+                                blockReward: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
+                                feeReward: pendingBlocks[key].fee,
                             }
                             await confirmTx(blockTx, pendingBlocks[key].height)
                             await addToBC(blockToAdd, blockTx);
-                            await putUTXO(pendingBlocks[key].coinBaseTx.hash, txOP);
-                            await deleteUTXO(txIP)
+                            await putAllUTXO(blockTx);
+                            // await deleteUTXO(Object.assign({}, txIP))
                         }
                         gun.get('pending-blocks').put({ [key]: null }).then(() => {
                             setValidationTracker(!validationTracker)
@@ -151,49 +197,55 @@ function ValidateBlock({ gun, user }) {
     });
 
     return (
-        <div style={{ width: '1800px', maxWidth: '90%' }}>
-            <ToastContainer />
-            <h4 style={{ textAlign: 'left' }}>Pending Blocks</h4>
-            {Object.values(pendingBlocks).map((block, index) => (
-                block ?
-                    <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                        <tr><td>Block</td> <td>#{block.height}</td></tr>
-                        <tr><td>Hash</td> <td>{block.hash}</td></tr>
-                        <tr><td>Previous Hash</td>
-                            <td>{block.height > 0 ?
-                                <Link to={`/block/${block.height - 1}`}>{block.prevHash}</Link>
-                                :
-                                block.prevHash
-                            }</td>
-                        </tr>
-                        <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
-                        <tr><td>Transactions</td> <td>
-                            {/* {block.transactions.map((tx, ind) => (
+        loading ?
+            <center><div className='loader'></div>
+                <div style={{ fontStyle: 'italic', fontSize: 18 }}>Getting pending blocks...</div></center>
+            :
+            <div style={{ width: '1800px', maxWidth: '90%' }}>
+                <ToastContainer />
+                <h4 style={{ textAlign: 'left' }}>Pending Blocks</h4>
+
+                {Object.keys(pendingBlocks).length > 0 ?
+                    Object.values(pendingBlocks).map((block, index) => (
+                        <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
+                            <tr><td>Block</td> <td>#{block.height}</td></tr>
+                            <tr><td>Hash</td> <td>{block.hash}</td></tr>
+                            <tr><td>Previous Hash</td>
+                                <td>{block.height > 0 ?
+                                    <Link to={`/block/${block.height - 1}`}>{block.prevHash}</Link>
+                                    :
+                                    block.prevHash
+                                }</td>
+                            </tr>
+                            <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
+                            <tr><td>Transactions</td> <td>
+                                {/* {block.transactions.map((tx, ind) => (
                             <div key={ind}>
                                 <Link to={`/tx/${tx}`}>{tx}</Link>
                             </div>
                         ))} */}
-                            {Object.keys(block.transactions).length}
-                        </td></tr>
-                        <tr><td>Nonce</td> <td>{block.nonce}</td></tr>
-                        <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
-                        <tr><td>Miner</td> <td><Link to={`/address/${block.coinBaseTx.to}`}>{block.miner}</Link></td></tr>
+                                {Object.keys(block.transactions).length}
+                            </td></tr>
+                            <tr><td>Nonce</td> <td>{block.nonce}</td></tr>
+                            <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
+                            <tr><td>Miner</td> <td><Link to={`/address/${block.coinBaseTx.to}`}>{block.miner}</Link></td></tr>
 
-                        {validateLoading[block.key] ?
-                            <div className="loader"></div>
-                            :
-                            <tr>
-                                <td><button style={{ background: '#00cb00' }}
-                                    onClick={() => validateBlock(block.key, 'accepted')}>Valid</button></td>
-                                <td><button style={{ background: 'red' }}
-                                    onClick={() => validateBlock(block.key, 'rejected')}>Invalid</button></td>
-                            </tr>
-                        }
-                    </table>
+                            {validateLoading[block.key] ?
+                                <div className="loader"></div>
+                                :
+                                <tr>
+                                    <td><button style={{ background: '#00cb00' }}
+                                        onClick={() => validateBlock(block.key, 'accepted')}>Valid</button></td>
+                                    <td><button style={{ background: 'red' }}
+                                        onClick={() => validateBlock(block.key, 'rejected')}>Invalid</button></td>
+                                </tr>
+                            }
+                        </table>
+                    ))
                     :
-                    null
-            ))}
-        </div>
+                    'No pending block'
+                }
+            </div>
     )
 }
 export default ValidateBlock

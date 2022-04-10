@@ -32,13 +32,13 @@ async function getUserTx(address) {
                                 if (op.address === address) {
                                     myTX.from = ip.address;
                                     myTX.amount = ip.amount;
-                                    if (!isNaN(op.block))
+                                    if (!isNaN(myTX.block))
                                         userTxStats.received += ip.amount;
                                 }
                                 if (ip.address === address) {
                                     myTX.to = op.address;
                                     myTX.amount = op.amount;
-                                    if (!isNaN(ip.block))
+                                    if (!isNaN(myTX.block))
                                         userTxStats.sent += op.amount + ip.fee;
                                     myTX.fee = ip.fee;
                                 }

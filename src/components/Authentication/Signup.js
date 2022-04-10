@@ -13,17 +13,6 @@ function SignUp({ user, gun }) {
     const [invalidAuth, setInvalidAuth] = useState(false);
     const navigate = useNavigate();
 
-
-    // useEffect(() => {
-    //     localStorage.clear()
-    //     user.delete('MinerLiam', 'MinerLiam', (ack) => {
-    //         console.log(ack)
-    //         gun.get('miners').put({
-    //             'M0c2Z7T319v-vn3x3TBxFvH4yiwAFFvce0yHJZwzdX8.dS-_7wpKK8bnhS1psjFZo6vYRCbrXfH4fvUsHpXEAyc': null
-    //         })
-    //     })
-    // }, [])
-
     useEffect(() => {
         if (user.is !== undefined)
             navigate("/dashboard");
@@ -34,19 +23,20 @@ function SignUp({ user, gun }) {
         setLoading(true)
         setInvalidAuth(false)
         user.create(username, password, (ack) => {
-            console.log(ack)
             setLoading(false)
             if (ack.err)
                 setInvalidAuth(ack.err)
             else {
                 gun.user(ack.pub).get('info').put({
                     acctType: acctType
+                }).then(() => {
+                    if (acctType === 'miner')
+                        gun.get('miners').put({
+                            [ack.pub]: {}
+                        }).then(() => window.location.href = '/login')
+                    else
+                        window.location.href = '/login'
                 })
-                if (acctType === 'miner') {
-                    gun.get('miners').put({
-                        [ack.pub]: {}
-                    })
-                }
             }
         })
     }

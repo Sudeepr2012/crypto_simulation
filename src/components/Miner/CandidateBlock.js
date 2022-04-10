@@ -21,7 +21,6 @@ const notify = (msg) => toast(msg, {
     progress: undefined,
 });
 
-
 function CandidateBlock({ user, gun }) {
     const [blockIsValid, setBlockIsValid] = useState(false);
     const [autoMining, setAutoMining] = useState(false);
@@ -42,12 +41,12 @@ function CandidateBlock({ user, gun }) {
     const navigate = useNavigate()
     useEffect(() => {
         setBlockTx(location.state)
+        console.log(location.state)
         gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => {
             if (val)
                 setCandidateBlock(val)
             else
                 setBlockLoading(false)
-            console.log(val)
         })
         window.history.replaceState({}, document.title)
     }, [])
@@ -70,9 +69,6 @@ function CandidateBlock({ user, gun }) {
         else
             if (acctType !== 'miner')
                 navigate('/dashboard')
-            else {
-                //get miner candidate block
-            }
         async function updateDet() {
             setAcctType(await getAcctType(acctType))
         }
@@ -236,16 +232,16 @@ function CandidateBlock({ user, gun }) {
             // [user.is.pub] : true
         };
         tempCB.rejected = {};
-        console.log(tempCB)
         gun.get('pending-blocks').put({ [tempCB.hash]: tempCB }).then(() => {
             gun.get('pending-blocks').get(tempCB.hash).put({
                 coinBase: blockCBTx,
-                transactions: Object.assign({}, blockTx)
+                transactions: Object.assign({}, blockTx),
             }).then(() => {
                 gun.get('miners').get(user.is.pub).put({
                     candidateBlock: null
                 }).then(() => {
-                    console.log('Block broadcast successful!')
+                    notify('Block broadcast successful!')
+                    setCandidateBlock(null)
                     setLoading(false)
                 })
             })

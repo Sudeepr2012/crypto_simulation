@@ -53,10 +53,23 @@ async function putUTXO(hash, outputs) {
     return rUTXO
 }
 
+async function putAllUTXO(txs) {
+    for (let i = 0; i < txs.length; i++) {
+        let utxo = {
+        }
+        Object.values(txs[i].outputs).map((op) => {
+            if (txs[i].sender !== op.address)
+                utxo[op.address] = op.amount
+        })
+        console.log(utxo)
+        gun.get('UTXO').get(txs[i].hash).put(utxo)
+    }
+}
+
 async function deleteUTXO(inputs) {
     Object.keys(inputs).map((key) => {
         gun.get(`UTXO/${inputs[key].hash}`).get(inputs[key].address).put(null)
     })
 }
 
-export { getAddressUTXO, putUTXO, deleteUTXO }
+export { getAddressUTXO, putUTXO, putAllUTXO, deleteUTXO }

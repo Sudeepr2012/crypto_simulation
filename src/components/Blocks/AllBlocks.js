@@ -8,10 +8,11 @@ import { getTDate } from '../Others/GetDate';
 
 function AllBlocks({ gun }) {
     const [loading, setLoading] = useState(true)
-    const [blocks, setBlocks] = useState([])
+    const [blocks, setBlocks] = useState()
 
     useEffect(() => {
         gun.get('blockchain').once((bcBlocks) => {
+            setBlocks([])
             if (bcBlocks)
                 Object.keys(bcBlocks).map((key) => {
                     if (key !== '_')
@@ -33,7 +34,7 @@ function AllBlocks({ gun }) {
     }, [])
 
     useEffect(() => {
-        if (blocks.length > 0)
+        if (blocks)
             setLoading(false)
     }, [blocks])
     return (
@@ -41,27 +42,30 @@ function AllBlocks({ gun }) {
             <center><div className='loader'></div>
                 <div style={{ fontStyle: 'italic', fontSize: 18 }}>Getting blocks...</div></center>
             :
-            <div className='blocks-table'>
-                <h4 style={{ textAlign: 'left', marginLeft: '5%' }}><FaCubes color={colors.link} /> Blocks</h4>
-                <table style={{ margin: 'auto', width: '90%' }}>
-                    <thead>
-                        <tr style={{ display: 'contents' }}>
-                            <th scope="col">Height</th>
-                            <th scope="col">Hash</th>
-                            <th scope="col">Timestamp</th>
-                            <th scope="col">Miner</th>
-                            {/* <th scope="col">TXs</th> */}
-                        </tr>
-                    </thead>
+            blocks.length > 0 ?
+                <div className='blocks-table'>
+                    <h4 style={{ textAlign: 'left', marginLeft: '5%' }}><FaCubes color={colors.link} /> Blocks</h4>
+                    <table style={{ margin: 'auto', width: '90%' }}>
+                        <thead>
+                            <tr style={{ display: 'contents' }}>
+                                <th scope="col">Height</th>
+                                <th scope="col">Hash</th>
+                                <th scope="col">Timestamp</th>
+                                <th scope="col">Miner</th>
+                                {/* <th scope="col">TXs</th> */}
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                        {blocks.reverse().map((block, index) => (
-                            block
-                        ))
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        <tbody>
+                            {blocks.reverse().map((block, index) => (
+                                block
+                            ))
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                :
+                'No block in blockchain'
     )
 }
 export default AllBlocks

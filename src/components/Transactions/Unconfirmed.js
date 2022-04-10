@@ -27,18 +27,19 @@ function UnconfirmedTX({ user, gun }) {
         setMempool()
         if (user.is)
             gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => setCandidateBlock(val))
-        gun.get('mempool').once((txs) => {
+        gun.get('transactions').once((txs) => {
             if (txs) {
                 let utx = [];
                 Object.keys(txs).map((key) => {
-                    if (key !== '_')
-                        gun.get(`mempool/${key}`).once((tx) => {
-                            utx.push({
-                                hash: tx.hash,
-                                timestamp: getTDate(new Date(tx.timestamp)),
-                                amount: tx.amount,
-                                fee: tx.fee
-                            })
+                    if (key !== '_' && txs[key])
+                        gun.get(`transactions/${key}`).once((tx) => {
+                            if (isNaN(tx.block))
+                                utx.push({
+                                    hash: tx.hash,
+                                    timestamp: getTDate(new Date(tx.timestamp)),
+                                    amount: tx.amount,
+                                    fee: tx.fee
+                                })
                             setTxLoading(txLoading => ({ ...txLoading, [tx.hash]: false }))
                         })
                 })
@@ -93,6 +94,7 @@ function UnconfirmedTX({ user, gun }) {
                 <center><div className='loader'></div>
                     <div style={{ fontStyle: 'italic', fontSize: 18 }}>Getting transactions...</div></center>
                 :
+
                 <div className='blocks-table'>
                     <div style={{ width: '100%', display: 'flex' }}>
                         <h4 style={{ textAlign: 'left', flex: 1, marginLeft: '5%' }}><FaReceipt color={colors.link} /> Unconfirmed Transactions</h4>
@@ -102,45 +104,48 @@ function UnconfirmedTX({ user, gun }) {
                             null
                         }
                     </div>
-
-                    <table style={{ margin: 'auto', width: '90%' }}>
-                        <thead>
-                            <tr style={{ display: 'contents' }}>
-                                <th scope="col">Hash</th>
-                                <th scope="col">Timestamp</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Fee</th>
-                                {acctType === AUTHORIZED_TYPE ? <th scope="col">CB</th> : null}
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {mempool.map((utx, i) => (
-                                <tr key={i}>
-                                    <td data-label="Hash"><Link to={`/tx/${utx.hash}`}>{utx.hash}</Link></td>
-                                    <td data-label="Timestamp">{utx.timestamp}</td>
-                                    <td data-label="Amount">{utx.amount} SC</td>
-                                    <td data-label="Fee">{utx.fee} SC</td>
-                                    {acctType === AUTHORIZED_TYPE ?
-                                        <td data-label="CB" style={{ cursor: 'pointer' }}>
-                                            {candidateBlock !== null ?
-                                                txLoading[i] ? <div className='loader'></div> :
-                                                    candidateBlockTx.includes(utx.hash) ?
-                                                        <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash, i)} />
-                                                        :
-                                                        <BsCheckLg color={colors.ligthGreen} onClick={() => addTxToBlock(utx.hash, i)} />
-                                                :
-                                                <BiErrorCircle color={colors.ligthGreen} onClick={() => notify('You need to create block first!')} />
-                                            }
-                                        </td>
-                                        :
-                                        null
-                                    }
+                    {mempool.length > 0 ?
+                        <table style={{ margin: 'auto', width: '90%' }}>
+                            <thead>
+                                <tr style={{ display: 'contents' }}>
+                                    <th scope="col">Hash</th>
+                                    <th scope="col">Timestamp</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Fee</th>
+                                    {acctType === AUTHORIZED_TYPE ? <th scope="col">CB</th> : null}
                                 </tr>
-                            ))
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+
+                            <tbody>
+                                {mempool.map((utx, i) => (
+                                    <tr key={i}>
+                                        <td data-label="Hash"><Link to={`/tx/${utx.hash}`}>{utx.hash}</Link></td>
+                                        <td data-label="Timestamp">{utx.timestamp}</td>
+                                        <td data-label="Amount">{utx.amount} SC</td>
+                                        <td data-label="Fee">{utx.fee} SC</td>
+                                        {acctType === AUTHORIZED_TYPE ?
+                                            <td data-label="CB" style={{ cursor: 'pointer' }}>
+                                                {candidateBlock !== null ?
+                                                    txLoading[i] ? <div className='loader'></div> :
+                                                        candidateBlockTx.includes(utx.hash) ?
+                                                            <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash, i)} />
+                                                            :
+                                                            <BsCheckLg color={colors.ligthGreen} onClick={() => addTxToBlock(utx.hash, i)} />
+                                                    :
+                                                    <BiErrorCircle color={colors.ligthGreen} onClick={() => notify('You need to create block first!')} />
+                                                }
+                                            </td>
+                                            :
+                                            null
+                                        }
+                                    </tr>
+                                ))
+                                }
+                            </tbody>
+                        </table>
+                        :
+                        'No unconfirmed transaction'
+                    }
                 </div>
             }
         </>
