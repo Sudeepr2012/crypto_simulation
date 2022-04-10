@@ -49,8 +49,7 @@ function ViewTX({ gun }) {
                                     setTx(tx => ({ ...tx, by: ip }))
                                 else
                                     setTxIP(txIP => [...txIP, ip])
-                                console.log(ip)
-                                if (ip.fee)
+                                if (ip.fee >= 0)
                                     setTx(tx => ({ ...tx, fee: tx.fee + ip.fee }))
                                 else
                                     setTx(tx => ({ ...tx, totalIP: tx.totalIP + ip.amount }))
@@ -138,7 +137,7 @@ function ViewTX({ gun }) {
                                         navigator.clipboard.writeText(transaction.hash)
                                         notify('Address')
                                     }} /></td></tr>
-                                <tr><td>Output</td> <td>{transaction.amount} SC</td></tr>
+                                <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
                             </table>
                         ))
                         :
@@ -155,7 +154,7 @@ function ViewTX({ gun }) {
                                     navigator.clipboard.writeText(transaction.address)
                                     notify('Address')
                                 }} /></td></tr>
-                            <tr><td>Output</td> <td>{transaction.amount} SC</td></tr>
+                            <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
                         </table>
                     ))}
                 </div>

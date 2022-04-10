@@ -53,18 +53,10 @@ async function putUTXO(hash, outputs) {
     return rUTXO
 }
 
-async function deleteUTXO(hash, inputs) {
-    let utxo = {
-        hash: hash
-    }
+async function deleteUTXO(inputs) {
     Object.keys(inputs).map((key) => {
-        utxo[inputs[key].address] = null;
+        gun.get(`UTXO/${inputs[key].hash}`).get(inputs[key].address).put(null)
     })
-    console.log(utxo)
-    const rUTXO = gun.get('UTXO').put({
-        [hash]: utxo
-    }).then(() => { return true })
-    return rUTXO
 }
 
 export { getAddressUTXO, putUTXO, deleteUTXO }

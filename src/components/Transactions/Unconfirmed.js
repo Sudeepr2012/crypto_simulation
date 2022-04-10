@@ -9,77 +9,51 @@ import { FaReceipt } from 'react-icons/fa'
 import { ToastContainer, toast } from 'react-toastify';
 import { colors } from '../Others/Colors';
 import { getAcctType } from '../Others/GetAcctType';
+import { getTDate } from '../Others/GetDate';
 
 const AUTHORIZED_TYPE = 'miner';
-const memPool = {
-    'tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60': {
-        hash: 'tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60',
-        totalIP: 20,
-        totalOP: 20,
-        fee: 0,
-        timestamp: '2022-03-22 12:43',
-        inputs: ['tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60', 'tx-fy6s93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60'],
-        outputs: ['tx-USER2da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60', 'tx-CHANGE93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60'],
-    },
-    'tx-jkkfdhthd5tj7642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60': {
-        hash: 'tx-jkkfdhthd5tj7642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60',
-        totalIP: 6000,
-        totalOP: 6550,
-        fee: 50,
-        timestamp: '2022-03-22 12:11',
-        inputs: ['tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60', 'tx-fy6s93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60'],
-        outputs: ['tx-USER2da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60', 'tx-CHANGE93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60'],
-    },
-    'tx-jyj793da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60': {
-        hash: 'tx-jyj793da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60',
-        totalIP: 5000,
-        totalOP: 5000,
-        fee: 0,
-        timestamp: '2022-03-18 12:11',
-        inputs: ['tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60', 'tx-fy6s93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60'],
-        outputs: ['tx-USER2da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60', 'tx-CHANGE93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60'],
-    },
-    'tx-FG87h4htj7642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60': {
-        hash: 'tx-FG87h4htj7642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60',
-        totalIP: 230,
-        totalOP: 220,
-        fee: 10,
-        timestamp: '2022-03-22 12:11',
-        inputs: ['tx-d113a93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60', 'tx-fy6s93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60'],
-        outputs: ['tx-USER2da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60', 'tx-CHANGE93da74642ce975208c1b15fecb2a547eeead3cbcc8fc2fc3f002e4c1e60'],
-    },
-}
 
 function UnconfirmedTX({ user, gun }) {
     const [loading, setLoading] = useState(true)
     const [acctType, setAcctType] = useState(false);
-    const [uTX, setUTX] = useState([])
-    const [txLoading, setTxLoading] = useState([])
+    const [mempool, setMempool] = useState()
+    const [txLoading, setTxLoading] = useState({})
     const [candidateBlockTx, setCandidateBlockTx] = useState([])
     const [candidateBlock, setCandidateBlock] = useState(null)
 
     const navigate = useNavigate()
     useEffect(() => {
-        // console.log(user.is.pub)
-        // gun.get('miners').get(user.is.pub).map((miner, key) => console.log(miner, key))
+        setLoading(true)
+        setMempool()
         if (user.is)
             gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => setCandidateBlock(val))
-        // gun.get('miners').get(user.is.pub).put({
-        //     candidateBlock: null,
-        // })
-        setTimeout(() => {
-            let uTx = [];
-            let uTxLoading = [];
-            Object.values(memPool).forEach((tx, i) => {
-                uTx.push(tx)
-                uTxLoading[i] = false
-            })
-            uTx.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1)
-            setUTX(uTx)
-            setTxLoading(uTxLoading)
-        }, 1000);
+        gun.get('mempool').once((txs) => {
+            if (txs) {
+                let utx = [];
+                Object.keys(txs).map((key) => {
+                    if (key !== '_')
+                        gun.get(`mempool/${key}`).once((tx) => {
+                            utx.push({
+                                hash: tx.hash,
+                                timestamp: getTDate(new Date(tx.timestamp)),
+                                amount: tx.amount,
+                                fee: tx.fee
+                            })
+                            setTxLoading(txLoading => ({ ...txLoading, [tx.hash]: false }))
+                        })
+                })
+                utx.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1)
+                setMempool(utx)
+            }
+            else
+                setMempool([])
+        })
     }, [])
 
+    useEffect(() => {
+        if (mempool)
+            setLoading(false)
+    }, [mempool])
 
     useEffect(() => {
         if (user.is && (acctType === true || acctType === false))
@@ -89,28 +63,17 @@ function UnconfirmedTX({ user, gun }) {
         }
     }, [acctType])
 
-
-    useEffect(() => {
-        if (uTX.length > 0)
-            setLoading(false)
-    }, [uTX])
-
     function addTxToBlock(txHash, index) {
-        setTxLoading(txLoading => ({ ...txLoading, [index]: true }))
-        setTimeout(() => {
-            setCandidateBlockTx(candidateBlockTx => [...candidateBlockTx, txHash])
-            setTxLoading(txLoading => ({ ...txLoading, [index]: false }))
-        }, 2000)
+        setTxLoading(txLoading => ({ ...txLoading, [txHash]: true }))
+        setCandidateBlockTx(candidateBlockTx => [...candidateBlockTx, txHash],
+            setTxLoading(txLoading => ({ ...txLoading, [txHash]: false })))
     }
 
     function removeTxFromBlock(txHash, index) {
-        setTxLoading(txLoading => ({ ...txLoading, [index]: true }))
-        setTimeout(() => {
-            setCandidateBlockTx(candidateBlockTx.filter(newTxHash => newTxHash !== txHash))
-            setTxLoading(txLoading => ({ ...txLoading, [index]: false }))
-        }, 2000)
+        setTxLoading(txLoading => ({ ...txLoading, [txHash]: true }))
+        setCandidateBlockTx(candidateBlockTx.filter(newTxHash => newTxHash !== txHash),
+            setTxLoading(txLoading => ({ ...txLoading, [txHash]: false })))
     }
-
 
     const notify = (msg) => toast(msg, {
         position: "top-right",
@@ -152,11 +115,11 @@ function UnconfirmedTX({ user, gun }) {
                         </thead>
 
                         <tbody>
-                            {uTX.map((utx, i) => (
+                            {mempool.map((utx, i) => (
                                 <tr key={i}>
                                     <td data-label="Hash"><Link to={`/tx/${utx.hash}`}>{utx.hash}</Link></td>
                                     <td data-label="Timestamp">{utx.timestamp}</td>
-                                    <td data-label="Amount">{utx.totalOP} SC</td>
+                                    <td data-label="Amount">{utx.amount} SC</td>
                                     <td data-label="Fee">{utx.fee} SC</td>
                                     {acctType === AUTHORIZED_TYPE ?
                                         <td data-label="CB" style={{ cursor: 'pointer' }}>

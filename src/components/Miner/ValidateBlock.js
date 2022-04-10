@@ -17,20 +17,15 @@ function ValidateBlock({ gun, user }) {
     const navigate = useNavigate()
 
     useEffect(() => {
-        // gun.get('transactions').once((tx) =>
-        //     Object.keys(tx).map((key) => {
-        //         gun.get(`transactions/${key}/inputs/0`).once((ip) =>
-        //             console.log(ip))
-        //     })
-        // )
-        // gun.get('UTXO/a7c7ae8855503f2c62ceb77723c582562393207ea064e0b501f9a2346f869859').once((tx) => console.log(tx))
         setPendingBlocks({})
         gun.get('pending-blocks').once((blocks) => {
             console.log(blocks)
             Object.keys(blocks).map((key) => {
-                if (key !== '_') {
+                if (key !== '_' && blocks[key]) {
                     gun.get('pending-blocks').get(key).then((block) => {
-                        console.log(block)
+                        gun.get(`pending-blocks/${key}/transactions`).once((tx) => {
+                            console.log(tx)
+                        })
                         gun.get(`pending-blocks/${key}/coinBase`).once((cb) => {
                             console.log(cb)
                             block.coinBaseTx = cb
@@ -99,7 +94,8 @@ function ValidateBlock({ gun, user }) {
                                 0: {
                                     address: 'CoinBase Reward',
                                     amount: pendingBlocks[key].coinBaseTx.reward,
-                                    fee: 0
+                                    fee: 0,
+                                    hash: pendingBlocks[key].coinBaseTx.hash,
                                 }
                             }
                             const blockTx = [
@@ -131,7 +127,7 @@ function ValidateBlock({ gun, user }) {
                             await confirmTx(blockTx, pendingBlocks[key].height)
                             await addToBC(blockToAdd, blockTx);
                             await putUTXO(pendingBlocks[key].coinBaseTx.hash, txOP);
-                            await deleteUTXO(pendingBlocks[key].coinBaseTx.hash, txIP)
+                            await deleteUTXO(txIP)
                         }
                         gun.get('pending-blocks').put({ [key]: null }).then(() => {
                             setValidationTracker(!validationTracker)

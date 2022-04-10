@@ -232,8 +232,6 @@ function CandidateBlock({ user, gun }) {
         let tempCB = candidateBlock;
         delete tempCB.tempCoinBaseHash;
         delete tempCB['_'];
-        // tempCB.coinBase = blockCBTx;
-        tempCB.transactions = Object.assign({}, blockTx);
         tempCB.accepted = {
             // [user.is.pub] : true
         };
@@ -241,7 +239,8 @@ function CandidateBlock({ user, gun }) {
         console.log(tempCB)
         gun.get('pending-blocks').put({ [tempCB.hash]: tempCB }).then(() => {
             gun.get('pending-blocks').get(tempCB.hash).put({
-                coinBase: blockCBTx
+                coinBase: blockCBTx,
+                transactions: Object.assign({}, blockTx)
             }).then(() => {
                 gun.get('miners').get(user.is.pub).put({
                     candidateBlock: null

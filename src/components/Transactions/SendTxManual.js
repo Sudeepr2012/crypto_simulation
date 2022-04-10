@@ -3,6 +3,7 @@ import sha256 from 'crypto-js/sha256';
 import { useEffect, useState } from 'react';
 import Select from 'react-select'
 import { selectTheme } from '../Others/Colors';
+import { deleteUTXO, putUTXO } from './UTXO';
 
 function SendTxManual({ UTXO, gun, user }) {
     const [ipUTXO, setIpUTXO] = useState([]);
@@ -61,6 +62,8 @@ function SendTxManual({ UTXO, gun, user }) {
             }
         ]
         ipUTXO.map((val) => {
+            let ipVal = val;
+            ipVal.address = sender
             ip.push(val)
         })
         let op = [
@@ -69,11 +72,16 @@ function SendTxManual({ UTXO, gun, user }) {
                 amount: amount
             }
         ]
+        let newUTXO = {}
         if (ipUTXOamount > (amount + fee)) {
             op.push({
                 address: sender,
                 amount: ipUTXOamount - (amount + fee)
             })
+            newUTXO[0] = {
+                address: sender,
+                amount: ipUTXOamount - (amount + fee)
+            }
         }
         const opRoot = await calculateMerkleRoot(op.map((val, index) => sha256(index + val.hash + val.amount).toString()));
         let tx = {
@@ -92,7 +100,13 @@ function SendTxManual({ UTXO, gun, user }) {
         }).then(() => {
             gun.get('transactions').put({
                 [tx.hash]: tx
-            }).then(() => console.log('Success'))
+            }).then(async () => {
+                ip.shift()
+                await deleteUTXO(Object.assign({}, ip))
+                if (newUTXO[0])
+                    await putUTXO(tx.hash, newUTXO)
+                console.log('Success')
+            })
         })
 
     }

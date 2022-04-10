@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import { colors } from '../Others/Colors';
 
 function UserTransactions({ myTx, UTXO }) {
-
     const [filterTx, setFilterTx] = useState('utxo')
 
     function notify(msg) {
@@ -34,42 +33,42 @@ function UserTransactions({ myTx, UTXO }) {
             <table>
                 {filterTx === 'all' ?
                     Object.keys(myTx).length > 0 ?
-                        Object.keys(myTx).reverse().map((key, index) => (
+                        Object.values(myTx).sort((a, b) => a.timestamp > b.timestamp ? -1 : 1).map((tx, index) => (
                             <div key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
-                                <tr><td>Hash</td> <td><Link to={`/tx/${myTx[key].hash}`}>{myTx[key].hash}</Link> <FaCopy
+                                <tr><td>Hash</td> <td><Link to={`/tx/${tx.hash}`}>{tx.hash}</Link> <FaCopy
                                     onClick={() => {
-                                        navigator.clipboard.writeText(myTx[key].hash)
+                                        navigator.clipboard.writeText(tx.hash)
                                         notify('Transaction hash')
                                     }} /></td></tr>
-                                {myTx[key].from ?
-                                    <tr><td>From</td> <td><Link to={`/address/${myTx[key].from}`}>{myTx[key].from}</Link> <FaCopy
+                                {tx.from ?
+                                    <tr><td>From</td> <td><Link to={`/address/${tx.from}`}>{tx.from}</Link> <FaCopy
                                         onClick={() => {
-                                            navigator.clipboard.writeText(myTx[key].from)
+                                            navigator.clipboard.writeText(tx.from)
                                             notify('Address')
                                         }} /></td></tr>
                                     :
-                                    <tr><td>To</td> <td><Link to={`/address/${myTx[key].to}`}>{myTx[key].to}</Link> <FaCopy
+                                    <tr><td>To</td> <td><Link to={`/address/${tx.to}`}>{tx.to}</Link> <FaCopy
                                         onClick={() => {
-                                            navigator.clipboard.writeText(myTx[key].to)
+                                            navigator.clipboard.writeText(tx.to)
                                             notify('Address')
                                         }} /></td></tr>
                                 }
-                                <tr><td>Time</td> <td>{myTx[key].timestamp}</td></tr>
+                                <tr><td>Time</td> <td>{tx.timestamp}</td></tr>
                                 <tr><td>Status</td> <td
                                     style={{
-                                        color: isNaN(myTx[key].block) ? 'yellow' :
+                                        color: isNaN(tx.block) ? 'yellow' :
                                             colors.ligthGreen
-                                    }}>{isNaN(myTx[key].block) ? 'Unconfirmed' : 'Confirmed'}</td></tr>
+                                    }}>{isNaN(tx.block) ? 'Unconfirmed' : 'Confirmed'}</td></tr>
                                 <tr> <td>Block</td>
-                                    {!isNaN(myTx[key].block) ?
-                                        <td><Link to={`/block/${myTx[key].block}`}>#{myTx[key].block}</Link></td>
+                                    {!isNaN(tx.block) ?
+                                        <td><Link to={`/block/${tx.block}`}>#{tx.block}</Link></td>
                                         :
-                                        <td>{myTx[key].block}</td>
+                                        <td>{tx.block}</td>
                                     }
                                 </tr>
-                                <tr> <td>Confirmations</td> <td>{myTx[key].confirmations}</td></tr>
-                                <tr><td>Amount</td> <td>{myTx[key].amount} SC</td></tr>
-                                {myTx[key].fee ? <tr><td>Fee</td> <td>{myTx[key].fee} SC</td></tr> : null}
+                                <tr> <td>Confirmations</td> <td>{tx.confirmations}</td></tr>
+                                <tr><td>Amount</td> <td>{tx.amount} SC</td></tr>
+                                {tx.fee ? <tr><td>Fee</td> <td>{tx.fee} SC</td></tr> : null}
                                 {/* (total Output - change) */}
                             </div>
                         ))

@@ -24,6 +24,9 @@ async function putToMempool(hash, outputs) {
 async function confirmTx(transactions, block) {
     transactions.map((tx) => {
         tx.block = block;
+        gun.get('mempool').put({
+            [tx.hash]: null
+        })
         gun.get('transactions').put({
             [tx.hash]: tx
         })
