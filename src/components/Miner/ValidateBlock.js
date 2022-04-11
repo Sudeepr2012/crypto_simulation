@@ -35,6 +35,7 @@ function ValidateBlock({ gun, user }) {
                                     gun.get(`pending-blocks/${key}/rejected`).once((rejected) => {
                                         if (!rejected || !rejected[user.is.pub]) {
                                             block.key = key;
+                                            block.fee = 0;
                                             gun.get(`pending-blocks/${key}/transactions`).once((txs) => {
                                                 console.log(txs)
                                                 block.txs = [];
@@ -54,7 +55,6 @@ function ValidateBlock({ gun, user }) {
                                                                     outputs: {}
                                                                 }
                                                                 await gun.get(`transactions/${key}/inputs`).once((txIPs) => {
-                                                                    block.fee = 0;
                                                                     Object.keys(txIPs).map((index) => {
                                                                         if (index !== '_')
                                                                             gun.get(`transactions/${key}/inputs/${index}`).once((txIP) => {

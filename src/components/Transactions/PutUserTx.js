@@ -24,10 +24,10 @@ async function putToMempool(hash, outputs) {
 async function confirmTx(transactions, block) {
     console.log(transactions)
     transactions.map((tx) => {
-        // if (tx.from === 'CoinBase Reward')
-        gun.get('transactions').get(tx.hash).put(tx)
-        // else
-        //     gun.get('transactions').get(tx.hash).get('block').put(block)
+        if (tx.from === 'CoinBase Reward')
+            gun.get('transactions').get(tx.hash).put(tx)
+        else
+            gun.get('transactions').get(tx.hash).get('block').put(block)
     })
 }
 

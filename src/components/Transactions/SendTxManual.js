@@ -48,12 +48,14 @@ function SendTxManual({ UTXO, gun, user }) {
         calculateMerkleRoot(txTemp)
     }
 
+    console.log(ipUTXO)
+
     async function sendTx(e) {
         e.preventDefault();
         setLoading(true)
         const sender = user.is.pub
         const timestamp = + new Date()
-        const ipRoot = await calculateMerkleRoot(ipUTXO);
+        const ipRoot = await calculateMerkleRoot(ipUTXO.map((val) => val.hash));
         let ip = [
             {
                 address: sender,
@@ -61,10 +63,12 @@ function SendTxManual({ UTXO, gun, user }) {
                 fee: fee
             }
         ]
+        console.log(ipUTXO)
         ipUTXO.map((val) => {
+            console.log(val)
             let ipVal = val;
             ipVal.address = sender
-            ip.push(val)
+            ip.push(ipVal)
         })
         let op = [
             {
@@ -95,20 +99,15 @@ function SendTxManual({ UTXO, gun, user }) {
             inputs: Object.assign({}, ip),
             outputs: Object.assign({}, op)
         }
-        gun.get('mempool').put({
+        gun.get('transactions').put({
             [tx.hash]: tx
-        }).then(() => {
-            gun.get('transactions').put({
-                [tx.hash]: tx
-            }).then(async () => {
-                ip.shift()
-                await deleteUTXO(Object.assign({}, ip))
-                if (newUTXO[0])
-                    await putUTXO(tx.hash, newUTXO)
-                console.log('Success')
-            })
+        }).then(async () => {
+            ip.shift()
+            await deleteUTXO(Object.assign({}, ip))
+            if (newUTXO[0])
+                await putUTXO(tx.hash, newUTXO)
+            console.log('Success')
         })
-
     }
 
     return (
