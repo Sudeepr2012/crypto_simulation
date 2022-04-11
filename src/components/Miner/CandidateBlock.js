@@ -211,7 +211,8 @@ function CandidateBlock({ user, gun }) {
             txTemp.push(SHA256(tx[i] + tx[i + 1]).toString());
             i += 2;
         }
-        calculateMerkleRoot(txTemp)
+        const merkleRoot = calculateMerkleRoot(txTemp)
+        return merkleRoot
     }
 
     function findHash(previousHash, timestamp, merkleRoot, nonce) {

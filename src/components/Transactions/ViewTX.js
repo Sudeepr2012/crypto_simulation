@@ -46,6 +46,7 @@ function ViewTX({ gun }) {
                     Object.keys(ips).map((key) => {
                         if (key !== '_')
                             gun.get(`transactions/${txHash}/inputs/${key}`).once((ip) => {
+                                console.log(ip)
                                 if (key == 0)
                                     setTx(tx => ({ ...tx, by: ip }))
                                 else

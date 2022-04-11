@@ -8,33 +8,22 @@ const gun = Gun({
 const firstTX = 100;
 
 async function getAddressUTXO(address) {
-    // gun.get('UTXO').put({
-    //     'tx-1': {
-    //         hash: 'tx-1',
-    //         address1: 200,
-    //         address2: 10,
-    //     }
-    // })
-    const rUTXO = gun.get('UTXO').then((data) => {
-        if (!data) {
+
+    const rUTXO = await gun.get('UTXO').then((utxo) => {
+        if (utxo) {
+            let addressUtxo = {};
+            Object.keys(utxo).map((key) => {
+                if (key !== '_')
+                    gun.get('UTXO').get(key).get(address).once((tx) => {
+                        if (tx > 0)
+                            addressUtxo[key] = tx;
+                    })
+            })
+            return [addressUtxo, Object.values(addressUtxo).reduce((sum, a) => sum + a, 0)]
+        }
+        else
             return [{
             }, 0]
-        }
-        else {
-            let totalAmount = 0;
-            let utxo = {};
-            Object.keys(data).map((tx) => {
-                if (tx !== '_') {
-                    gun.get(`UTXO/${tx}`).get(address).once((myTx) => {
-                        if (myTx) {
-                            utxo[tx] = myTx;
-                            totalAmount += myTx;
-                        }
-                    })
-                }
-            })
-            return [utxo, totalAmount]
-        }
     })
     return rUTXO
 }
@@ -43,10 +32,11 @@ async function putUTXO(hash, outputs) {
     let utxo = {
         hash: hash
     }
+
     Object.keys(outputs).map((key) => {
         utxo[outputs[key].address] = outputs[key].amount;
     })
-    console.log(utxo)
+
     const rUTXO = gun.get('UTXO').put({
         [hash]: utxo
     }).then(() => { return true })

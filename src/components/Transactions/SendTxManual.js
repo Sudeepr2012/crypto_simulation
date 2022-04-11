@@ -33,10 +33,8 @@ function SendTxManual({ UTXO, gun, user }) {
     }
 
     function calculateMerkleRoot(tx) {
-        console.log(tx)
-        if (tx.length === 1) {
-            return tx
-        }
+        if (tx.length === 1)
+            return tx[0]
         if (tx.length % 2 !== 0)
             tx.push(tx[tx.length - 1])
         let txTemp = [];
@@ -45,17 +43,16 @@ function SendTxManual({ UTXO, gun, user }) {
             txTemp.push(sha256(tx[i] + tx[i + 1]).toString());
             i += 2;
         }
-        calculateMerkleRoot(txTemp)
+        const merkleRoot = calculateMerkleRoot(txTemp)
+        return merkleRoot
     }
 
-    console.log(ipUTXO)
-
-    async function sendTx(e) {
+    function sendTx(e) {
         e.preventDefault();
         setLoading(true)
         const sender = user.is.pub
-        const timestamp = + new Date()
-        const ipRoot = await calculateMerkleRoot(ipUTXO.map((val) => val.hash));
+        const timestamp = + new Date();
+        const tempIPUTXO = ipUTXO.map((val) => val.hash)
         let ip = [
             {
                 address: sender,
@@ -63,9 +60,7 @@ function SendTxManual({ UTXO, gun, user }) {
                 fee: fee
             }
         ]
-        console.log(ipUTXO)
         ipUTXO.map((val) => {
-            console.log(val)
             let ipVal = val;
             ipVal.address = sender
             ip.push(ipVal)
@@ -87,9 +82,9 @@ function SendTxManual({ UTXO, gun, user }) {
                 amount: ipUTXOamount - (amount + fee)
             }
         }
-        const opRoot = await calculateMerkleRoot(op.map((val, index) => sha256(index + val.hash + val.amount).toString()));
+        const tempOP = op.map((val, index) => sha256(index.toString() + val.address + (val.amount).toString()).toString())
         let tx = {
-            hash: sha256(timestamp + amount + fee + ipRoot + opRoot + sender + address).toString(),
+            hash: sha256(timestamp.toString() + amount.toString() + fee.toString() + calculateMerkleRoot(tempIPUTXO) + calculateMerkleRoot(tempOP) + sender + address).toString(),
             amount: amount,
             fee: fee,
             block: 'mempool',

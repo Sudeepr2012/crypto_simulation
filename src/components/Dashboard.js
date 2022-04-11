@@ -58,10 +58,6 @@ function Dashboard({ user, gun }) {
             setMyTx(tempUserTx[0])
         }
         fetchData();
-        gun.get('UTXO').once((utxo) =>
-            Object.keys(utxo).map((key) =>
-                gun.get('UTXO').get(key).once((tx) => console.log(tx)))
-        )
     }, [])
 
     useEffect(() => {
@@ -134,7 +130,7 @@ function Dashboard({ user, gun }) {
                                 <b>Type</b>: {acctType}<br />
                                 <b>SudoCoin</b>: {totalUTXO}<GiTwoCoins /><br />
                                 <b>Amount</b>: {amount}<br />
-                                <b>Address</b>: <FaCopy onClick={() => {
+                                <b>Address</b>: *** <FaCopy onClick={() => {
                                     navigator.clipboard.writeText(address)
                                     notify()
                                 }} /><br />
