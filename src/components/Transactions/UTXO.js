@@ -8,16 +8,19 @@ const gun = Gun({
 const firstTX = 100;
 
 async function getAddressUTXO(address) {
-
     const rUTXO = await gun.get('UTXO').then((utxo) => {
         if (utxo) {
             let addressUtxo = {};
             Object.keys(utxo).map((key) => {
-                if (key !== '_')
+                if (key !== '_') {
+                    // bug, so get all utxo
+                    gun.get('UTXO').get(key).then((utxo) => {
+                    })
                     gun.get('UTXO').get(key).get(address).once((tx) => {
                         if (tx > 0)
                             addressUtxo[key] = tx;
                     })
+                }
             })
             return [addressUtxo, Object.values(addressUtxo).reduce((sum, a) => sum + a, 0)]
         }

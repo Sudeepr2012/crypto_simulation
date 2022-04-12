@@ -51,9 +51,10 @@ function Dashboard({ user, gun }) {
             const exchangeValue = await getExchange.json()
             setExchangeRate(exchangeValue)
             setUsername(await user.get('alias'))
-            const UTXO = await getAddressUTXO(user.is.pub);
-            setUserUTXO(UTXO[0])
-            setTotalUTXO(UTXO[1])
+            getAddressUTXO(user.is.pub).then((UTXO) => {
+                setUserUTXO(UTXO[0])
+                setTotalUTXO(UTXO[1])
+            });
             const tempUserTx = await getUserTx(address)
             setMyTx(tempUserTx[0])
         }

@@ -17,18 +17,8 @@ function AllBlocks({ gun }) {
                 Object.keys(bcBlocks).map((key) => {
                     if (key !== '_')
                         gun.get(`blockchain/${key}`).once((block) => {
-                            setBlocks(blocks => [...blocks,
-                            <tr key={key}>
-                                <td data-label="Height"><Link to={`/block/${key}`}>#{block.height}</Link></td>
-                                <td data-label="Hash"><Link to={`/block/${key}`}>{block.hash}</Link></td>
-                                <td data-label="Timestamp">{getTDate(new Date(block.timestamp))}</td>
-                                <td data-label="Miner">{block.miner}</td>
-                                {/* <td data-label="TXs">{block.txCount}</td> */}
-                            </tr>
-                            ]
-                            )
+                            setBlocks(blocks => [...blocks, block])
                         })
-
                 })
         })
     }, [])
@@ -57,8 +47,14 @@ function AllBlocks({ gun }) {
                         </thead>
 
                         <tbody>
-                            {blocks.reverse().map((block, index) => (
-                                block
+                            {blocks.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1).map((block, index) => (
+                                <tr key={index}>
+                                    <td data-label="Height"><Link to={`/block/${block.height}`}>#{block.height}</Link></td>
+                                    <td data-label="Hash"><Link to={`/block/${block.height}`}>{block.hash}</Link></td>
+                                    <td data-label="Timestamp">{getTDate(new Date(block.timestamp))}</td>
+                                    <td data-label="Miner">{block.miner}</td>
+                                    {/* <td data-label="TXs">{block.txCount}</td> */}
+                                </tr>
                             ))
                             }
                         </tbody>
