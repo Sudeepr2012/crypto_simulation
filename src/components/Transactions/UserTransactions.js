@@ -1,24 +1,12 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { FaCopy } from 'react-icons/fa'
 import { Link } from "react-router-dom";
-import { toast } from 'react-toastify';
 import { colors } from '../Others/Colors';
+import { notify } from "../Others/Notify";
 
 function UserTransactions({ myTx, UTXO }) {
     const [filterTx, setFilterTx] = useState('utxo')
 
-    function notify(msg) {
-        toast(`✔️ ${msg} copied!`, {
-            position: "top-right",
-            autoClose: 1000,
-            style: { background: colors.lighter, color: colors.white },
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-        });
-    }
     return (
         <>
             <div style={{ width: '100%' }}>
@@ -38,19 +26,19 @@ function UserTransactions({ myTx, UTXO }) {
                                 <tr><td>Hash</td> <td><Link to={`/tx/${tx.hash}`}>{tx.hash}</Link> <FaCopy
                                     onClick={() => {
                                         navigator.clipboard.writeText(tx.hash)
-                                        notify('Transaction hash')
+                                        notify('✔️ Transaction hash copied!')
                                     }} /></td></tr>
                                 {tx.from ?
                                     <tr><td>From</td> <td><Link to={`/address/${tx.from}`}>{tx.from}</Link> <FaCopy
                                         onClick={() => {
                                             navigator.clipboard.writeText(tx.from)
-                                            notify('Address')
+                                            notify('✔️ Address copied!')
                                         }} /></td></tr>
                                     :
                                     <tr><td>To</td> <td><Link to={`/address/${tx.to}`}>{tx.to}</Link> <FaCopy
                                         onClick={() => {
                                             navigator.clipboard.writeText(tx.to)
-                                            notify('Address')
+                                            notify('✔️ Address copied!')
                                         }} /></td></tr>
                                 }
                                 <tr><td>Time</td> <td>{tx.timestamp}</td></tr>
@@ -83,7 +71,7 @@ function UserTransactions({ myTx, UTXO }) {
                                 <tr><td>Hash</td> <td><Link to={`/tx/${key}`}>{key}</Link> <FaCopy
                                     onClick={() => {
                                         navigator.clipboard.writeText(key)
-                                        notify('Transaction hash')
+                                        notify('✔️ Transaction hash copied!')
                                     }} /></td></tr>
                                 <tr><td>Amount</td> <td>{UTXO[key]} SC</td></tr>
                             </div>

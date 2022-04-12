@@ -6,10 +6,11 @@ import { BiErrorCircle } from 'react-icons/bi'
 import { GiCancel } from 'react-icons/gi'
 import { IoMdCube } from 'react-icons/io'
 import { FaReceipt } from 'react-icons/fa'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { colors } from '../Others/Colors';
 import { getAcctType } from '../Others/GetAcctType';
 import { getTDate } from '../Others/GetDate';
+import { notify } from '../Others/Notify';
 
 const AUTHORIZED_TYPE = 'miner';
 
@@ -75,17 +76,6 @@ function UnconfirmedTX({ user, gun }) {
         setCandidateBlockTx(candidateBlockTx.filter(newTxHash => newTxHash !== txHash),
             setTxLoading(txLoading => ({ ...txLoading, [txHash]: false })))
     }
-
-    const notify = (msg) => toast(msg, {
-        position: "top-right",
-        autoClose: 3000,
-        style: { background: colors.lighter, color: colors.white },
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
 
     return (
         <>

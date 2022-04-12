@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import SendTxWallet from './SendTxWallet';
 import SendTxManual from './SendTxManual';
 import { getAddressUTXO } from './UTXO';
+import { ToastContainer } from 'react-toastify';
 
 
 function SendTx({ user, gun }) {
@@ -22,6 +23,7 @@ function SendTx({ user, gun }) {
 
     return (
         <>
+            <ToastContainer />
             {sendMethod === '' ?
                 <div className='container'>
                     Select send method

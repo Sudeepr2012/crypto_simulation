@@ -3,6 +3,7 @@ import sha256 from 'crypto-js/sha256';
 import { useEffect, useState } from 'react';
 import Select from 'react-select'
 import { selectTheme } from '../Others/Colors';
+import { notify } from '../Others/Notify';
 import { deleteUTXO, putUTXO } from './UTXO';
 
 function SendTxManual({ UTXO, gun, user }) {
@@ -101,7 +102,8 @@ function SendTxManual({ UTXO, gun, user }) {
             await deleteUTXO(Object.assign({}, ip))
             if (newUTXO[0])
                 await putUTXO(tx.hash, newUTXO)
-            console.log('Success')
+            notify('Success')
+            setTimeout(() => window.location.href = '/dashboard', 3000)
         })
     }
 

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { GiTwoCoins } from 'react-icons/gi'
 import { FaCopy } from 'react-icons/fa'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
@@ -15,6 +15,7 @@ import { getAddressUTXO } from './Transactions/UTXO';
 import { getLastBlock } from './Blocks/GetLastBlock';
 import { getTDate } from './Others/GetDate';
 import { getUserTx } from './Transactions/GetUserTx';
+import { notify } from './Others/Notify';
 
 const coinToDollar = 2;
 
@@ -75,16 +76,6 @@ function Dashboard({ user, gun }) {
         setAmount(<>{cur === 'inr' ? '₹' : '$'}{amount}</>)
     }
 
-    const notify = () => toast('✔️ Wallet address copied!', {
-        position: "top-right",
-        autoClose: 2000,
-        style: { background: colors.lighter, color: colors.white },
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
 
     function logout() {
         setLoading(true)
@@ -133,7 +124,7 @@ function Dashboard({ user, gun }) {
                                 <b>Amount</b>: {amount}<br />
                                 <b>Address</b>: *** <FaCopy onClick={() => {
                                     navigator.clipboard.writeText(address)
-                                    notify()
+                                    notify('✔️ Wallet address copied!')
                                 }} /><br />
                             </div>
                         </TabPanel>

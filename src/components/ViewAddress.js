@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react"
 import { FaCopy } from 'react-icons/fa'
 import { Link, useParams } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
 import { colors } from "./Others/Colors";
 import { getUserTx } from "./Transactions/GetUserTx";
 import UserTransactions from "./Transactions/UserTransactions";
 import { getAddressUTXO } from "./Transactions/UTXO";
+import { notify } from "./Others/Notify";
 
 function ViewAddress({ gun }) {
 
@@ -39,17 +40,6 @@ function ViewAddress({ gun }) {
         }
     }, [userTx, userUTXO])
 
-    const notify = (msg) => toast(`✔️ ${msg} copied!`, {
-        position: "top-right",
-        autoClose: 1000,
-        style: { background: colors.lighter, color: colors.white },
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
-
     return (
         loading ?
             <div className="loader"></div>
@@ -62,7 +52,7 @@ function ViewAddress({ gun }) {
                         <tr><td>Address</td> <td>{address} <FaCopy
                             onClick={() => {
                                 navigator.clipboard.writeText(address)
-                                notify('Address')
+                                notify('✔️ Address copied!')
                             }} /></td></tr>
                         <tr><td>Username</td> <td>{username}</td></tr>
                         <tr><td>Transactions</td> <td>{Object.keys(userTx).length}</td></tr>

@@ -1,12 +1,13 @@
 
 import { FaCopy } from 'react-icons/fa'
 import { Link, useParams } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { FaReceipt } from 'react-icons/fa'
 import { colors } from '../Others/Colors';
 import { useEffect, useState } from 'react';
 import { getLastBlock } from '../Blocks/GetLastBlock';
 import { getTDate } from '../Others/GetDate';
+import { notify } from '../Others/Notify';
 
 function ViewTX({ gun }) {
 
@@ -78,17 +79,6 @@ function ViewTX({ gun }) {
             setLoading(false);
     }, [tx])
 
-    const notify = (msg) => toast(`✔️ ${msg} copied!`, {
-        position: "top-right",
-        autoClose: 2000,
-        style: { background: colors.lighter, color: colors.white },
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
-
     return (
         loading ?
             <div className='loader'></div>
@@ -101,12 +91,12 @@ function ViewTX({ gun }) {
                         <tr><td>Hash</td><td>{tx.hash} <FaCopy
                             onClick={() => {
                                 navigator.clipboard.writeText(tx.hash)
-                                notify('Hash')
+                                notify('✔️ Transaction hash copied!')
                             }} /></td></tr>
                         <tr><td>By</td><td><Link to={`/address/${tx.by.address}`}>{tx.by.address}</Link> <FaCopy
                             onClick={() => {
                                 navigator.clipboard.writeText(tx.by.address)
-                                notify('Address')
+                                notify('✔️ Address copied!')
                             }} /></td></tr>
                         <tr><td>Time</td><td>{tx.timestamp}</td></tr>
                         <tr><td>Status</td><td
@@ -137,7 +127,7 @@ function ViewTX({ gun }) {
                                 <tr><td>Address</td> <td><Link to={`/tx/${transaction.address}`}>{transaction.hash}</Link> <FaCopy
                                     onClick={() => {
                                         navigator.clipboard.writeText(transaction.hash)
-                                        notify('Address')
+                                        notify('✔️ Address copied!')
                                     }} /></td></tr>
                                 <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
                             </table>
@@ -154,7 +144,7 @@ function ViewTX({ gun }) {
                             <tr><td>Address</td> <td><Link to={`/address/${transaction.address}`}>{transaction.address}</Link> <FaCopy
                                 onClick={() => {
                                     navigator.clipboard.writeText(transaction.address)
-                                    notify('Address')
+                                    notify('✔️ Address copied!')
                                 }} /></td></tr>
                             <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
                         </table>

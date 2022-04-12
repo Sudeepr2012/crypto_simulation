@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom';
-import { Link, useParams } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { Link } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
 import { getAcctType } from '../Others/GetAcctType';
 import { colors } from "../Others/Colors";
 import { deleteUTXO, putAllUTXO, putUTXO } from "../Transactions/UTXO";
@@ -184,18 +184,6 @@ function ValidateBlock({ gun, user }) {
             })
         )
     }
-
-    const notify = (msg) => toast(`✔️ ${msg} copied!`, {
-        position: "top-right",
-        autoClose: 1000,
-        style: { background: colors.lighter, color: colors.white },
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
-
     return (
         loading ?
             <center><div className='loader'></div>
