@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { getLastBlock } from '../Blocks/GetLastBlock';
 import { getTDate } from '../Others/GetDate';
 import { notify } from '../Others/Notify';
+import { COIN_SYMBOL } from '../Strings';
 
 function ViewTX({ gun }) {
 
@@ -22,7 +23,6 @@ function ViewTX({ gun }) {
         const txPath = gun.get(`transactions/${txHash}`);
         async function getTx() {
             let tempTx = await txPath.then(async (tx) => {
-                console.log(tx)
                 if (tx) {
                     let txData = {
                         hash: txHash,
@@ -47,7 +47,6 @@ function ViewTX({ gun }) {
                     Object.keys(ips).map((key) => {
                         if (key !== '_')
                             gun.get(`transactions/${txHash}/inputs/${key}`).once((ip) => {
-                                console.log(ip)
                                 if (key == 0)
                                     setTx(tx => ({ ...tx, by: ip }))
                                 else
@@ -112,9 +111,9 @@ function ViewTX({ gun }) {
                         </tr>
                         <tr><td>Confirmations</td>
                             <td>{tx.confirmations}</td></tr>
-                        <tr><td>Total Input</td><td>{tx.totalIP} SC</td></tr>
-                        <tr><td>Total Output</td><td>{tx.totalOP} SC</td></tr>
-                        <tr><td>Fee</td><td>{tx.fee} SC</td></tr>
+                        <tr><td>Total Input</td><td>{tx.totalIP} {COIN_SYMBOL}</td></tr>
+                        <tr><td>Total Output</td><td>{tx.totalOP} {COIN_SYMBOL}</td></tr>
+                        <tr><td>Fee</td><td>{tx.fee} {COIN_SYMBOL}</td></tr>
                         {/* <tr><td>Value</td><td>{tx.value}</td></tr> */}
                     </table>
 
@@ -129,7 +128,7 @@ function ViewTX({ gun }) {
                                         navigator.clipboard.writeText(transaction.hash)
                                         notify('✔️ Address copied!')
                                     }} /></td></tr>
-                                <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
+                                <tr><td>Amount</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr>
                             </table>
                         ))
                         :
@@ -146,7 +145,7 @@ function ViewTX({ gun }) {
                                     navigator.clipboard.writeText(transaction.address)
                                     notify('✔️ Address copied!')
                                 }} /></td></tr>
-                            <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
+                            <tr><td>Amount</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr>
                         </table>
                     ))}
                 </div>

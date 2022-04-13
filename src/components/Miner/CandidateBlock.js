@@ -6,6 +6,7 @@ import { IoMdCube } from 'react-icons/io'
 import { colors } from '../Others/Colors';
 import { getAcctType } from '../Others/GetAcctType';
 import { notify } from '../Others/Notify';
+import { COIN_SYMBOL } from '../Strings';
 const SHA256 = require("crypto-js/sha256");
 
 const difficulty = 4;
@@ -31,7 +32,6 @@ function CandidateBlock({ user, gun }) {
     const navigate = useNavigate()
     useEffect(() => {
         setBlockTx(location.state)
-        console.log(location.state)
         gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => {
             if (val)
                 setCandidateBlock(val)
@@ -177,7 +177,6 @@ function CandidateBlock({ user, gun }) {
     }
 
     function calculateMerkleRoot(tx) {
-        console.log(tx)
         if (tx.length === 1) {
             setCandidateBlock(candidateBlock => ({ ...candidateBlock, merkleRoot: tx[0] }), setBlockLoading(false))
             let feeReward = 0;
@@ -281,15 +280,15 @@ function CandidateBlock({ user, gun }) {
                             <table style={{ fontSize: 16 }}>
                                 <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
                                     <tr><td>Hash</td> <td>{blockCBTx.hash}</td></tr>
-                                    <tr><td>Block Reward</td> <td>{blockCBTx.reward} SC</td></tr>
-                                    <tr><td>Fee Reward</td> <td>{blockCBTx.fee} SC</td></tr>
+                                    <tr><td>Block Reward</td> <td>{blockCBTx.reward} {COIN_SYMBOL}</td></tr>
+                                    <tr><td>Fee Reward</td> <td>{blockCBTx.fee} {COIN_SYMBOL}</td></tr>
                                 </div>
                                 {blockTx.length > 0 ?
                                     <>
                                         {blockTx.map((transaction, index) => (
                                             <div key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
                                                 <tr><td>Hash</td> <td>{transaction}</td></tr>
-                                                {/* <tr><td>Fee</td> <td>{transaction.amount} SC</td></tr> */}
+                                                {/* <tr><td>Fee</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr> */}
                                             </div>
                                         ))
                                         }

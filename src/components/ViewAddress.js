@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { FaCopy } from 'react-icons/fa'
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
 import { colors } from "./Others/Colors";
@@ -8,6 +8,7 @@ import { getUserTx } from "./Transactions/GetUserTx";
 import UserTransactions from "./Transactions/UserTransactions";
 import { getAddressUTXO } from "./Transactions/UTXO";
 import { notify } from "./Others/Notify";
+import { COIN_SYMBOL } from "./Strings";
 
 function ViewAddress({ gun }) {
 
@@ -56,10 +57,10 @@ function ViewAddress({ gun }) {
                             }} /></td></tr>
                         <tr><td>Username</td> <td>{username}</td></tr>
                         <tr><td>Transactions</td> <td>{Object.keys(userTx).length}</td></tr>
-                        <tr><td>Received</td><td>{userTxStats.received} SC</td>
+                        <tr><td>Received</td><td>{userTxStats.received} {COIN_SYMBOL}</td>
                         </tr>
-                        <tr><td>Sent</td> <td>{userTxStats.sent} SC</td></tr>
-                        <tr><td>Balance</td> <td>{userTxStats.received - userTxStats.sent} SC</td></tr>
+                        <tr><td>Sent</td> <td>{userTxStats.sent} {COIN_SYMBOL}</td></tr>
+                        <tr><td>Balance</td> <td>{userTxStats.received - userTxStats.sent} {COIN_SYMBOL}</td></tr>
                     </div>
                 </table>
                 <h4 style={{ textAlign: 'left' }}>Transactions</h4>

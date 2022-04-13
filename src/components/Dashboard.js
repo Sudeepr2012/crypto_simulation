@@ -9,13 +9,11 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import TabPanel from './Others/TabPanel'
 import UserTransactions from './Transactions/UserTransactions';
-import { colors } from './Others/Colors';
 import { getAcctType } from './Others/GetAcctType';
 import { getAddressUTXO } from './Transactions/UTXO';
-import { getLastBlock } from './Blocks/GetLastBlock';
-import { getTDate } from './Others/GetDate';
 import { getUserTx } from './Transactions/GetUserTx';
 import { notify } from './Others/Notify';
+import { COIN_NAME } from './Strings';
 
 const coinToDollar = 2;
 
@@ -120,7 +118,7 @@ function Dashboard({ user, gun }) {
                             <br />
                             <div style={{ textAlign: 'left' }}>
                                 <b>Type</b>: {acctType}<br />
-                                <b>SudoCoin</b>: {totalUTXO}<GiTwoCoins /><br />
+                                <b>{COIN_NAME}</b>: {totalUTXO}<GiTwoCoins /><br />
                                 <b>Amount</b>: {amount}<br />
                                 <b>Address</b>: *** <FaCopy onClick={() => {
                                     navigator.clipboard.writeText(address)

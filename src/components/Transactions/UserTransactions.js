@@ -3,6 +3,7 @@ import { FaCopy } from 'react-icons/fa'
 import { Link } from "react-router-dom";
 import { colors } from '../Others/Colors';
 import { notify } from "../Others/Notify";
+import { COIN_SYMBOL } from "../Strings";
 
 function UserTransactions({ myTx, UTXO }) {
     const [filterTx, setFilterTx] = useState('utxo')
@@ -55,8 +56,8 @@ function UserTransactions({ myTx, UTXO }) {
                                     }
                                 </tr>
                                 <tr> <td>Confirmations</td> <td>{tx.confirmations}</td></tr>
-                                <tr><td>Amount</td> <td>{tx.amount} SC</td></tr>
-                                {tx.fee ? <tr><td>Fee</td> <td>{tx.fee} SC</td></tr> : null}
+                                <tr><td>Amount</td> <td>{tx.amount} {COIN_SYMBOL}</td></tr>
+                                {tx.fee ? <tr><td>Fee</td> <td>{tx.fee} {COIN_SYMBOL}</td></tr> : null}
                                 {/* (total Output - change) */}
                             </div>
                         ))
@@ -73,7 +74,7 @@ function UserTransactions({ myTx, UTXO }) {
                                         navigator.clipboard.writeText(key)
                                         notify('✔️ Transaction hash copied!')
                                     }} /></td></tr>
-                                <tr><td>Amount</td> <td>{UTXO[key]} SC</td></tr>
+                                <tr><td>Amount</td> <td>{UTXO[key]} {COIN_SYMBOL}</td></tr>
                             </div>
                         ))
                         :

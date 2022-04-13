@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { getAcctType } from '../Others/GetAcctType';
-import { colors } from "../Others/Colors";
-import { deleteUTXO, putAllUTXO, putUTXO } from "../Transactions/UTXO";
+import { putAllUTXO } from "../Transactions/UTXO";
 import { addToBC } from "../Blocks/AddBlockToBC";
 import { confirmTx } from "../Transactions/PutUserTx";
 
@@ -26,7 +25,6 @@ function ValidateBlock({ gun, user }) {
                 Object.keys(blocks).map((key) => {
                     if (key !== '_' && blocks[key]) {
                         gun.get('pending-blocks').get(key).then((block) => {
-                            console.log(block)
                             gun.get(`pending-blocks/${key}/coinBase`).once((cb) => {
                                 block.coinBaseTx = cb
                             })
@@ -37,7 +35,6 @@ function ValidateBlock({ gun, user }) {
                                             block.key = key;
                                             block.fee = 0;
                                             gun.get(`pending-blocks/${key}/transactions`).once((txs) => {
-                                                console.log(txs)
                                                 block.txs = [];
                                                 if (txs) {
                                                     Object.values(txs).map((key) => {
@@ -58,7 +55,6 @@ function ValidateBlock({ gun, user }) {
                                                                     Object.keys(txIPs).map((index) => {
                                                                         if (index !== '_')
                                                                             gun.get(`transactions/${key}/inputs/${index}`).once((txIP) => {
-                                                                                console.log(txIP)
                                                                                 if (txIP.fee)
                                                                                     block.fee += txIP.fee
                                                                                 tempTx.inputs[index] = txIP
@@ -103,7 +99,7 @@ function ValidateBlock({ gun, user }) {
             ))
         }
     }, [pendingBlocks])
-    console.log(pendingBlocks)
+
     useEffect(() => {
         if (acctType === true || acctType === false)
             updateDet()

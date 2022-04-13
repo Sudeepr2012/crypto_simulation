@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Select from 'react-select'
 import { selectTheme } from '../Others/Colors';
 import { notify } from '../Others/Notify';
+import { COIN_SYMBOL } from '../Strings';
 import { deleteUTXO, putUTXO } from './UTXO';
 
 function SendTxManual({ UTXO, gun, user }) {
@@ -109,7 +110,7 @@ function SendTxManual({ UTXO, gun, user }) {
 
     return (
         <form onSubmit={sendTx} className='container'>
-            <h4>Send SC</h4>
+            <h4>Send {COIN_SYMBOL}</h4>
             <div className='form-field'>
                 <label>Address</label>
                 <input type='text' value={address}
@@ -144,7 +145,7 @@ function SendTxManual({ UTXO, gun, user }) {
                             ? 'Required input amount reached'
                             : 'No UTXO found'
                     )}
-                    getOptionLabel={e => `${e.hash} : ${e.amount} SC`}
+                    getOptionLabel={e => `${e.hash} : ${e.amount} ${COIN_SYMBOL}`}
                     getOptionValue={e => e.hash}
                     placeholder='Select inputs' />
             </div>

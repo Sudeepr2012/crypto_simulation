@@ -11,6 +11,7 @@ import { colors } from '../Others/Colors';
 import { getAcctType } from '../Others/GetAcctType';
 import { getTDate } from '../Others/GetDate';
 import { notify } from '../Others/Notify';
+import { COIN_SYMBOL } from '../Strings';
 
 const AUTHORIZED_TYPE = 'miner';
 
@@ -111,8 +112,8 @@ function UnconfirmedTX({ user, gun }) {
                                     <tr key={i}>
                                         <td data-label="Hash"><Link to={`/tx/${utx.hash}`}>{utx.hash}</Link></td>
                                         <td data-label="Timestamp">{utx.timestamp}</td>
-                                        <td data-label="Amount">{utx.amount} SC</td>
-                                        <td data-label="Fee">{utx.fee} SC</td>
+                                        <td data-label="Amount">{utx.amount} {COIN_SYMBOL}</td>
+                                        <td data-label="Fee">{utx.fee} {COIN_SYMBOL}</td>
                                         {acctType === AUTHORIZED_TYPE ?
                                             <td data-label="CB" style={{ cursor: 'pointer' }}>
                                                 {candidateBlock !== null ?

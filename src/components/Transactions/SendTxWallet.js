@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { COIN_SYMBOL } from '../Strings';
 
 const feeCharge = 0.5;
 const maxAmount = 1000;
@@ -22,7 +23,7 @@ function SendTxWallet() {
     }
     return (
         <form onSubmit={sendTx} className='container'>
-            <h4>Send SC</h4>
+            <h4>Send {COIN_SYMBOL}</h4>
             <div className='form-field'>
                 <label>Address</label>
                 <input type='text' value={address}

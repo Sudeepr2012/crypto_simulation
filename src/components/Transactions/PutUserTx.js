@@ -13,7 +13,6 @@ async function putToMempool(hash, outputs) {
     Object.keys(outputs).map((key) => {
         utxo[outputs[key].address] = outputs[key].amount;
     })
-    console.log(utxo)
     const rUTXO = gun.get('UTXO').put({
         [hash]: utxo
     }).then(() => { return true })
@@ -22,7 +21,6 @@ async function putToMempool(hash, outputs) {
 
 
 async function confirmTx(transactions, block) {
-    console.log(transactions)
     transactions.map((tx) => {
         if (tx.from === 'CoinBase Reward')
             gun.get('transactions').get(tx.hash).put(tx)

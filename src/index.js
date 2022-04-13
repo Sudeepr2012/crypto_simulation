@@ -113,22 +113,6 @@ function PathTracker({ pathChangedFun }) {
   useEffect(() => {
     //no. of miners in our network
     gun.get('miners').then((miners) => console.log(Object.keys(miners).length - 1))
-    // console.log(user.is.pub)
-    //  gun.user('9NVyZB3JLAywYsacGSJQFUBdEdS_ZyNRn4MresxbGzk.x89U95w2N2StV147jGtM2MV__4izDt2ZGpNuaeOeyqA').once((val, key) => console.log(val, key))
-    // gun.user('7DTJkNatJMXqOqfAoLd9Gl02cQI1v75NXeKlXVHqNH4.ViTQrFuMqaZMb_FfZjihg24Cwj5DaqN72VnwuCdh5fw').once((val, key) => console.log(val, key))
-    // gun.get('~@TesterLiam').once((data, key) => { console.log(data, key) });
-
-    // console.log(user.is)
-    // user.recall({
-    //   sessionStorage: true
-    // }, () => {
-    //   gun.on('auth', async (ack) => {
-    //     //user name and public key (wallet address)
-    //     console.log(user.is)
-    //     const ali = await user.get('info')
-    //     console.log(ali)
-    //   })
-    // })
     let authPaths = ['dashboard', 'send', 'me', 'miner']
     let path = pathname.split('/')
     if (path.some((p) => { return authPaths.includes(p); }) && !user.is)

@@ -7,6 +7,7 @@ import { colors } from "../Others/Colors";
 import { getTDate } from "../Others/GetDate";
 import { getLastBlock } from "./GetLastBlock";
 import { notify } from "../Others/Notify";
+import { COIN_SYMBOL } from "../Strings";
 
 
 function ViewBlock({ gun }) {
@@ -61,8 +62,8 @@ function ViewBlock({ gun }) {
                             <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
                             <tr><td>Merkle Root</td> <td>{block.merkleRoot}</td></tr>
                             <tr><td>Transactions</td> <td>{block.txCount}</td></tr>
-                            <tr><td>Block Reward</td> <td>{block.blockReward} SC</td></tr>
-                            <tr><td>Fee Reward</td> <td>{block.feeReward} SC</td></tr>
+                            <tr><td>Block Reward</td> <td>{block.blockReward} {COIN_SYMBOL}</td></tr>
+                            <tr><td>Fee Reward</td> <td>{block.feeReward} {COIN_SYMBOL}</td></tr>
                         </table>
                         <h4 style={{ textAlign: 'left' }}>Block Transactions</h4>
                         {blockTx.map((transaction, index) => (
@@ -72,8 +73,8 @@ function ViewBlock({ gun }) {
                                         navigator.clipboard.writeText(transaction.hash)
                                         notify('✔️ Hash copied!')
                                     }} /></td></tr>
-                                <tr><td>Amount</td> <td>{transaction.amount} SC</td></tr>
-                                <tr><td>Fee</td> <td>{transaction.fee} SC</td></tr>
+                                <tr><td>Amount</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr>
+                                <tr><td>Fee</td> <td>{transaction.fee} {COIN_SYMBOL}</td></tr>
                                 <tr><td>From</td> <td><Link to={`/address/${transaction.from}`}>{transaction.from}</Link> <FaCopy
                                     onClick={() => {
                                         navigator.clipboard.writeText(transaction.from)
