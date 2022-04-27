@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import { colors } from "./Colors";
 
-const notify = (msg) => toast(msg, {
+export const notify = (msg) => toast(msg, {
     position: "top-right",
     autoClose: 3000,
     style: { background: colors.lighter, color: colors.white },
@@ -11,5 +11,3 @@ const notify = (msg) => toast(msg, {
     draggable: true,
     progress: undefined,
 });
-
-export { notify }

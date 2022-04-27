@@ -6,7 +6,7 @@ const gun = Gun({
     peers: PEERS
 })
 
-async function addToBC(block, blockTx) {
+export async function addToBC(block, blockTx) {
     gun.get('blockchain').put({
         [block.height]: block
     }).then(() => {
@@ -15,5 +15,3 @@ async function addToBC(block, blockTx) {
         })
     })
 }
-
-export { addToBC }

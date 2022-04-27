@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import { VscListFlat } from 'react-icons/vsc'
 import { useState } from "react";
 
-function Header() {
+export default function Header() {
 
     const [headerClass, setHeaderClass] = useState("default");
 
@@ -29,4 +29,3 @@ function Header() {
         </my-header>
     )
 }
-export default Header

@@ -1,4 +1,4 @@
-function Footer() {
+export default function Footer() {
     const members = [
         {
             name: 'Charitha',
@@ -49,4 +49,3 @@ function Footer() {
         </footer>
     )
 }
-export default Footer

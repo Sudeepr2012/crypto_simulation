@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-function TabPanel(props) {
+export default function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
   return (
@@ -20,5 +20,3 @@ function TabPanel(props) {
     </div>
   );
 }
-
-export default TabPanel;

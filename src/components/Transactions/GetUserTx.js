@@ -8,51 +8,44 @@ const gun = Gun({
     peers: PEERS
 })
 
-async function getUserTx(address) {
-    let userTx = {}
-    let userTxStats = {
-        received: 0,
-        sent: 0
-    }
-    await gun.get('transactions').then((txs) => {
-        if (txs)
-            Object.keys(txs).map((key) => {
-                if (key !== '_') {
-                    let myTX = {};
-                    gun.get(`transactions/${key}`).once(async (tx) => {
-                        myTX = {
-                            hash: key,
-                            block: tx.block,
-                            timestamp: getTDate(new Date(tx.timestamp)),
-                            confirmations: isNaN(tx.block) ? 0 : (await getLastBlock() - tx.block) + 1,
-                        }
-                    }).then(() => {
-                        gun.get(`transactions/${key}/outputs/0`).once((op) => {
-                            gun.get(`transactions/${key}/inputs/0`).once((ip) => {
-                                if (op.address === address) {
-                                    myTX.from = ip.address;
-                                    myTX.amount = ip.amount;
-                                    if (!isNaN(myTX.block))
-                                        userTxStats.received += ip.amount;
-                                }
-                                if (ip.address === address) {
-                                    myTX.to = op.address;
-                                    myTX.amount = op.amount;
-                                    if (!isNaN(myTX.block))
-                                        userTxStats.sent += op.amount + ip.fee;
-                                    myTX.fee = ip.fee;
-                                }
-
-                            }).then(() => {
-                                if (myTX.amount)
-                                    userTx[key] = myTX
-                            })
-                        })
-                    })
+export async function getUserTx(address) {
+    const txs = await gun.get('transactions');
+    if (txs) {
+        let myTXs = {};
+        let myTXsStats = { received: 0, sent: 0 }
+        const allTxs = Object.keys(txs);
+        for (let i = 0; i < allTxs.length + 1; i++) {
+            if (i === allTxs.length)
+                return [myTXs, myTXsStats];
+            if (allTxs[i] !== '_') {
+                const tx = await gun.get(`transactions/${allTxs[i]}`);
+                const txOP = await gun.get(`transactions/${allTxs[i]}/outputs/0`)
+                const txIP = await gun.get(`transactions/${allTxs[i]}/inputs/0`)
+                if (txOP.address === address) {
+                    if (!myTXs[allTxs[i]])
+                        myTXs[allTxs[i]] = { hash: allTxs[i] }
+                    myTXs[allTxs[i]].from = txIP.address;
+                    myTXs[allTxs[i]].amount = txIP.amount;
+                    if (!isNaN(tx.block))
+                        myTXsStats.received += txIP.amount;
                 }
-            })
-    })
-    return [userTx, userTxStats];
-}
+                if (txIP.address === address) {
+                    if (!myTXs[allTxs[i]])
+                        myTXs[allTxs[i]] = { hash: allTxs[i] }
+                    myTXs[allTxs[i]].to = txOP.address;
+                    myTXs[allTxs[i]].amount = txOP.amount;
+                    if (!isNaN(tx.block))
+                        myTXsStats.sent += txOP.amount + txIP.fee;
+                    myTXs[allTxs[i]].fee = txIP.fee;
+                }
+                if (myTXs[allTxs[i]]) {
+                    myTXs[allTxs[i]].block = tx.block
+                    myTXs[allTxs[i]].timestamp = getTDate(new Date(tx.timestamp))
+                    myTXs[allTxs[i]].confirmations = isNaN(tx.block) ? 0 : (await getLastBlock() - tx.block) + 1
+                }
 
-export { getUserTx }
+            }
+        }
+    } else
+        return [{}, { received: 0, sent: 0 }];
+}

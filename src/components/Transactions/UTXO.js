@@ -5,7 +5,6 @@ require('gun/sea')
 const gun = Gun({
     peers: PEERS
 })
-const firstTX = 100;
 
 async function getAddressUTXO(address) {
     const rUTXO = await gun.get('UTXO').then((utxo) => {

@@ -10,8 +10,7 @@ import { getTDate } from '../Others/GetDate';
 import { notify } from '../Others/Notify';
 import { COIN_SYMBOL } from '../Strings';
 
-function ViewTX({ gun }) {
-
+export default function ViewTX({ gun }) {
     const { txHash } = useParams();
     const [tx, setTx] = useState()
     const [txIP, setTxIP] = useState([])
@@ -153,4 +152,3 @@ function ViewTX({ gun }) {
                 'Transaction not found !'
     )
 }
-export default ViewTX;

@@ -7,7 +7,7 @@ import { putAllUTXO } from "../Transactions/UTXO";
 import { addToBC } from "../Blocks/AddBlockToBC";
 import { confirmTx } from "../Transactions/PutUserTx";
 
-function ValidateBlock({ gun, user }) {
+export default function ValidateBlock({ gun, user }) {
 
     const [validateLoading, setValidateLoading] = useState({})
     const [loading, setLoading] = useState(true)
@@ -232,4 +232,3 @@ function ValidateBlock({ gun, user }) {
             </div>
     )
 }
-export default ValidateBlock

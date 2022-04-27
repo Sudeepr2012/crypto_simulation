@@ -10,7 +10,7 @@ import { getAddressUTXO } from "./Transactions/UTXO";
 import { notify } from "./Others/Notify";
 import { COIN_SYMBOL } from "./Strings";
 
-function ViewAddress({ gun }) {
+export default function ViewAddress({ gun }) {
 
     const { address } = useParams()
     const [loading, setLoading] = useState(true)
@@ -20,7 +20,11 @@ function ViewAddress({ gun }) {
     const [userUTXO, setUserUTXO] = useState()
 
     useEffect(() => {
+        setLoading(true)
         setUsername('Unknown')
+        setUserTx()
+        setUserTxStats()
+        setUserUTXO()
         gun.user(address).once((user) => {
             if (user)
                 setUsername(user.alias)
@@ -69,4 +73,3 @@ function ViewAddress({ gun }) {
             </div>
     )
 }
-export default ViewAddress

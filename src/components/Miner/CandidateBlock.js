@@ -12,7 +12,7 @@ const SHA256 = require("crypto-js/sha256");
 const difficulty = 4;
 const blockReward = 10;
 
-function CandidateBlock({ user, gun }) {
+export default function CandidateBlock({ user, gun }) {
     const [blockIsValid, setBlockIsValid] = useState(false);
     const [autoMining, setAutoMining] = useState(false);
     const [autoMiningStart, setAutoMiningStart] = useState(0);
@@ -32,9 +32,9 @@ function CandidateBlock({ user, gun }) {
     const navigate = useNavigate()
     useEffect(() => {
         setBlockTx(location.state)
-        gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => {
-            if (val)
-                setCandidateBlock(val)
+        gun.get(`miners/${user.is.pub}`).once((val) => {
+            if (val.candidateBlock)
+                gun.get(`miners/${user.is.pub}/candidateBlock`).once((cb) => setCandidateBlock(cb))
             else
                 setBlockLoading(false)
         })
@@ -127,7 +127,7 @@ function CandidateBlock({ user, gun }) {
     async function createBlock() {
         const timestamp = +new Date();
         gun.get('blockchain').once(async (blocks) => {
-            let tempCoinBaseHash = SHA256(blockReward + timestamp + user.is.pub).toString();
+            let tempCoinBaseHash = SHA256(blockReward + timestamp.toString() + user.is.pub).toString();
             const username = await user.get('alias');
             if (blocks !== undefined) {
                 let prevHash, height;
@@ -190,6 +190,7 @@ function CandidateBlock({ user, gun }) {
                 timestamp: +new Date(),
                 to: user.is.pub
             });
+            return
         }
         if (tx.length % 2 !== 0)
             tx.push(tx[tx.length - 1])
@@ -225,8 +226,8 @@ function CandidateBlock({ user, gun }) {
             gun.get('pending-blocks').get(tempCB.hash).put({
                 coinBase: blockCBTx,
                 transactions: Object.assign({}, blockTx),
-            }).then(() => {
-                gun.get('miners').get(user.is.pub).put({
+            }).then(async () => {
+                await gun.get('miners').get(user.is.pub).put({
                     candidateBlock: null
                 }).then(() => {
                     notify('Block broadcast successful!')
@@ -336,4 +337,3 @@ function CandidateBlock({ user, gun }) {
         </>
     )
 }
-export default CandidateBlock

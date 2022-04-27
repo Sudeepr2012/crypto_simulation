@@ -5,9 +5,10 @@ import Select from 'react-select'
 import { selectTheme } from '../Others/Colors';
 import { notify } from '../Others/Notify';
 import { COIN_SYMBOL } from '../Strings';
+import calculateMerkleRoot from './CalculateMerkleRoot';
 import { deleteUTXO, putUTXO } from './UTXO';
 
-function SendTxManual({ UTXO, gun, user }) {
+export default function SendTxManual({ UTXO, gun, user }) {
     const [ipUTXO, setIpUTXO] = useState([]);
     const [address, setAddress] = useState('');
     const [amount, setAmount] = useState(0);
@@ -32,21 +33,6 @@ function SendTxManual({ UTXO, gun, user }) {
         else
             setShowSendButton(false)
         setIpUTXO(e)
-    }
-
-    function calculateMerkleRoot(tx) {
-        if (tx.length === 1)
-            return tx[0]
-        if (tx.length % 2 !== 0)
-            tx.push(tx[tx.length - 1])
-        let txTemp = [];
-        let i = 0;
-        while (i < tx.length - 1) {
-            txTemp.push(sha256(tx[i] + tx[i + 1]).toString());
-            i += 2;
-        }
-        const merkleRoot = calculateMerkleRoot(txTemp)
-        return merkleRoot
     }
 
     function sendTx(e) {
@@ -162,4 +148,3 @@ function SendTxManual({ UTXO, gun, user }) {
         </form>
     )
 }
-export default SendTxManual

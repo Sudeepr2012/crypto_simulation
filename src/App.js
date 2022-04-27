@@ -2,7 +2,7 @@ import './App.css';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
-function App({ user }) {
+export default function App({ user }) {
 
   const navigate = useNavigate();
 
@@ -25,5 +25,3 @@ function App({ user }) {
     </>
   );
 }
-
-export default App;

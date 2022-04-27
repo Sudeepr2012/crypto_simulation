@@ -4,9 +4,7 @@ function checkDateFormat(date) {
     return date;
 }
 
-function getTDate(date) {
-    let newDate = `${checkDateFormat(date.getDate())}-${checkDateFormat(date.getMonth() + 1)}-${date.getFullYear()} ${checkDateFormat(date.getHours())}:${date.getMinutes()}`;
+export function getTDate(date) {
+    let newDate = `${checkDateFormat(date.getDate())}-${checkDateFormat(date.getMonth() + 1)}-${date.getFullYear()} ${checkDateFormat(date.getHours())}:${checkDateFormat(date.getMinutes())}`;
     return newDate;
 }
-
-export { getTDate }

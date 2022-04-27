@@ -6,7 +6,7 @@ import './Table.css'
 import { colors } from '../Others/Colors';
 import { getTDate } from '../Others/GetDate';
 
-function AllBlocks({ gun }) {
+export default function AllBlocks({ gun }) {
     const [loading, setLoading] = useState(true)
     const [blocks, setBlocks] = useState()
 
@@ -64,4 +64,3 @@ function AllBlocks({ gun }) {
                 'No block in blockchain'
     )
 }
-export default AllBlocks

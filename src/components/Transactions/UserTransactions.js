@@ -5,7 +5,7 @@ import { colors } from '../Others/Colors';
 import { notify } from "../Others/Notify";
 import { COIN_SYMBOL } from "../Strings";
 
-function UserTransactions({ myTx, UTXO }) {
+export default function UserTransactions({ myTx, UTXO }) {
     const [filterTx, setFilterTx] = useState('utxo')
 
     return (
@@ -56,8 +56,8 @@ function UserTransactions({ myTx, UTXO }) {
                                     }
                                 </tr>
                                 <tr> <td>Confirmations</td> <td>{tx.confirmations}</td></tr>
-                                <tr><td>Amount</td> <td>{tx.amount} {COIN_SYMBOL}</td></tr>
-                                {tx.fee ? <tr><td>Fee</td> <td>{tx.fee} {COIN_SYMBOL}</td></tr> : null}
+                                <tr><td>Amount</td> <td style={{ color: tx.to ? 'red' : null }}>{tx.amount} {COIN_SYMBOL}</td></tr>
+                                {tx.fee ? <tr><td>Fee</td> <td style={{ color: 'red' }}>{tx.fee} {COIN_SYMBOL}</td></tr> : null}
                                 {/* (total Output - change) */}
                             </div>
                         ))
@@ -86,4 +86,3 @@ function UserTransactions({ myTx, UTXO }) {
         </>
     )
 }
-export default UserTransactions

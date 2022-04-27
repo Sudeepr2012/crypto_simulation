@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { colors } from '../Others/Colors';
 import './Style.css'
 
-function Login({ user, gun }) {
+export default function Login({ user, gun }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -68,4 +68,3 @@ function Login({ user, gun }) {
         </form>
     )
 }
-export default Login

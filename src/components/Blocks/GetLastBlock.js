@@ -6,11 +6,9 @@ const gun = Gun({
     peers: PEERS
 })
 
-async function getLastBlock() {
+export async function getLastBlock() {
     const rHeight = gun.get('blockchain').then((blocks) => {
         return (Object.keys(blocks).length - 2)
     })
     return rHeight
 }
-
-export { getLastBlock }

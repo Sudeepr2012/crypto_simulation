@@ -7,12 +7,10 @@ const gun = Gun({
 })
 var user = gun.user().recall({ sessionStorage: true });
 
-async function getAcctType(acctType) {
+export async function getAcctType(acctType) {
     const curUser = await user.get('info')
     if (curUser)
         return (curUser.acctType)
     else
         return (!acctType)
 }
-
-export { getAcctType }

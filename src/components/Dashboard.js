@@ -17,7 +17,7 @@ import { COIN_NAME } from './Strings';
 
 const coinToDollar = 2;
 
-function Dashboard({ user, gun }) {
+export default function Dashboard({ user, gun }) {
     const address = user.is.pub;
     const [username, setUsername] = useState('');
     const [acctType, setAcctType] = useState(false);
@@ -139,4 +139,3 @@ function Dashboard({ user, gun }) {
         </>
     )
 }
-export default Dashboard;

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BsCheckLg } from 'react-icons/bs'
@@ -15,7 +14,7 @@ import { COIN_SYMBOL } from '../Strings';
 
 const AUTHORIZED_TYPE = 'miner';
 
-function UnconfirmedTX({ user, gun }) {
+export default function UnconfirmedTX({ user, gun }) {
     const [loading, setLoading] = useState(true)
     const [acctType, setAcctType] = useState(false);
     const [mempool, setMempool] = useState()
@@ -28,7 +27,10 @@ function UnconfirmedTX({ user, gun }) {
         setLoading(true)
         setMempool()
         if (user.is)
-            gun.get('miners').get(user.is.pub).get('candidateBlock').once((val) => setCandidateBlock(val))
+            gun.get(`miners/${user.is.pub}`).once((val) => {
+                if (val.candidateBlock)
+                    gun.get(`miners/${user.is.pub}/candidateBlock`).once((cb) => setCandidateBlock(cb))
+            })
         gun.get('transactions').once((txs) => {
             if (txs) {
                 let utx = [];
@@ -142,4 +144,3 @@ function UnconfirmedTX({ user, gun }) {
         </>
     )
 }
-export default UnconfirmedTX

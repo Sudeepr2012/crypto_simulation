@@ -6,7 +6,7 @@ import { getAddressUTXO } from './UTXO';
 import { ToastContainer } from 'react-toastify';
 
 
-function SendTx({ user, gun }) {
+export default function SendTx({ user, gun }) {
 
     const [UTXO, setUTXO] = useState([]);
     const [sendMethod, setSendMethod] = useState('');
@@ -16,7 +16,7 @@ function SendTx({ user, gun }) {
         setUTXO([])
         async function getUserTx() {
             const userUTXO = await getAddressUTXO(user.is.pub);
-            setUTXO(userUTXO[0])
+            setUTXO(userUTXO)
         }
         getUserTx()
     }, [sendMethod])
@@ -36,11 +36,10 @@ function SendTx({ user, gun }) {
                 </div>
                 :
                 sendMethod === 'manual' ?
-                    <SendTxManual UTXO={UTXO} gun={gun} user={user} />
+                    <SendTxManual UTXO={UTXO[0]} gun={gun} user={user} />
                     :
                     <SendTxWallet UTXO={UTXO} gun={gun} user={user} />
             }
         </>
     )
 }
-export default SendTx
