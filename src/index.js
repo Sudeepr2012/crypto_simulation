@@ -22,6 +22,7 @@ import CandidateBlock from './components/Miner/CandidateBlock';
 import ViewAddress from './components/ViewAddress';
 import ValidateBlock from './components/Miner/ValidateBlock';
 import { PEERS } from './components/Others/Peers';
+import AllTXs from './components/Transactions/AllTXs';
 require('gun/sea')
 
 const gun = Gun({
@@ -87,6 +88,8 @@ function MyRoutes() {
       <Route path="/login" element={<Login user={user} gun={gun} />} />
       <Route path="/join" element={<SignUp user={user} gun={gun} />} />
       <Route path="/blocks" element={<AllBlocks gun={gun} />} />
+      <Route path="/txs" element={<AllTXs gun={gun} />} />
+
       <Route path="/block/:bHeight" element={<ViewBlock gun={gun} />} />
       <Route path="/unconfirmed-tx" element={<UnconfirmedTX user={user} gun={gun} />} />
       <Route path="/tx/:txHash" element={<ViewTX gun={gun} />} />

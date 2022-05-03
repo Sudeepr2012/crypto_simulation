@@ -11,6 +11,14 @@ export default function AllBlocks({ gun }) {
     const [blocks, setBlocks] = useState()
 
     useEffect(() => {
+        // async function getBlocks() {
+        //     const res = await fetch('http://localhost:3030/blocks');
+        //     const data = await res.json();
+        //     console.log(data)
+        //     setBlocks(data)
+        // }
+        // getBlocks();
+
         gun.get('blockchain').once((bcBlocks) => {
             setBlocks([])
             if (bcBlocks)

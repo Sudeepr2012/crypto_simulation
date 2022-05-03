@@ -19,9 +19,8 @@ export default function ViewTX({ gun }) {
 
     useEffect(() => {
         setTx()
-        const txPath = gun.get(`transactions/${txHash}`);
         async function getTx() {
-            let tempTx = await txPath.then(async (tx) => {
+            let tempTx = await gun.get(`transactions/${txHash}`).then(async (tx) => {
                 if (tx) {
                     let txData = {
                         hash: txHash,
@@ -42,7 +41,7 @@ export default function ViewTX({ gun }) {
             })
             if (tempTx) {
                 setTx(tempTx)
-                txPath.get('inputs').once((ips) => {
+                gun.get(`transactions/${txHash}/inputs`).once((ips) => {
                     Object.keys(ips).map((key) => {
                         if (key !== '_')
                             gun.get(`transactions/${txHash}/inputs/${key}`).once((ip) => {
@@ -56,9 +55,8 @@ export default function ViewTX({ gun }) {
                                     setTx(tx => ({ ...tx, totalIP: tx.totalIP + ip.amount }))
                             })
                     })
-
                 })
-                txPath.get('outputs').then((ops) => {
+                gun.get(`transactions/${txHash}/outputs`).then((ops) => {
                     Object.keys(ops).map((key) => {
                         if (key !== '_')
                             gun.get(`transactions/${txHash}/outputs/${key}`).once((op) => {
@@ -73,9 +71,9 @@ export default function ViewTX({ gun }) {
     }, [txHash])
 
     useEffect(() => {
-        if (tx || tx === null)
+        if (txOP.length > 0)
             setLoading(false);
-    }, [tx])
+    }, [txOP])
 
     return (
         loading ?
