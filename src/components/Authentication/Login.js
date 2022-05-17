@@ -1,8 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from "react-router-dom";
-import { colors } from '../Others/Colors';
+import { colors } from '../others/Colors';
 import './Style.css'
 
 export default function Login({ user, gun }) {
@@ -10,11 +9,10 @@ export default function Login({ user, gun }) {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [invalidAuth, setInvalidAuth] = useState(false);
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (user.is)
-            window.location.href = '/Dashboard'
+            window.location.href = '/dashboard'
     }, [])
 
     function login(e) {
@@ -27,9 +25,7 @@ export default function Login({ user, gun }) {
                 setInvalidAuth(ack.err)
             else {
                 alert(user.is.pub)
-                // navigate("/dashboard"); using window.location (to properly fetch data on login)
-                window.location.href = '/Dashboard'
-
+                window.location.href = '/dashboard'
             }
         });
     }
@@ -53,7 +49,6 @@ export default function Login({ user, gun }) {
                     :
                     <button>Login</button>
                 }
-
             </div>
             <div className='btn-div' style={{ fontSize: 20, color: colors.link }}>
                 {invalidAuth ?

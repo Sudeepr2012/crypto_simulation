@@ -31,7 +31,6 @@ const server = app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 
-
 //get username
 app.get('/username', (req, res) => {
   const address = req.query.address;
@@ -47,19 +46,17 @@ app.get('/username', (req, res) => {
 //blocks
 app.get('/blocks', (req, res) => {
   gun.get('blockchain').once(async (bcBlocks) => {
-    if (bcBlocks) {
-      let blocks = [];
-      let keys = Object.keys(bcBlocks);
-      for (let i = 0; i < keys.length; i++) {
-        if (keys[i] !== '_')
-          blocks.push(
-            await gun.get(`blockchain/${keys[i]}`).once((block) => { return block })
-          )
-      }
-      return res.send(blocks);
-    }
-    else
+    if (!bcBlocks)
       return res.send([]);
+    let blocks = [];
+    let keys = Object.keys(bcBlocks);
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i] !== '_')
+        blocks.push(
+          await gun.get(`blockchain/${keys[i]}`).once((block) => { return block })
+        )
+    }
+    return res.send(blocks);
   })
 });
 
@@ -88,6 +85,20 @@ app.get('/block', (req, res) => {
     }).then(() => { return res.send([rBlock, rBlockTx]); })
   })
 });
+
+//get last block hash & height (prevHash)
+app.get('/prevblock', (req, res) => {
+  gun.get('blockchain').once(async (blocks) => {
+    if (blocks)
+      return res.send({ hash: '0000000000000000000000000000000000000000000000000000000000000000', height: -1 });
+    const topBlock = Object.keys(blocks).length - 2;
+    let rData = {};
+    await gun.get(`blockchain/${topBlock - 1}`).once((block) => {
+      rData = { hash: block.hash, height: block.height }
+    })
+    return res.send(rData)
+  })
+})
 
 //mempool
 app.get('/mempool', (req, res) => {

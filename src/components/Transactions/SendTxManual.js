@@ -2,8 +2,8 @@
 import sha256 from 'crypto-js/sha256';
 import { useEffect, useState } from 'react';
 import Select from 'react-select'
-import { selectTheme } from '../Others/Colors';
-import { notify } from '../Others/Notify';
+import { selectTheme } from '../others/Colors';
+import { notify } from '../others/Notify';
 import { COIN_SYMBOL } from '../Strings';
 import calculateMerkleRoot from './CalculateMerkleRoot';
 import { deleteUTXO, putUTXO } from './UTXO';

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
-import { getAcctType } from '../Others/GetAcctType';
-import { putAllUTXO } from "../Transactions/UTXO";
-import { addToBC } from "../Blocks/AddBlockToBC";
-import { confirmTx } from "../Transactions/PutUserTx";
+import { getAcctType } from '../others/GetAcctType';
+import { putAllUTXO } from "../transactions/UTXO";
+import { addToBC } from "../blocks/AddBlockToBC";
+import { confirmTx } from "../transactions/PutUserTx";
 
 export default function ValidateBlock({ gun, user }) {
 
@@ -163,6 +163,7 @@ export default function ValidateBlock({ gun, user }) {
                                 difficulty: pendingBlocks[key].difficulty,
                                 merkleRoot: pendingBlocks[key].merkleRoot,
                                 txCount: blockTx.length,
+                                prevHash: pendingBlocks[key].prevHash,
                                 blockReward: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
                                 feeReward: pendingBlocks[key].fee,
                             }

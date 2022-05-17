@@ -1,7 +1,7 @@
 
 import sha256 from 'crypto-js/sha256';
 import { useEffect, useState } from 'react';
-import { notify } from '../Others/Notify';
+import { notify } from '../others/Notify';
 import { COIN_SYMBOL } from '../Strings';
 import calculateMerkleRoot from './CalculateMerkleRoot';
 import { deleteUTXO, putUTXO } from './UTXO';

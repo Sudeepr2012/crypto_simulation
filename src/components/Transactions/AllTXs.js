@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaReceipt } from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
-import { colors } from '../Others/Colors';
-import { getTDate } from '../Others/GetDate';
+import { colors } from '../others/Colors';
+import { getTDate } from '../others/GetDate';
 import { COIN_SYMBOL } from '../Strings';
 
 

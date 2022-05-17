@@ -1,7 +1,7 @@
 import Gun from 'gun'
-import { getLastBlock } from '../Blocks/GetLastBlock';
-import { getTDate } from '../Others/GetDate';
-import { PEERS } from '../Others/Peers';
+import { getLastBlock } from '../blocks/GetLastBlock';
+import { getTDate } from '../others/GetDate';
+import { PEERS } from '../others/Peers';
 import { API_URL } from '../Strings';
 require('gun/sea')
 

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { GiTwoCoins } from 'react-icons/gi'
 import { FaCopy } from 'react-icons/fa'
@@ -7,12 +6,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import TabPanel from './Others/TabPanel'
-import UserTransactions from './Transactions/UserTransactions';
-import { getAcctType } from './Others/GetAcctType';
-import { getAddressUTXO } from './Transactions/UTXO';
-import { getUserTx } from './Transactions/GetUserTx';
-import { notify } from './Others/Notify';
+import TabPanel from './others/TabPanel'
+import UserTransactions from './transactions/UserTransactions';
+import { getAcctType } from './others/GetAcctType';
+import { getAddressUTXO } from './transactions/UTXO';
+import { getUserTx } from './transactions/GetUserTx';
+import { notify } from './others/Notify';
 import { COIN_NAME } from './Strings';
 
 const coinToDollar = 2;

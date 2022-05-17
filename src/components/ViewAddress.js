@@ -3,12 +3,12 @@ import { FaCopy } from 'react-icons/fa'
 import { useParams } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
-import { colors } from "./Others/Colors";
-import UserTransactions from "./Transactions/UserTransactions";
-import { notify } from "./Others/Notify";
+import { colors } from "./others/Colors";
+import UserTransactions from "./transactions/UserTransactions";
+import { notify } from "./others/Notify";
 import { API_URL, COIN_SYMBOL } from "./Strings";
-import { getAddressUTXO } from "./Transactions/UTXO";
-import { getUserTx } from "./Transactions/GetUserTx";
+import { getAddressUTXO } from "./transactions/UTXO";
+import { getUserTx } from "./transactions/GetUserTx";
 
 export default function ViewAddress() {
     const { address } = useParams()

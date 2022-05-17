@@ -3,10 +3,10 @@ import { FaCopy } from 'react-icons/fa'
 import { Link, useParams } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
-import { colors } from "../Others/Colors";
-import { getTDate } from "../Others/GetDate";
+import { colors } from "../others/Colors";
+import { getTDate } from "../others/GetDate";
 import { getLastBlock } from "./GetLastBlock";
-import { notify } from "../Others/Notify";
+import { notify } from "../others/Notify";
 import { API_URL, COIN_SYMBOL } from "../Strings";
 
 

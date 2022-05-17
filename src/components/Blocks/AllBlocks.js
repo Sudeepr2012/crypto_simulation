@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaCubes } from 'react-icons/fa'
 import './Table.css'
-import { colors } from '../Others/Colors';
-import { getTDate } from '../Others/GetDate';
+import { colors } from '../others/Colors';
+import { getTDate } from '../others/GetDate';
 import { API_URL } from '../Strings';
 
 export default function AllBlocks({ gun }) {
@@ -16,8 +16,10 @@ export default function AllBlocks({ gun }) {
             const res = await fetch(`${API_URL}/blocks`);
             const data = await res.json();
             setBlocks(data)
+            console.log(data)
         }
-        getBlocks();
+        getBlocks()
+        gun.get('blockchain').on(() => getBlocks())
 
         // gun.get('blockchain').once((bcBlocks) => {
         //     setBlocks([])
@@ -50,7 +52,7 @@ export default function AllBlocks({ gun }) {
                                 <th scope="col">Hash</th>
                                 <th scope="col">Timestamp</th>
                                 <th scope="col">Miner</th>
-                                {/* <th scope="col">TXs</th> */}
+                                <th scope="col">TXs</th>
                             </tr>
                         </thead>
 
@@ -61,7 +63,7 @@ export default function AllBlocks({ gun }) {
                                     <td data-label="Hash"><Link to={`/block/${block.height}`}>{block.hash}</Link></td>
                                     <td data-label="Timestamp">{getTDate(new Date(block.timestamp))}</td>
                                     <td data-label="Miner">{block.miner}</td>
-                                    {/* <td data-label="TXs">{block.txCount}</td> */}
+                                    <td data-label="TXs">{block.txCount}</td>
                                 </tr>
                             ))
                             }

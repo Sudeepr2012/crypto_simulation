@@ -6,10 +6,10 @@ import { GiCancel } from 'react-icons/gi'
 import { IoMdCube } from 'react-icons/io'
 import { FaReceipt } from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
-import { colors } from '../Others/Colors';
-import { getAcctType } from '../Others/GetAcctType';
-import { getTDate } from '../Others/GetDate';
-import { notify } from '../Others/Notify';
+import { colors } from '../others/Colors';
+import { getAcctType } from '../others/GetAcctType';
+import { getTDate } from '../others/GetDate';
+import { notify } from '../others/Notify';
 import { API_URL, COIN_SYMBOL } from '../Strings';
 
 const AUTHORIZED_TYPE = 'miner';

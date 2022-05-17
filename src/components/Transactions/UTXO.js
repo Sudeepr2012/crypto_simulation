@@ -1,5 +1,5 @@
 import Gun from 'gun'
-import { PEERS } from '../Others/Peers';
+import { PEERS } from '../others/Peers';
 import { API_URL } from '../Strings';
 require('gun/sea')
 

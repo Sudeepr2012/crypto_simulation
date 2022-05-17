@@ -8,21 +8,21 @@ import './index.css';
 import './PathChangedLoading.css'
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import Login from './components/Authentication/Login';
-import SignUp from './components/Authentication/Signup';
+import Login from './components/authentication/Login';
+import SignUp from './components/authentication/Signup';
 import Dashboard from './components/Dashboard';
-import SendTx from './components/Transactions/SendTx';
+import SendTx from './components/transactions/SendTx';
 import Footer from './components/Footer';
 import Header from './components/Header';
-import AllBlocks from './components/Blocks/AllBlocks';
-import ViewBlock from './components/Blocks/ViewBlock';
-import UnconfirmedTX from './components/Transactions/Unconfirmed';
-import ViewTX from './components/Transactions/ViewTX';
-import CandidateBlock from './components/Miner/CandidateBlock';
+import AllBlocks from './components/blocks/AllBlocks';
+import ViewBlock from './components/blocks/ViewBlock';
+import UnconfirmedTX from './components/transactions/Unconfirmed';
+import ViewTX from './components/transactions/ViewTX';
+import CandidateBlock from './components/miner/CandidateBlock';
 import ViewAddress from './components/ViewAddress';
-import ValidateBlock from './components/Miner/ValidateBlock';
-import { PEERS } from './components/Others/Peers';
-import AllTXs from './components/Transactions/AllTXs';
+import ValidateBlock from './components/miner/ValidateBlock';
+import { PEERS } from './components/others/Peers';
+import AllTXs from './components/transactions/AllTXs';
 require('gun/sea')
 
 const gun = Gun({

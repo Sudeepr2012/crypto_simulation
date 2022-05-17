@@ -3,10 +3,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { GiMiner } from 'react-icons/gi'
 import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
-import { colors } from '../Others/Colors';
-import { getAcctType } from '../Others/GetAcctType';
-import { notify } from '../Others/Notify';
-import { COIN_SYMBOL } from '../Strings';
+import { colors } from '../others/Colors';
+import { getAcctType } from '../others/GetAcctType';
+import { notify } from '../others/Notify';
+import { API_URL, COIN_SYMBOL } from '../Strings';
 const SHA256 = require("crypto-js/sha256");
 
 const difficulty = 4;
@@ -26,15 +26,15 @@ export default function CandidateBlock({ user, gun }) {
     const [loading, setLoading] = useState(false);
     const [blockLoading, setBlockLoading] = useState(true);
     const [blockTime, setBlockTime] = useState(0)
-
+    const userKU = user.is.pub;
     const location = useLocation();
 
     const navigate = useNavigate()
     useEffect(() => {
         setBlockTx(location.state)
-        gun.get(`miners/${user.is.pub}`).once((val) => {
+        gun.get(`miners/${userKU}`).once((val) => {
             if (val.candidateBlock)
-                gun.get(`miners/${user.is.pub}/candidateBlock`).once((cb) => setCandidateBlock(cb))
+                gun.get(`miners/${userKU}/candidateBlock`).once((cb) => setCandidateBlock(cb))
             else
                 setBlockLoading(false)
         })
@@ -126,53 +126,27 @@ export default function CandidateBlock({ user, gun }) {
 
     async function createBlock() {
         const timestamp = +new Date();
-        gun.get('blockchain').once(async (blocks) => {
-            let tempCoinBaseHash = SHA256(blockReward + timestamp.toString() + user.is.pub).toString();
-            const username = await user.get('alias');
-            if (blocks !== undefined) {
-                let prevHash, height;
-                gun.get('blockchain').get(Object.keys(blocks).length - 2).once((val) => {
-                    prevHash = val.hash;
-                    height = Object.keys(blocks).length - 1;
-                }).then(() => {
-                    let tempCB = {
-                        timestamp: timestamp,
-                        hash: '',
-                        prevHash: prevHash,
-                        height: height,
-                        difficulty: difficulty,
-                        miner: username,
-                        merkleRoot: '',
-                        tempCoinBaseHash: tempCoinBaseHash,
-                    }
-                    gun.get('miners').get(user.is.pub).put({
-                        candidateBlock: tempCB
-                    }).then(() => {
-                        notify('Block created!')
-                        tempCB.transactions = {}
-                        setCandidateBlock(tempCB)
-                    })
-                })
-            } else {
-                let tempCB = {
-                    timestamp: timestamp,
-                    hash: '',
-                    prevHash: '0000000000000000000000000000000000000000000000000000000000000000',
-                    height: 0,
-                    difficulty: difficulty,
-                    miner: username,
-                    merkleRoot: '',
-                    tempCoinBaseHash: tempCoinBaseHash
-                }
-                gun.get('miners').get(user.is.pub).put({
-                    candidateBlock: tempCB
-                }).then(() => {
-                    notify('Block created!')
-                    tempCB.transactions = {}
-                    setCandidateBlock(tempCB)
-                })
-            }
-
+        let tempCoinBaseHash = SHA256(blockReward + timestamp.toString() + userKU).toString();
+        const username = await user.get('alias');
+        const res = await fetch(`${API_URL}/prevblock`);
+        const prevBlock = await res.json();
+        let tempCB = {
+            timestamp: timestamp,
+            hash: '',
+            prevHash: prevBlock.hash,
+            height: prevBlock.height + 1,
+            difficulty: difficulty,
+            miner: username,
+            merkleRoot: '',
+            tempCoinBaseHash: tempCoinBaseHash,
+        }
+        console.log(tempCB)
+        gun.get('miners').get(userKU).put({
+            candidateBlock: tempCB
+        }).then(() => {
+            notify('Block created!')
+            tempCB.transactions = {}
+            setCandidateBlock(tempCB)
         })
     }
 
@@ -188,7 +162,7 @@ export default function CandidateBlock({ user, gun }) {
                 fee: feeReward,
                 reward: feeReward + blockReward,
                 timestamp: +new Date(),
-                to: user.is.pub
+                to: userKU
             });
             return
         }
@@ -219,7 +193,7 @@ export default function CandidateBlock({ user, gun }) {
         delete tempCB.tempCoinBaseHash;
         delete tempCB['_'];
         tempCB.accepted = {
-            // [user.is.pub] : true
+            // [userKU] : true
         };
         tempCB.rejected = {};
         gun.get('pending-blocks').put({ [tempCB.hash]: tempCB }).then(() => {
@@ -227,11 +201,13 @@ export default function CandidateBlock({ user, gun }) {
                 coinBase: blockCBTx,
                 transactions: Object.assign({}, blockTx),
             }).then(async () => {
-                await gun.get('miners').get(user.is.pub).put({
+                await gun.get('miners').get(userKU).put({
                     candidateBlock: null
                 }).then(() => {
                     notify('Block broadcast successful!')
                     setCandidateBlock(null)
+                    setNonce(0)
+                    setBlockTx([])
                     setLoading(false)
                 })
             })

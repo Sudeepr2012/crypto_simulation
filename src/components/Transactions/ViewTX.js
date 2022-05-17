@@ -3,11 +3,11 @@ import { FaCopy } from 'react-icons/fa'
 import { Link, useParams } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { FaReceipt } from 'react-icons/fa'
-import { colors } from '../Others/Colors';
+import { colors } from '../others/Colors';
 import { useEffect, useState } from 'react';
-import { getLastBlock } from '../Blocks/GetLastBlock';
-import { getTDate } from '../Others/GetDate';
-import { notify } from '../Others/Notify';
+import { getLastBlock } from '../blocks/GetLastBlock';
+import { getTDate } from '../others/GetDate';
+import { notify } from '../others/Notify';
 import { API_URL, COIN_SYMBOL } from '../Strings';
 
 export default function ViewTX({ gun }) {

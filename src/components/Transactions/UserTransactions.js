@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { FaCopy } from 'react-icons/fa'
 import { Link } from "react-router-dom";
-import { colors } from '../Others/Colors';
-import { notify } from "../Others/Notify";
+import { colors } from '../others/Colors';
+import { notify } from "../others/Notify";
 import { COIN_SYMBOL } from "../Strings";
 
 export default function UserTransactions({ myTx, UTXO }) {
