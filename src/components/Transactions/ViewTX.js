@@ -25,7 +25,7 @@ export default function ViewTX({ gun }) {
             if (data.length) {
                 setTx(data[0])
                 setTxIP(data[1])
-                setTxOP(data[1])
+                setTxOP(data[2])
             } else {
                 setTx('error')
             }

@@ -54,8 +54,6 @@ export default function Dashboard({ user, gun }) {
                 setUserUTXO(UTXO[0])
                 setTotalUTXO(UTXO[1])
             });
-            console.log(address)
-
             const tempUserTx = await getUserTx(address)
             setMyTx(tempUserTx[0])
         }
@@ -75,7 +73,6 @@ export default function Dashboard({ user, gun }) {
             amount = Math.round(exchangeRate[cur].rate * amount);
         setAmount(<>{cur === 'inr' ? '₹' : '$'}{amount}</>)
     }
-
 
     function logout() {
         setLoading(true)

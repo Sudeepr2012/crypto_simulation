@@ -4,14 +4,13 @@ import { useParams } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
 import { colors } from "./Others/Colors";
-import { getUserTx } from "./Transactions/GetUserTx";
 import UserTransactions from "./Transactions/UserTransactions";
-import { getAddressUTXO } from "./Transactions/UTXO";
 import { notify } from "./Others/Notify";
-import { COIN_SYMBOL } from "./Strings";
+import { API_URL, COIN_SYMBOL } from "./Strings";
+import { getAddressUTXO } from "./Transactions/UTXO";
+import { getUserTx } from "./Transactions/GetUserTx";
 
-export default function ViewAddress({ gun }) {
-
+export default function ViewAddress() {
     const { address } = useParams()
     const [loading, setLoading] = useState(true)
     const [username, setUsername] = useState('Unknown')
@@ -25,10 +24,11 @@ export default function ViewAddress({ gun }) {
         setUserTx()
         setUserTxStats()
         setUserUTXO()
-        gun.user(address).once((user) => {
-            if (user)
-                setUsername(user.alias)
-        })
+        async function getUserName() {
+            const res = await fetch(`${API_URL}/username?${new URLSearchParams({ address: address }).toString()}`);
+            const rUsername = await res.json();
+            setUsername(rUsername.alias)
+        }
         async function getTX() {
             const tempUserTx = await getUserTx(address)
             setUserTx(tempUserTx[0])
@@ -36,6 +36,7 @@ export default function ViewAddress({ gun }) {
             const UTXO = await getAddressUTXO(address);
             setUserUTXO(UTXO[0])
         }
+        getUserName();
         getTX();
     }, [address])
 

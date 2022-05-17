@@ -31,6 +31,19 @@ const server = app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 
+
+//get username
+app.get('/username', (req, res) => {
+  const address = req.query.address;
+  if (!address)
+    return res.send({ alias: 'Unknown' });
+  gun.user(address).once((user) => {
+    if (user)
+      return res.send({ alias: user.alias });
+    return res.send({ alias: 'Unknown' });
+  })
+})
+
 //blocks
 app.get('/blocks', (req, res) => {
   gun.get('blockchain').once(async (bcBlocks) => {
@@ -127,12 +140,12 @@ app.get('/tx', (req, res) => {
     };
     let rTxIP = [];
     let rTxOP = [];
-    await gun.get(`transactions/${txHash}/inputs`).once((ips) => {
+    await gun.get(`transactions/${txHash}/inputs`).then(async (ips) => {
       if (ips) {
         let keys = Object.keys(ips);
         for (let i = 0; i < keys.length; i++) {
           if (keys[i] !== '_')
-            gun.get(`transactions/${txHash}/inputs/${keys[i]}`).once((ip) => {
+            await gun.get(`transactions/${txHash}/inputs/${keys[i]}`).once((ip) => {
               if (keys[i] == 0)
                 rTx.by = ip
               else
@@ -145,12 +158,12 @@ app.get('/tx', (req, res) => {
         }
       }
     })
-    await gun.get(`transactions/${txHash}/outputs`).then((ops) => {
+    await gun.get(`transactions/${txHash}/outputs`).then(async (ops) => {
       if (ops) {
         let keys = Object.keys(ops);
         for (let i = 0; i < keys.length; i++) {
           if (keys[i] !== '_')
-            gun.get(`transactions/${txHash}/outputs/${keys[i]}`).once((op) => {
+            await gun.get(`transactions/${txHash}/outputs/${keys[i]}`).once((op) => {
               rTx.totalOP += op.amount
               rTxOP.push(op)
             })
@@ -161,5 +174,70 @@ app.get('/tx', (req, res) => {
   })
 });
 
+
+//get user TXs
+app.get('/userTXs', (req, res) => {
+  const address = req.query.address;
+  if (!address)
+    return res.send({ message: 'error' });
+  gun.get('transactions').then(async (txs) => {
+    if (!txs)
+      return res.send([{}, { received: 0, sent: 0 }]);
+    let userTXs = {};
+    let userTXsStats = { received: 0, sent: 0 }
+    const allTxs = Object.keys(txs);
+    for (let i = 0; i < allTxs.length; i++) {
+      if (allTxs[i] !== '_') {
+        const tx = await gun.get(`transactions/${allTxs[i]}`);
+        const txOP = await gun.get(`transactions/${allTxs[i]}/outputs/0`)
+        const txIP = await gun.get(`transactions/${allTxs[i]}/inputs/0`)
+        if (txOP.address === address) {
+          if (!userTXs[allTxs[i]])
+            userTXs[allTxs[i]] = { hash: allTxs[i] }
+          userTXs[allTxs[i]].from = txIP.address;
+          userTXs[allTxs[i]].amount = txIP.amount;
+          if (!isNaN(tx.block))
+            userTXsStats.received += txIP.amount;
+        }
+        if (txIP.address === address) {
+          if (!userTXs[allTxs[i]])
+            userTXs[allTxs[i]] = { hash: allTxs[i] }
+          userTXs[allTxs[i]].to = txOP.address;
+          userTXs[allTxs[i]].amount = txOP.amount;
+          userTXsStats.sent += txOP.amount + txIP.fee;
+          userTXs[allTxs[i]].fee = txIP.fee;
+        }
+        if (userTXs[allTxs[i]]) {
+          userTXs[allTxs[i]].block = tx.block
+          userTXs[allTxs[i]].timestamp = getTDate(new Date(tx.timestamp))
+          userTXs[allTxs[i]].confirmations = isNaN(tx.block) ? 0 : (await getLastBlock() - tx.block) + 1
+        }
+
+      }
+    }
+    return res.send([userTXs, userTXsStats]);
+  })
+})
+
+//get address UTXO
+app.get('/userUTXOs', (req, res) => {
+  const address = req.query.address;
+  if (!address)
+    return res.send([{}, 0]);
+  gun.get('UTXO').then((utxo) => {
+    if (!utxo)
+      return res.send([{}, 0]);
+    let addressUtxo = {};
+    Object.keys(utxo).map(async (key) => {
+      if (key !== '_') {
+        await gun.get('UTXO').get(key).get(address).once((tx) => {
+          if (tx > 0)
+            addressUtxo[key] = tx;
+        })
+      }
+    })
+    return res.send([addressUtxo, Object.values(addressUtxo).reduce((sum, a) => sum + a, 0)]);
+  })
+})
 // radisk: false   
 Gun({ web: server });

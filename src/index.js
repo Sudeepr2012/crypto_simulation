@@ -81,7 +81,6 @@ ReactDOM.render(
 
 
 function MyRoutes() {
-  const defaultScreen = <App user={user} />
   return (
     <Routes>
       <Route exact path="/" element={<App user={user} />} />
@@ -93,7 +92,7 @@ function MyRoutes() {
       <Route path="/block/:bHeight" element={<ViewBlock gun={gun} />} />
       <Route path="/unconfirmed-tx" element={<UnconfirmedTX user={user} gun={gun} />} />
       <Route path="/tx/:txHash" element={<ViewTX gun={gun} />} />
-      <Route path="/address/:address" element={<ViewAddress gun={gun} />} />
+      <Route path="/address/:address" element={<ViewAddress />} />
 
       {user.is ?
         <>
