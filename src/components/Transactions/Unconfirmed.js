@@ -10,7 +10,7 @@ import { colors } from '../Others/Colors';
 import { getAcctType } from '../Others/GetAcctType';
 import { getTDate } from '../Others/GetDate';
 import { notify } from '../Others/Notify';
-import { COIN_SYMBOL } from '../Strings';
+import { API_URL, COIN_SYMBOL } from '../Strings';
 
 const AUTHORIZED_TYPE = 'miner';
 
@@ -26,33 +26,44 @@ export default function UnconfirmedTX({ user, gun }) {
     useEffect(() => {
         setLoading(true)
         setMempool()
+        async function getUnconfirmedTx() {
+            const res = await fetch(`${API_URL}/mempool`);
+            const data = await res.json();
+            console.log(data)
+            setMempool(data)
+            for (let i = 0; i < data.length; i++) {
+                setTxLoading(txLoading => ({ ...txLoading, [data[i].hash]: false }))
+            }
+        }
+        getUnconfirmedTx();
         if (user.is)
             gun.get(`miners/${user.is.pub}`).once((val) => {
-                if (val.candidateBlock)
+                if (val && val.candidateBlock)
                     gun.get(`miners/${user.is.pub}/candidateBlock`).once((cb) => setCandidateBlock(cb))
             })
-        gun.get('transactions').once((txs) => {
-            if (txs) {
-                let utx = [];
-                Object.keys(txs).map((key) => {
-                    if (key !== '_' && txs[key])
-                        gun.get(`transactions/${key}`).once((tx) => {
-                            if (isNaN(tx.block))
-                                utx.push({
-                                    hash: tx.hash,
-                                    timestamp: getTDate(new Date(tx.timestamp)),
-                                    amount: tx.amount,
-                                    fee: tx.fee
-                                })
-                            setTxLoading(txLoading => ({ ...txLoading, [tx.hash]: false }))
-                        })
-                })
-                utx.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1)
-                setMempool(utx)
-            }
-            else
-                setMempool([])
-        })
+        // gun.get('transactions').once((txs) => {
+        //     if (txs) {
+        //         let utx = [];
+        //         Object.keys(txs).map((key) => {
+        //             if (key !== '_' && txs[key])
+        //                 gun.get(`transactions/${key}`).once((tx) => {
+        //                     console.log(tx)
+        //                     if (tx.block && isNaN(tx.block))
+        //                         utx.push({
+        //                             hash: tx.hash,
+        //                             timestamp: getTDate(new Date(tx.timestamp)),
+        //                             amount: tx.amount,
+        //                             fee: tx.fee
+        //                         })
+        //                     setTxLoading(txLoading => ({ ...txLoading, [tx.hash]: false }))
+        //                 })
+        //         })
+        //         utx.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1)
+        //         setMempool(utx)
+        //     }
+        //     else
+        //         setMempool([])
+        // })
     }, [])
 
     useEffect(() => {

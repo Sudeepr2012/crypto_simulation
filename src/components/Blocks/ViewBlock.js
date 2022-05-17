@@ -7,43 +7,57 @@ import { colors } from "../Others/Colors";
 import { getTDate } from "../Others/GetDate";
 import { getLastBlock } from "./GetLastBlock";
 import { notify } from "../Others/Notify";
-import { COIN_SYMBOL } from "../Strings";
+import { API_URL, COIN_SYMBOL } from "../Strings";
 
 
 function ViewBlock({ gun }) {
 
     const { bHeight } = useParams()
-    const [block, setBlock] = useState({})
+    const [block, setBlock] = useState()
     const [blockTx, setBlockTx] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         setLoading(true)
         setBlockTx([])
-        setBlock({})
-        gun.get(`blockchain/${bHeight}`).once(async (block) => {
-            block.confirmations = (await getLastBlock() - block.height) + 1
-            setBlock(block)
-            if (block)
-                gun.get(`blockchain/${bHeight}/transactions`).once((txs) => {
-                    Object.keys(txs).map((txHash) => {
-                        if (txHash !== '_')
-                            gun.get(`blockchain/${bHeight}/transactions/${txHash}`).once((tx) =>
-                                setBlockTx(blockTx => [...blockTx, tx])
-                            )
-                    })
-                })
-            setLoading(false)
-        })
+        async function getBlock() {
+            const res = await fetch(`${API_URL}/block?${new URLSearchParams({ height: bHeight }).toString()}`);
+            const data = await res.json();
+            if (data.length) {
+                setBlock(data[0])
+                setBlockTx(data[1])
+            } else {
+                setBlock('error')
+            }
+        }
+        getBlock();
+        // gun.get(`blockchain/${bHeight}`).once(async (block) => {
+        //     block.confirmations = (await getLastBlock() - block.height) + 1
+        //     setBlock(block)
+        //     if (block)
+        //         gun.get(`blockchain/${bHeight}/transactions`).once((txs) => {
+        //             Object.keys(txs).map((txHash) => {
+        //                 if (txHash !== '_')
+        //                     gun.get(`blockchain/${bHeight}/transactions/${txHash}`).once((tx) =>
+        //                         setBlockTx(blockTx => [...blockTx, tx])
+        //                     )
+        //             })
+        //         })
+        //     setLoading(false)
+        // })
     }, [bHeight])
 
+    useEffect(() => {
+        if (block)
+            setLoading(false)
+    }, [block])
     return (
         <div style={{ width: '1800px', maxWidth: '90%' }}>
             <ToastContainer />
             {loading ?
-                <div></div>
+                <center><div className="loader"></div></center>
                 :
-                block ?
+                block !== 'error' ?
                     <>
                         <h4 style={{ textAlign: 'left' }}><IoMdCube color={colors.link} /> Block #{block.height}</h4>
                         <table style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>

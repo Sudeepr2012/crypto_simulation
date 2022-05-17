@@ -34,7 +34,6 @@ async function putUTXO(hash, outputs) {
     let utxo = {
         hash: hash
     }
-
     Object.keys(outputs).map((key) => {
         utxo[outputs[key].address] = outputs[key].amount;
     })

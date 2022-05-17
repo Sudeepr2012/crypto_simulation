@@ -5,30 +5,30 @@ import { FaCubes } from 'react-icons/fa'
 import './Table.css'
 import { colors } from '../Others/Colors';
 import { getTDate } from '../Others/GetDate';
+import { API_URL } from '../Strings';
 
 export default function AllBlocks({ gun }) {
     const [loading, setLoading] = useState(true)
     const [blocks, setBlocks] = useState()
 
     useEffect(() => {
-        // async function getBlocks() {
-        //     const res = await fetch('http://localhost:3030/blocks');
-        //     const data = await res.json();
-        //     console.log(data)
-        //     setBlocks(data)
-        // }
-        // getBlocks();
+        async function getBlocks() {
+            const res = await fetch(`${API_URL}/blocks`);
+            const data = await res.json();
+            setBlocks(data)
+        }
+        getBlocks();
 
-        gun.get('blockchain').once((bcBlocks) => {
-            setBlocks([])
-            if (bcBlocks)
-                Object.keys(bcBlocks).map((key) => {
-                    if (key !== '_')
-                        gun.get(`blockchain/${key}`).once((block) => {
-                            setBlocks(blocks => [...blocks, block])
-                        })
-                })
-        })
+        // gun.get('blockchain').once((bcBlocks) => {
+        //     setBlocks([])
+        //     if (bcBlocks)
+        //         Object.keys(bcBlocks).map((key) => {
+        //             if (key !== '_')
+        //                 gun.get(`blockchain/${key}`).once((block) => {
+        //                     setBlocks(blocks => [...blocks, block])
+        //                 })
+        //         })
+        // })
     }, [])
 
     useEffect(() => {

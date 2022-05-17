@@ -6,6 +6,7 @@ import { notify } from "../Others/Notify";
 import { COIN_SYMBOL } from "../Strings";
 
 export default function UserTransactions({ myTx, UTXO }) {
+    console.log(myTx)
     const [filterTx, setFilterTx] = useState('utxo')
 
     return (

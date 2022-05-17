@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { getLastBlock } from '../Blocks/GetLastBlock';
 import { getTDate } from '../Others/GetDate';
 import { notify } from '../Others/Notify';
-import { COIN_SYMBOL } from '../Strings';
+import { API_URL, COIN_SYMBOL } from '../Strings';
 
 export default function ViewTX({ gun }) {
     const { txHash } = useParams();
@@ -20,66 +20,78 @@ export default function ViewTX({ gun }) {
     useEffect(() => {
         setTx()
         async function getTx() {
-            let tempTx = await gun.get(`transactions/${txHash}`).then(async (tx) => {
-                if (tx) {
-                    let txData = {
-                        hash: txHash,
-                        by: {
-                            adress: ''
-                        },
-                        status: isNaN(tx.block) ? 'Unconfirmed' : 'Confirmed',
-                        timestamp: getTDate(new Date(tx.timestamp)),
-                        confirmations: isNaN(tx.block) ? 0 : (await getLastBlock() - tx.block) + 1,
-                        block: tx.block,
-                        fee: 0,
-                        totalIP: 0,
-                        totalOP: 0
-                    };
-                    return txData
-                } else
-                    setTx(null)
-            })
-            if (tempTx) {
-                setTx(tempTx)
-                gun.get(`transactions/${txHash}/inputs`).once((ips) => {
-                    Object.keys(ips).map((key) => {
-                        if (key !== '_')
-                            gun.get(`transactions/${txHash}/inputs/${key}`).once((ip) => {
-                                if (key == 0)
-                                    setTx(tx => ({ ...tx, by: ip }))
-                                else
-                                    setTxIP(txIP => [...txIP, ip])
-                                if (ip.fee >= 0)
-                                    setTx(tx => ({ ...tx, fee: tx.fee + ip.fee }))
-                                else
-                                    setTx(tx => ({ ...tx, totalIP: tx.totalIP + ip.amount }))
-                            })
-                    })
-                })
-                gun.get(`transactions/${txHash}/outputs`).then((ops) => {
-                    Object.keys(ops).map((key) => {
-                        if (key !== '_')
-                            gun.get(`transactions/${txHash}/outputs/${key}`).once((op) => {
-                                setTx(tx => ({ ...tx, totalOP: tx.totalOP + op.amount }))
-                                setTxOP(txOP => [...txOP, op])
-                            })
-                    })
-                })
+            const res = await fetch(`${API_URL}/tx?${new URLSearchParams({ txHash: txHash }).toString()}`);
+            const data = await res.json();
+            if (data.length) {
+                setTx(data[0])
+                setTxIP(data[1])
+                setTxOP(data[1])
+            } else {
+                setTx('error')
             }
         }
         getTx();
+        // async function getTx() {
+        //     let tempTx = await gun.get(`transactions/${txHash}`).then(async (tx) => {
+        //         if (tx) {
+        //             let txData = {
+        //                 hash: txHash,
+        //                 by: {
+        //                     adress: ''
+        //                 },
+        //                 status: isNaN(tx.block) ? 'Unconfirmed' : 'Confirmed',
+        //                 timestamp: getTDate(new Date(tx.timestamp)),
+        //                 confirmations: isNaN(tx.block) ? 0 : (await getLastBlock() - tx.block) + 1,
+        //                 block: tx.block,
+        //                 fee: 0,
+        //                 totalIP: 0,
+        //                 totalOP: 0
+        //             };
+        //             return txData
+        //         } else
+        //             setTx(null)
+        //     })
+        //     if (tempTx) {
+        //         setTx(tempTx)
+        //         gun.get(`transactions/${txHash}/inputs`).once((ips) => {
+        //             Object.keys(ips).map((key) => {
+        //                 if (key !== '_')
+        //                     gun.get(`transactions/${txHash}/inputs/${key}`).once((ip) => {
+        //                         if (key == 0)
+        //                             setTx(tx => ({ ...tx, by: ip }))
+        //                         else
+        //                             setTxIP(txIP => [...txIP, ip])
+        //                         if (ip.fee >= 0)
+        //                             setTx(tx => ({ ...tx, fee: tx.fee + ip.fee }))
+        //                         else
+        //                             setTx(tx => ({ ...tx, totalIP: tx.totalIP + ip.amount }))
+        //                     })
+        //             })
+        //         })
+        //         gun.get(`transactions/${txHash}/outputs`).then((ops) => {
+        //             Object.keys(ops).map((key) => {
+        //                 if (key !== '_')
+        //                     gun.get(`transactions/${txHash}/outputs/${key}`).once((op) => {
+        //                         setTx(tx => ({ ...tx, totalOP: tx.totalOP + op.amount }))
+        //                         setTxOP(txOP => [...txOP, op])
+        //                     })
+        //             })
+        //         })
+        //     }
+        // }
+        // getTx();
     }, [txHash])
 
     useEffect(() => {
-        if (txOP.length > 0)
+        if (tx)
             setLoading(false);
-    }, [txOP])
+    }, [tx])
 
     return (
         loading ?
             <div className='loader'></div>
             :
-            tx ?
+            tx !== 'error' ?
                 <div style={{ width: '90%', maxWidth: '1800px' }}>
                     <ToastContainer />
                     <h4 style={{ textAlign: 'left' }}><FaReceipt color={colors.link} /> Transaction Details</h4>
