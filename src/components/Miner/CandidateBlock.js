@@ -5,12 +5,13 @@ import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
 import { colors } from '../others/Colors';
 import { getAcctType } from '../others/GetAcctType';
+import calculateMerkleRoot from '../transactions/CalculateMerkleRoot';
 import { notify } from '../others/Notify';
-import { API_URL, COIN_SYMBOL } from '../Strings';
+import { API_URL, BLOCK_REWARD, COIN_SYMBOL, DIFFICULTY } from '../Strings';
+import { getTime } from '../others/GetDate';
 const SHA256 = require("crypto-js/sha256");
 
-const difficulty = 4;
-const blockReward = 10;
+
 
 export default function CandidateBlock({ user, gun }) {
     const [blockIsValid, setBlockIsValid] = useState(false);
@@ -34,24 +35,51 @@ export default function CandidateBlock({ user, gun }) {
         setBlockTx(location.state)
         gun.get(`miners/${userKU}`).once((val) => {
             if (val.candidateBlock)
-                gun.get(`miners/${userKU}/candidateBlock`).once((cb) => setCandidateBlock(cb))
+                gun.get(`miners/${userKU}/candidateBlock`).once((cb) => {
+                    setCandidateBlock(cb)
+                })
             else
                 setBlockLoading(false)
         })
+
         window.history.replaceState({}, document.title)
     }, [])
 
     useEffect(() => {
-        if (blockTx !== null && candidateBlock) {
-            if (candidateBlock.merkleRoot === '') {
-                let tx = [];
-                tx.push(candidateBlock.tempCoinBaseHash)
-                for (let i = 0; i < blockTx.length; i++)
-                    tx.push(blockTx[i])
-                calculateMerkleRoot(tx);
+        async function findCoinBaseTx() {
+            let feeReward = 0;
+            for (let i = 0; i < blockTx.length + 1; i++) {
+                if (i === blockTx.length) {
+                    console.log('fff')
+                    let timestamp = +new Date();
+                    setBlockCBTx({
+                        hash: SHA256((BLOCK_REWARD + feeReward).toString() + timestamp.toString() + userKU).toString(),
+                        fee: feeReward,
+                        reward: feeReward + BLOCK_REWARD,
+                        timestamp: timestamp,
+                        to: userKU
+                    }, setBlockLoading(false));
+                }
+                else {
+                    await gun.get('transactions').get(blockTx[i]).once((val) => {
+                        feeReward += val.fee
+                    })
+                }
             }
         }
-    }, [blockTx, candidateBlock])
+        if (blockTx && candidateBlock && candidateBlock.merkleRoot === '')
+            findCoinBaseTx()
+    }, [candidateBlock])
+
+    useEffect(() => {
+        if (Object.keys(blockCBTx).length > 0) {
+            let tx = [];
+            tx.push(blockCBTx.hash)
+            for (let i = 0; i < blockTx.length; i++)
+                tx.push(blockTx[i])
+            setCandidateBlock(candidateBlock => ({ ...candidateBlock, merkleRoot: calculateMerkleRoot(tx) }));
+        }
+    }, [blockCBTx])
 
     useEffect(() => {
         if (acctType === true || acctType === false)
@@ -66,7 +94,7 @@ export default function CandidateBlock({ user, gun }) {
 
     useEffect(() => {
         if (candidateBlock)
-            setTimeout(() => setBlockTime(Math.round((+ new Date() - candidateBlock.timestamp) / 1000)), 1000)
+            setTimeout(() => setBlockTime(getTime(Math.round((+ new Date() - candidateBlock.timestamp) / 1000))), 1000)
     }, [blockTime, candidateBlock])
 
     useEffect(() => {
@@ -87,11 +115,11 @@ export default function CandidateBlock({ user, gun }) {
         if (autoMining) {
             let tempNonce = nonce;
             let hash = candidateBlock.hash;
-            if (!checkDifficulty(hash, difficulty)) {
+            if (!checkDifficulty(hash, DIFFICULTY)) {
                 setAutoMiningStart(+ new Date())
                 setShowSubmitButton(false)
                 setBlockIsValid(false)
-                while (!checkDifficulty(hash, difficulty)) {
+                while (!checkDifficulty(hash, DIFFICULTY)) {
                     tempNonce++
                     hash = findHash(candidateBlock.prevHash, candidateBlock.timestamp, candidateBlock.merkleRoot, tempNonce)
                     // affects time
@@ -111,9 +139,11 @@ export default function CandidateBlock({ user, gun }) {
                 setBlockIsValid(true)
                 setNonce(candidateBlock.nonce)
             } else {
-                let isBlockValid = checkDifficulty(candidateBlock.hash, difficulty);
-                setShowSubmitButton(isBlockValid)
-                setBlockIsValid(isBlockValid)
+                if (candidateBlock.hash) {
+                    let isBlockValid = checkDifficulty(candidateBlock.hash, DIFFICULTY);
+                    setShowSubmitButton(isBlockValid)
+                    setBlockIsValid(isBlockValid)
+                }
             }
 
         }
@@ -126,7 +156,6 @@ export default function CandidateBlock({ user, gun }) {
 
     async function createBlock() {
         const timestamp = +new Date();
-        let tempCoinBaseHash = SHA256(blockReward + timestamp.toString() + userKU).toString();
         const username = await user.get('alias');
         const res = await fetch(`${API_URL}/prevblock`);
         const prevBlock = await res.json();
@@ -135,12 +164,10 @@ export default function CandidateBlock({ user, gun }) {
             hash: '',
             prevHash: prevBlock.hash,
             height: prevBlock.height + 1,
-            difficulty: difficulty,
+            difficulty: DIFFICULTY,
             miner: username,
             merkleRoot: '',
-            tempCoinBaseHash: tempCoinBaseHash,
         }
-        console.log(tempCB)
         gun.get('miners').get(userKU).put({
             candidateBlock: tempCB
         }).then(() => {
@@ -150,47 +177,18 @@ export default function CandidateBlock({ user, gun }) {
         })
     }
 
-    function calculateMerkleRoot(tx) {
-        if (tx.length === 1) {
-            setCandidateBlock(candidateBlock => ({ ...candidateBlock, merkleRoot: tx[0] }), setBlockLoading(false))
-            let feeReward = 0;
-            blockTx.map((bTx) => {
-                gun.get('mempool').get(bTx).once((val) => feeReward += val.fee)
-            })
-            setBlockCBTx({
-                hash: candidateBlock.tempCoinBaseHash,
-                fee: feeReward,
-                reward: feeReward + blockReward,
-                timestamp: +new Date(),
-                to: userKU
-            });
-            return
-        }
-        if (tx.length % 2 !== 0)
-            tx.push(tx[tx.length - 1])
-        let txTemp = [];
-        let i = 0;
-        while (i < tx.length - 1) {
-            txTemp.push(SHA256(tx[i] + tx[i + 1]).toString());
-            i += 2;
-        }
-        const merkleRoot = calculateMerkleRoot(txTemp)
-        return merkleRoot
-    }
-
     function findHash(previousHash, timestamp, merkleRoot, nonce) {
         return SHA256(previousHash + timestamp + merkleRoot + nonce).toString();
     }
 
-    function checkDifficulty(hash, difficulty) {
-        return hash.substr(0, difficulty) === "0".repeat(difficulty)
+    function checkDifficulty(hash, DIFFICULTY) {
+        return hash.substr(0, DIFFICULTY) === "0".repeat(DIFFICULTY)
     }
 
     function BroadcastBlock(e) {
         e.preventDefault();
         setLoading(true)
         let tempCB = candidateBlock;
-        delete tempCB.tempCoinBaseHash;
         delete tempCB['_'];
         tempCB.accepted = {
             // [userKU] : true
@@ -235,14 +233,14 @@ export default function CandidateBlock({ user, gun }) {
                                 <h4 style={{ textAlign: 'right', fontSize: 20, margin: 0 }}>
                                     <GiMiner color='#e5f9ff' /> Mining Duration: {((autoMiningEnd - autoMiningStart) / 1000).toFixed(1)}s</h4>
                                 <h4 style={{ textAlign: 'right', fontSize: 20, margin: 0 }}>
-                                    <IoMdCube color={colors.link} /> Total Block time: {blockTime}s</h4>
+                                    <IoMdCube color={colors.link} /> Block Age: {blockTime}</h4>
                             </div>
                         </div>
 
                         <div className='form-field'>
                             <table style={{ fontSize: 16, textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
                                 <tr><td>Prev. Hash</td> <td>{candidateBlock.prevHash}</td></tr>
-                                <tr><td>Difficulty</td> <td>{difficulty}</td></tr>
+                                <tr><td>Difficulty</td> <td>{DIFFICULTY}</td></tr>
                                 <tr><td>Merkle Root</td> <td>{candidateBlock.merkleRoot}</td></tr>
                                 <tr><td>Hash (POW)</td> <td>{autoMining ?
                                     <div className='loader'
@@ -260,21 +258,16 @@ export default function CandidateBlock({ user, gun }) {
                                     <tr><td>Block Reward</td> <td>{blockCBTx.reward} {COIN_SYMBOL}</td></tr>
                                     <tr><td>Fee Reward</td> <td>{blockCBTx.fee} {COIN_SYMBOL}</td></tr>
                                 </div>
-                                {blockTx.length > 0 ?
-                                    <>
-                                        {blockTx.map((transaction, index) => (
-                                            <div key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
-                                                <tr><td>Hash</td> <td>{transaction}</td></tr>
-                                                {/* <tr><td>Fee</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr> */}
-                                            </div>
-                                        ))
-                                        }
-                                    </>
-                                    :
-                                    <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
-                                        <tr>Block has no other transaction,&nbsp;<Link to={'/unconfirmed-tx'}>add now</Link></tr>
+                                {blockTx.map((transaction, index) => (
+                                    <div key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
+                                        <tr><td>Hash</td> <td>{transaction}</td></tr>
+                                        {/* <tr><td>Fee</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr> */}
                                     </div>
+                                ))
                                 }
+                                <div style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 5, padding: 10 }}>
+                                    <tr>Add transaction to block,&nbsp;<Link to={'/unconfirmed-tx'}>add now</Link></tr>
+                                </div>
                             </table>
 
                         </div>

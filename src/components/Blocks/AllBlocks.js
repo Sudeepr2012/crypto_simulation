@@ -16,7 +16,6 @@ export default function AllBlocks({ gun }) {
             const res = await fetch(`${API_URL}/blocks`);
             const data = await res.json();
             setBlocks(data)
-            console.log(data)
         }
         getBlocks()
         gun.get('blockchain').on(() => getBlocks())

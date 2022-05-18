@@ -4,7 +4,27 @@ function checkDateFormat(date) {
     return date;
 }
 
-export function getTDate(date) {
+function getTDate(date) {
     let newDate = `${checkDateFormat(date.getDate())}-${checkDateFormat(date.getMonth() + 1)}-${date.getFullYear()} ${checkDateFormat(date.getHours())}:${checkDateFormat(date.getMinutes())}`;
     return newDate;
 }
+
+function getTime(time) {
+    const s = checkDateFormat(Math.floor(time % 60));
+    time = Math.floor(time / 60);
+    const m = checkDateFormat(Math.floor(time % 60));
+    time = Math.floor(time / 60);
+    const h = checkDateFormat(time % 24);
+    time = Math.floor(time / 24);
+    const d = time;
+
+    if (d > 0)
+        return `${d}:${h}:${m}:${s}`;
+    if (h > 0)
+        return `${h}:${m}:${s}`;
+    if (m > 0)
+        return `${m}:${s}`;
+    return `${s}`;
+}
+
+export { getTDate, getTime }

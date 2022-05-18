@@ -29,13 +29,13 @@ export default function UnconfirmedTX({ user, gun }) {
         async function getUnconfirmedTx() {
             const res = await fetch(`${API_URL}/mempool`);
             const data = await res.json();
-            console.log(data)
             setMempool(data)
             for (let i = 0; i < data.length; i++) {
                 setTxLoading(txLoading => ({ ...txLoading, [data[i].hash]: false }))
             }
         }
         getUnconfirmedTx();
+        gun.get('transactions').on(() => getUnconfirmedTx())
         if (user.is)
             gun.get(`miners/${user.is.pub}`).once((val) => {
                 if (val && val.candidateBlock)
@@ -79,13 +79,13 @@ export default function UnconfirmedTX({ user, gun }) {
         }
     }, [acctType])
 
-    function addTxToBlock(txHash, index) {
+    function addTxToBlock(txHash) {
         setTxLoading(txLoading => ({ ...txLoading, [txHash]: true }))
         setCandidateBlockTx(candidateBlockTx => [...candidateBlockTx, txHash],
             setTxLoading(txLoading => ({ ...txLoading, [txHash]: false })))
     }
 
-    function removeTxFromBlock(txHash, index) {
+    function removeTxFromBlock(txHash) {
         setTxLoading(txLoading => ({ ...txLoading, [txHash]: true }))
         setCandidateBlockTx(candidateBlockTx.filter(newTxHash => newTxHash !== txHash),
             setTxLoading(txLoading => ({ ...txLoading, [txHash]: false })))
@@ -132,9 +132,9 @@ export default function UnconfirmedTX({ user, gun }) {
                                                 {candidateBlock !== null ?
                                                     txLoading[i] ? <div className='loader'></div> :
                                                         candidateBlockTx.includes(utx.hash) ?
-                                                            <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash, i)} />
+                                                            <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash)} />
                                                             :
-                                                            <BsCheckLg color={colors.ligthGreen} onClick={() => addTxToBlock(utx.hash, i)} />
+                                                            <BsCheckLg color={colors.ligthGreen} onClick={() => addTxToBlock(utx.hash)} />
                                                     :
                                                     <BiErrorCircle color={colors.ligthGreen} onClick={() => notify('You need to create block first!')} />
                                                 }

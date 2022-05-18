@@ -28,7 +28,7 @@ function getTDate(date) {
 }
 
 const server = app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`BC-JNTUH listening at http://localhost:${port}`)
 })
 
 //get username
@@ -64,10 +64,10 @@ app.get('/blocks', (req, res) => {
 app.get('/block', (req, res) => {
   const bHeight = req.query.height;
   if (!bHeight)
-    return res.send({ message: 'error' });
+    return res.send({ message: 'error - block height required' });
   gun.get(`blockchain/${bHeight}`).once(async (block) => {
     if (!block)
-      return res.send({ message: 'error' });
+      return res.send({ message: 'error - block not found in blockchain' });
     let rBlock = {};
     let rBlockTx = [];
     block.confirmations = (await getLastBlock() - block.height) + 1
@@ -89,7 +89,7 @@ app.get('/block', (req, res) => {
 //get last block hash & height (prevHash)
 app.get('/prevblock', (req, res) => {
   gun.get('blockchain').once(async (blocks) => {
-    if (blocks)
+    if (!blocks)
       return res.send({ hash: '0000000000000000000000000000000000000000000000000000000000000000', height: -1 });
     const topBlock = Object.keys(blocks).length - 2;
     let rData = {};
