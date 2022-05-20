@@ -28,8 +28,7 @@ require('gun/sea')
 const gun = Gun({
   peers: PEERS
 })
-var user = gun.user().recall({ sessionStorage: true });
-
+let user = gun.user().recall({ sessionStorage: true });
 const LOADING_TIME = 500;
 
 function Index() {

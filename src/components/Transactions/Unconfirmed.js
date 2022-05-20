@@ -8,7 +8,6 @@ import { FaReceipt } from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
 import { colors } from '../others/Colors';
 import { getAcctType } from '../others/GetAcctType';
-import { getTDate } from '../others/GetDate';
 import { notify } from '../others/Notify';
 import { API_URL, COIN_SYMBOL } from '../Strings';
 
@@ -41,29 +40,6 @@ export default function UnconfirmedTX({ user, gun }) {
                 if (val && val.candidateBlock)
                     gun.get(`miners/${user.is.pub}/candidateBlock`).once((cb) => setCandidateBlock(cb))
             })
-        // gun.get('transactions').once((txs) => {
-        //     if (txs) {
-        //         let utx = [];
-        //         Object.keys(txs).map((key) => {
-        //             if (key !== '_' && txs[key])
-        //                 gun.get(`transactions/${key}`).once((tx) => {
-        //                     console.log(tx)
-        //                     if (tx.block && isNaN(tx.block))
-        //                         utx.push({
-        //                             hash: tx.hash,
-        //                             timestamp: getTDate(new Date(tx.timestamp)),
-        //                             amount: tx.amount,
-        //                             fee: tx.fee
-        //                         })
-        //                     setTxLoading(txLoading => ({ ...txLoading, [tx.hash]: false }))
-        //                 })
-        //         })
-        //         utx.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1)
-        //         setMempool(utx)
-        //     }
-        //     else
-        //         setMempool([])
-        // })
     }, [])
 
     useEffect(() => {

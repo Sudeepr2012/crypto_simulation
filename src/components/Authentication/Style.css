@@ -126,6 +126,9 @@ input[type=submit]{
     color: white;
   }
   
+  my-header .nav-active{
+    background-color: #6ba9a8;
+  }
   my-header .icon {
     display: none;
   }

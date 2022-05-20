@@ -1,13 +1,10 @@
-
 import { useEffect, useState } from 'react';
 import SendTxWallet from './SendTxWallet';
 import SendTxManual from './SendTxManual';
 import { getAddressUTXO } from './UTXO';
 import { ToastContainer } from 'react-toastify';
 
-
 export default function SendTx({ user, gun }) {
-
     const [UTXO, setUTXO] = useState([]);
     const [sendMethod, setSendMethod] = useState('');
     const [loading, setLoading] = useState(false);

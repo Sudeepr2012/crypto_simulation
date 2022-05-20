@@ -11,8 +11,6 @@ import { API_URL, BLOCK_REWARD, COIN_SYMBOL, DIFFICULTY } from '../Strings';
 import { getTime } from '../others/GetDate';
 const SHA256 = require("crypto-js/sha256");
 
-
-
 export default function CandidateBlock({ user, gun }) {
     const [blockIsValid, setBlockIsValid] = useState(false);
     const [autoMining, setAutoMining] = useState(false);
@@ -50,7 +48,6 @@ export default function CandidateBlock({ user, gun }) {
             let feeReward = 0;
             for (let i = 0; i < blockTx.length + 1; i++) {
                 if (i === blockTx.length) {
-                    console.log('fff')
                     let timestamp = +new Date();
                     setBlockCBTx({
                         hash: SHA256((BLOCK_REWARD + feeReward).toString() + timestamp.toString() + userKU).toString(),

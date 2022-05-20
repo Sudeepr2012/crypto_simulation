@@ -8,6 +8,7 @@ export default function calculateMerkleRoot(tx) {
     let txTemp = [];
     let i = 0;
     while (i < tx.length - 1) {
+        console.log(tx[i] + tx[i + 1])
         txTemp.push(sha256(tx[i] + tx[i + 1]).toString());
         i += 2;
     }

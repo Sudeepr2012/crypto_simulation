@@ -5,13 +5,10 @@ import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
 import { colors } from "../others/Colors";
 import { getTDate } from "../others/GetDate";
-import { getLastBlock } from "./GetLastBlock";
 import { notify } from "../others/Notify";
 import { API_URL, COIN_SYMBOL } from "../Strings";
 
-
-function ViewBlock({ gun }) {
-
+function ViewBlock() {
     const { bHeight } = useParams()
     const [block, setBlock] = useState()
     const [blockTx, setBlockTx] = useState([])
@@ -31,20 +28,6 @@ function ViewBlock({ gun }) {
             }
         }
         getBlock();
-        // gun.get(`blockchain/${bHeight}`).once(async (block) => {
-        //     block.confirmations = (await getLastBlock() - block.height) + 1
-        //     setBlock(block)
-        //     if (block)
-        //         gun.get(`blockchain/${bHeight}/transactions`).once((txs) => {
-        //             Object.keys(txs).map((txHash) => {
-        //                 if (txHash !== '_')
-        //                     gun.get(`blockchain/${bHeight}/transactions/${txHash}`).once((tx) =>
-        //                         setBlockTx(blockTx => [...blockTx, tx])
-        //                     )
-        //             })
-        //         })
-        //     setLoading(false)
-        // })
     }, [bHeight])
 
     useEffect(() => {

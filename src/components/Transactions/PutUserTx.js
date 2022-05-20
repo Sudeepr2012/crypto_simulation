@@ -29,5 +29,4 @@ async function confirmTx(transactions, block) {
     })
 }
 
-
 export { confirmTx, putToMempool }

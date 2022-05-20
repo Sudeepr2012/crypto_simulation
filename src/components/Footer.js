@@ -2,19 +2,19 @@ export default function Footer() {
     const members = [
         {
             name: 'Charitha',
-            link: 'https://jntuhceh.ac.in/faculty_details/5/dept/360'
+            link: ''
         },
         {
             name: 'William',
-            link: 'https://jntuhceh.ac.in/faculty_details/5/dept/360'
+            link: ''
         },
         {
             name: 'Dhriti',
-            link: 'https://jntuhceh.ac.in/faculty_details/5/dept/360'
+            link: ''
         },
         {
             name: 'Sudeep',
-            link: 'https://jntuhceh.ac.in/faculty_details/5/dept/360'
+            link: ''
         },
     ]
 

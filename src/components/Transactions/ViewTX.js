@@ -5,12 +5,10 @@ import { ToastContainer } from 'react-toastify';
 import { FaReceipt } from 'react-icons/fa'
 import { colors } from '../others/Colors';
 import { useEffect, useState } from 'react';
-import { getLastBlock } from '../blocks/GetLastBlock';
-import { getTDate } from '../others/GetDate';
 import { notify } from '../others/Notify';
 import { API_URL, COIN_SYMBOL } from '../Strings';
 
-export default function ViewTX({ gun }) {
+export default function ViewTX() {
     const { txHash } = useParams();
     const [tx, setTx] = useState()
     const [txIP, setTxIP] = useState([])
@@ -31,55 +29,6 @@ export default function ViewTX({ gun }) {
             }
         }
         getTx();
-        // async function getTx() {
-        //     let tempTx = await gun.get(`transactions/${txHash}`).then(async (tx) => {
-        //         if (tx) {
-        //             let txData = {
-        //                 hash: txHash,
-        //                 by: {
-        //                     adress: ''
-        //                 },
-        //                 status: isNaN(tx.block) ? 'Unconfirmed' : 'Confirmed',
-        //                 timestamp: getTDate(new Date(tx.timestamp)),
-        //                 confirmations: isNaN(tx.block) ? 0 : (await getLastBlock() - tx.block) + 1,
-        //                 block: tx.block,
-        //                 fee: 0,
-        //                 totalIP: 0,
-        //                 totalOP: 0
-        //             };
-        //             return txData
-        //         } else
-        //             setTx(null)
-        //     })
-        //     if (tempTx) {
-        //         setTx(tempTx)
-        //         gun.get(`transactions/${txHash}/inputs`).once((ips) => {
-        //             Object.keys(ips).map((key) => {
-        //                 if (key !== '_')
-        //                     gun.get(`transactions/${txHash}/inputs/${key}`).once((ip) => {
-        //                         if (key == 0)
-        //                             setTx(tx => ({ ...tx, by: ip }))
-        //                         else
-        //                             setTxIP(txIP => [...txIP, ip])
-        //                         if (ip.fee >= 0)
-        //                             setTx(tx => ({ ...tx, fee: tx.fee + ip.fee }))
-        //                         else
-        //                             setTx(tx => ({ ...tx, totalIP: tx.totalIP + ip.amount }))
-        //                     })
-        //             })
-        //         })
-        //         gun.get(`transactions/${txHash}/outputs`).then((ops) => {
-        //             Object.keys(ops).map((key) => {
-        //                 if (key !== '_')
-        //                     gun.get(`transactions/${txHash}/outputs/${key}`).once((op) => {
-        //                         setTx(tx => ({ ...tx, totalOP: tx.totalOP + op.amount }))
-        //                         setTxOP(txOP => [...txOP, op])
-        //                     })
-        //             })
-        //         })
-        //     }
-        // }
-        // getTx();
     }, [txHash])
 
     useEffect(() => {
@@ -123,7 +72,6 @@ export default function ViewTX({ gun }) {
                         <tr><td>Total Input</td><td>{tx.totalIP} {COIN_SYMBOL}</td></tr>
                         <tr><td>Total Output</td><td>{tx.totalOP} {COIN_SYMBOL}</td></tr>
                         <tr><td>Fee</td><td>{tx.fee} {COIN_SYMBOL}</td></tr>
-                        {/* <tr><td>Value</td><td>{tx.value}</td></tr> */}
                     </table>
 
                     <h4 style={{ textAlign: 'left' }}>Inputs</h4>

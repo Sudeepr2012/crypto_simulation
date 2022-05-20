@@ -19,17 +19,6 @@ export default function AllBlocks({ gun }) {
         }
         getBlocks()
         gun.get('blockchain').on(() => getBlocks())
-
-        // gun.get('blockchain').once((bcBlocks) => {
-        //     setBlocks([])
-        //     if (bcBlocks)
-        //         Object.keys(bcBlocks).map((key) => {
-        //             if (key !== '_')
-        //                 gun.get(`blockchain/${key}`).once((block) => {
-        //                     setBlocks(blocks => [...blocks, block])
-        //                 })
-        //         })
-        // })
     }, [])
 
     useEffect(() => {

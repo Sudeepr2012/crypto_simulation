@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaReceipt } from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
 import { colors } from '../others/Colors';
 import { getTDate } from '../others/GetDate';
-import { COIN_SYMBOL } from '../Strings';
-
+import { API_URL, COIN_SYMBOL } from '../Strings';
 
 export default function AllTXs({ gun }) {
     const [loading, setLoading] = useState(true)
@@ -14,26 +13,13 @@ export default function AllTXs({ gun }) {
     useEffect(() => {
         setLoading(true)
         setTxs()
-        gun.get('transactions').once((tempTxs) => {
-            if (tempTxs) {
-                let tempTx = [];
-                Object.keys(tempTxs).map((key) => {
-                    if (key !== '_' && tempTxs[key])
-                        gun.get(`transactions/${key}`).once((tx) => {
-                            tempTx.push({
-                                hash: tx.hash,
-                                timestamp: getTDate(new Date(tx.timestamp)),
-                                amount: tx.amount,
-                                fee: tx.fee,
-                                block: tx.block
-                            })
-                        })
-                })
-                setTxs(tempTx)
-            }
-            else
-                setTxs([])
-        })
+        async function getTxs() {
+            const res = await fetch(`${API_URL}/txs`);
+            const data = await res.json();
+            setTxs(data)
+        }
+        getTxs()
+        gun.get('transactions').on(() => getTxs())
     }, [])
 
     useEffect(() => {
@@ -69,7 +55,7 @@ export default function AllTXs({ gun }) {
                             <tbody>
                                 {txs.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1).map((tx, i) => (
                                     <tr key={i}>
-                                        <td data-label="Hash"><Link to={`/tx/${tx.hash}`}>{tx.hash}</Link></td>
+                                        <td data-label="Hash"><Link to={`/tx/${tx.hash}`}>{(tx.hash).substring(0, 30)}...</Link></td>
                                         <td data-label="Block">
                                             {!isNaN(tx.block) ?
                                                 <Link to={`/block/${tx.block}`}>{tx.block}</Link>
@@ -77,7 +63,7 @@ export default function AllTXs({ gun }) {
                                                 tx.block
                                             }
                                         </td>
-                                        <td data-label="Timestamp">{tx.timestamp}</td>
+                                        <td data-label="Timestamp">{getTDate(new Date(tx.timestamp))}</td>
                                         <td data-label="Amount">{tx.amount} {COIN_SYMBOL}</td>
                                         <td data-label="Fee">{tx.fee} {COIN_SYMBOL}</td>
                                     </tr>

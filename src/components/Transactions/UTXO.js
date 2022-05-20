@@ -11,27 +11,6 @@ async function getAddressUTXO(address) {
     const getUTXO = await fetch(`${API_URL}/userUTXOs?${new URLSearchParams({ address: address }).toString()}`);
     const UTXO = await getUTXO.json();
     return UTXO
-    // const rUTXO = await gun.get('UTXO').then((utxo) => {
-    //     if (utxo) {
-    //         let addressUtxo = {};
-    //         Object.keys(utxo).map((key) => {
-    //             if (key !== '_') {
-    //                 // bug, so get all utxo
-    //                 gun.get('UTXO').get(key).then((utxo) => {
-    //                 })
-    //                 gun.get('UTXO').get(key).get(address).once((tx) => {
-    //                     if (tx > 0)
-    //                         addressUtxo[key] = tx;
-    //                 })
-    //             }
-    //         })
-    //         return [addressUtxo, Object.values(addressUtxo).reduce((sum, a) => sum + a, 0)]
-    //     }
-    //     else
-    //         return [{
-    //         }, 0]
-    // })
-    // return rUTXO
 }
 
 async function putUTXO(hash, outputs) {

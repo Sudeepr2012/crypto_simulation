@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GiTwoCoins } from 'react-icons/gi'
+import { FaCoins } from 'react-icons/fa'
 import { FaCopy } from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -116,7 +116,7 @@ export default function Dashboard({ user, gun }) {
                             <br />
                             <div style={{ textAlign: 'left' }}>
                                 <b>Type</b>: {acctType}<br />
-                                <b>{COIN_NAME}</b>: {totalUTXO}<GiTwoCoins /><br />
+                                <b>{COIN_NAME}</b>: {totalUTXO} <FaCoins color='#8edcda' /><br />
                                 <b>Amount</b>: {amount}<br />
                                 <b>Address</b>: *** <FaCopy onClick={() => {
                                     navigator.clipboard.writeText(address)

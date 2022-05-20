@@ -6,6 +6,7 @@ import { getAcctType } from '../others/GetAcctType';
 import { putAllUTXO } from "../transactions/UTXO";
 import { addToBC } from "../blocks/AddBlockToBC";
 import { confirmTx } from "../transactions/PutUserTx";
+import { getTDate } from "../others/GetDate";
 
 export default function ValidateBlock({ gun, user }) {
 
@@ -27,6 +28,15 @@ export default function ValidateBlock({ gun, user }) {
                         gun.get('pending-blocks').get(key).then((block) => {
                             gun.get(`pending-blocks/${key}/coinBase`).once((cb) => {
                                 block.coinBaseTx = cb
+                            })
+                            gun.get(`pending-blocks/${key}/transactions`).once((tx) => {
+                                if (tx)
+                                    block.txsTemp = Object.keys(tx).map((key) => {
+                                        if (key !== '_')
+                                            return tx[key]
+                                    });
+                                else
+                                    block.txsTemp = []
                             })
                             gun.get(`pending-blocks/${key}/accepted`).once((accepted) => {
                                 if (!accepted || !accepted[user.is.pub]) {
@@ -137,7 +147,7 @@ export default function ValidateBlock({ gun, user }) {
                                     hash: pendingBlocks[key].coinBaseTx.hash,
                                 }
                             }
-                            const blockTx = pendingBlocks[key].txs;
+                            let blockTx = pendingBlocks[key].txs;
                             blockTx.unshift(
                                 {
                                     hash: pendingBlocks[key].coinBaseTx.hash,
@@ -170,7 +180,6 @@ export default function ValidateBlock({ gun, user }) {
                             await confirmTx(blockTx, pendingBlocks[key].height)
                             await addToBC(blockToAdd, blockTx);
                             await putAllUTXO(blockTx);
-                            // await deleteUTXO(Object.assign({}, txIP))
                         }
                         gun.get('pending-blocks').put({ [key]: null }).then(() => {
                             setValidationTracker(!validationTracker)
@@ -202,14 +211,20 @@ export default function ValidateBlock({ gun, user }) {
                                     block.prevHash
                                 }</td>
                             </tr>
-                            <tr><td>Timestamp</td> <td>{block.timestamp}</td></tr>
+                            <tr><td>Timestamp</td> <td>{getTDate(new Date(block.timestamp))}</td></tr>
                             <tr><td>Transactions</td> <td>
                                 {/* {block.transactions.map((tx, ind) => (
                             <div key={ind}>
                                 <Link to={`/tx/${tx}`}>{tx}</Link>
                             </div>
                         ))} */}
-                                {Object.keys(block.transactions).length}
+                                {block.txsTemp.length > 0 ? block.txsTemp.map((tx, ind) => (
+                                    <div key={ind}>
+                                        <Link to={`/tx/${tx}`}>{tx ? `${tx.substring(1, 20)}...` : tx}</Link>
+                                    </div>
+                                ))
+                                    :
+                                    0}
                             </td></tr>
                             <tr><td>Nonce</td> <td>{block.nonce}</td></tr>
                             <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>

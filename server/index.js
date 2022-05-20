@@ -93,12 +93,37 @@ app.get('/prevblock', (req, res) => {
       return res.send({ hash: '0000000000000000000000000000000000000000000000000000000000000000', height: -1 });
     const topBlock = Object.keys(blocks).length - 2;
     let rData = {};
-    await gun.get(`blockchain/${topBlock - 1}`).once((block) => {
+    await gun.get(`blockchain/${topBlock}`).once((block) => {
       rData = { hash: block.hash, height: block.height }
     })
     return res.send(rData)
   })
 })
+
+//all txs
+app.get('/txs', (req, res) => {
+  gun.get('transactions').once(async (tempTxs) => {
+    if (!tempTxs)
+      return res.send([]);
+    let tempTx = [];
+    let keys = Object.keys(tempTxs);
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i] !== '_' && tempTxs[keys[i]])
+        tempTx.push(
+          await gun.get(`transactions/${keys[i]}`).once((tx) => {
+            return {
+              hash: tx.hash,
+              timestamp: getTDate(new Date(tx.timestamp)),
+              amount: tx.amount,
+              fee: tx.fee,
+              block: tx.block
+            }
+          })
+        )
+    }
+    return res.send(tempTx);
+  })
+});
 
 //mempool
 app.get('/mempool', (req, res) => {
