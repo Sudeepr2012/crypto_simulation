@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { IoMdCube } from 'react-icons/io'
 import { colors } from "../others/Colors";
-import { getTDate } from "../others/GetDate";
+import { getTDate, roundAmont } from "../others/GetDate";
 import { notify } from "../others/Notify";
 import { API_URL, COIN_SYMBOL } from "../Strings";
 
@@ -59,7 +59,7 @@ function ViewBlock() {
                             <tr><td>Difficulty</td> <td>{block.difficulty}</td></tr>
                             <tr><td>Merkle Root</td> <td>{block.merkleRoot}</td></tr>
                             <tr><td>Transactions</td> <td>{block.txCount}</td></tr>
-                            <tr><td>Block Reward</td> <td>{block.blockReward} {COIN_SYMBOL}</td></tr>
+                            <tr><td>Block Reward</td> <td>{roundAmont(block.blockReward)} {COIN_SYMBOL}</td></tr>
                             <tr><td>Fee Reward</td> <td>{block.feeReward} {COIN_SYMBOL}</td></tr>
                         </table>
                         <h4 style={{ textAlign: 'left' }}>Block Transactions</h4>
@@ -70,7 +70,7 @@ function ViewBlock() {
                                         navigator.clipboard.writeText(transaction.hash)
                                         notify('✔️ Hash copied!')
                                     }} /></td></tr>
-                                <tr><td>Amount</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr>
+                                <tr><td>Amount</td> <td>{roundAmont(transaction.amount)} {COIN_SYMBOL}</td></tr>
                                 <tr><td>Fee</td> <td>{transaction.fee} {COIN_SYMBOL}</td></tr>
                                 <tr><td>From</td> <td><Link to={`/address/${transaction.from}`}>{transaction.from}</Link> <FaCopy
                                     onClick={() => {

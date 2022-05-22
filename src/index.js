@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Gun from 'gun'
-
 import logo from './logo.png';
 import './index.css';
 import './PathChangedLoading.css'

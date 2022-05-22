@@ -14,7 +14,7 @@ export default function SignUp({ user, gun }) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user.is !== undefined)
+        if (user.is)
             navigate("/dashboard");
     }, [])
 
@@ -29,11 +29,13 @@ export default function SignUp({ user, gun }) {
             else {
                 gun.user(ack.pub).get('info').put({
                     acctType: acctType
-                }).then(() => {
-                    if (acctType === 'miner')
-                        gun.get('miners').put({
+                }).then(async () => {
+                    if (acctType === 'miner') {
+                        await gun.get('miners').put({
                             [ack.pub]: {}
-                        }).then(() => window.location.href = '/login')
+                        })
+                        window.location.href = '/login'
+                    }
                     else
                         window.location.href = '/login'
                 })

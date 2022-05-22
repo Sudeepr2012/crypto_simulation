@@ -19,12 +19,15 @@ function getTime(time) {
     const d = time;
 
     if (d > 0)
-        return `${d}:${h}:${m}:${s}`;
+        return `${d}:${h}:${m}:${s}s`;
     if (h > 0)
-        return `${h}:${m}:${s}`;
+        return `${h}:${m}:${s}s`;
     if (m > 0)
-        return `${m}:${s}`;
-    return `${s}`;
+        return `${m}:${s}s`;
+    return `${s}s`;
 }
 
-export { getTDate, getTime }
+function roundAmont(amount) {
+    return Math.round((amount + Number.EPSILON) * 100) / 100
+}
+export { getTDate, getTime, roundAmont }

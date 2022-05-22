@@ -113,7 +113,7 @@ export default function SendTxWallet({ UTXO, gun, user }) {
     return (
         <form onSubmit={sendTx} className='container'>
             <h4>Send {COIN_SYMBOL}</h4>
-            <span style={{ fontSize: 20 }}>Balance: {balance} RC</span>
+            <span style={{ fontSize: 20 }}>Balance: {balance} {COIN_SYMBOL}</span>
             <div className='form-field'>
                 <label>Address</label>
                 <input type='text' value={address}

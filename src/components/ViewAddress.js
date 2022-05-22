@@ -9,6 +9,7 @@ import { notify } from "./others/Notify";
 import { API_URL, COIN_SYMBOL } from "./Strings";
 import { getAddressUTXO } from "./transactions/UTXO";
 import { getUserTx } from "./transactions/GetUserTx";
+import { roundAmont } from "./others/GetDate";
 
 export default function ViewAddress() {
     const { address } = useParams()
@@ -62,10 +63,10 @@ export default function ViewAddress() {
                             }} /></td></tr>
                         <tr><td>Username</td> <td>{username}</td></tr>
                         <tr><td>Transactions</td> <td>{Object.keys(userTx).length}</td></tr>
-                        <tr><td>Received</td><td>{userTxStats.received} {COIN_SYMBOL}</td>
+                        <tr><td>Received</td><td>{roundAmont(userTxStats.received)} {COIN_SYMBOL}</td>
                         </tr>
-                        <tr><td>Sent</td> <td>{userTxStats.sent} {COIN_SYMBOL}</td></tr>
-                        <tr><td>Balance</td> <td>{userTxStats.received - userTxStats.sent} {COIN_SYMBOL}</td></tr>
+                        <tr><td>Sent</td> <td>{roundAmont(userTxStats.sent)} {COIN_SYMBOL}</td></tr>
+                        <tr><td>Balance</td> <td>{roundAmont(userTxStats.received - userTxStats.sent)} {COIN_SYMBOL}</td></tr>
                     </div>
                 </table>
                 <h4 style={{ textAlign: 'left' }}>Transactions</h4>

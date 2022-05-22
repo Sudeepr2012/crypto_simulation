@@ -1,5 +1,4 @@
 import { API_URL } from '../Strings';
-require('gun/sea')
 
 export async function getUserTx(address) {
     const res = await fetch(`${API_URL}/userTXs?${new URLSearchParams({ address: address }).toString()}`);

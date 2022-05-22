@@ -105,7 +105,7 @@ export default function UnconfirmedTX({ user, gun }) {
                                         <td data-label="Fee">{utx.fee} {COIN_SYMBOL}</td>
                                         {acctType === AUTHORIZED_TYPE ?
                                             <td data-label="CB" style={{ cursor: 'pointer' }}>
-                                                {candidateBlock !== null ?
+                                                {candidateBlock ?
                                                     txLoading[i] ? <div className='loader'></div> :
                                                         candidateBlockTx.includes(utx.hash) ?
                                                             <GiCancel color='red' onClick={() => removeTxFromBlock(utx.hash)} />

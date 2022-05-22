@@ -14,6 +14,7 @@ export default function ValidateBlock({ gun, user }) {
     const [loading, setLoading] = useState(true)
     const [validationTracker, setValidationTracker] = useState(false)
     const [pendingBlocks, setPendingBlocks] = useState()
+    const [sortedPendingBlock, setSortedPendingBlock] = useState()
     const [acctType, setAcctType] = useState(false);
     const navigate = useNavigate()
 
@@ -107,6 +108,10 @@ export default function ValidateBlock({ gun, user }) {
                     [key]: false
                 }))
             ))
+            const sortPendingBlocks = Object.entries(pendingBlocks)
+                .sort(([, b1], [, b2]) => b2.timestamp - b1.timestamp)
+            const sorted = Object.fromEntries(sortPendingBlocks)
+            setSortedPendingBlock(sorted)
         }
     }, [pendingBlocks])
 
@@ -160,10 +165,6 @@ export default function ValidateBlock({ gun, user }) {
                                     inputs: txIP,
                                     outputs: txOP
                                 })
-                            // for (let i = 0; i < pendingBlocks[key].txs.length; i++) {
-                            //     Object.values(pendingBlocks[key].txs[i].outputs).map((op) => txOP.push(op))
-                            //     Object.values(pendingBlocks[key].txs[i].inputs).map((ip) => txIP.push(ip))
-                            // }
                             const blockToAdd = {
                                 hash: pendingBlocks[key].hash,
                                 height: pendingBlocks[key].height,
@@ -199,8 +200,8 @@ export default function ValidateBlock({ gun, user }) {
                 <ToastContainer />
                 <h4 style={{ textAlign: 'left' }}>Pending Blocks</h4>
 
-                {Object.keys(pendingBlocks).length > 0 ?
-                    Object.values(pendingBlocks).map((block, index) => (
+                {Object.keys(sortedPendingBlock).length > 0 ?
+                    Object.values(sortedPendingBlock).map((block, index) => (
                         <table key={index} style={{ textAlign: 'left', background: '#6ba9a8', marginBottom: 20, padding: 10 }}>
                             <tr><td>Block</td> <td>#{block.height}</td></tr>
                             <tr><td>Hash</td> <td>{block.hash}</td></tr>
