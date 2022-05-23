@@ -58,9 +58,10 @@ export default function CandidateBlock({ user, gun }) {
                     }, setBlockLoading(false));
                 }
                 else {
-                    await gun.get('transactions').get(blockTx[i]).once((val) => {
-                        feeReward += val.fee
-                    })
+                    const res = await fetch(`${API_URL}/tx?${new URLSearchParams({ txHash: blockTx[i] }).toString()}`);
+                    const data = await res.json();
+                    if (data.length)
+                        feeReward = data[0].fee
                 }
             }
         }
@@ -188,9 +189,9 @@ export default function CandidateBlock({ user, gun }) {
         let tempCB = candidateBlock;
         delete tempCB['_'];
         tempCB.accepted = {
-            // [userKU] : true
+            [userKU]: true
         };
-        tempCB.rejected = {};
+        tempCB.rejected = { [userKU]: false };
         gun.get('pending-blocks').put({ [tempCB.hash]: tempCB }).then(() => {
             gun.get('pending-blocks').get(tempCB.hash).put({
                 coinBase: blockCBTx,

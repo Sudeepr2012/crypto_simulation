@@ -2,7 +2,7 @@ import { useState } from "react"
 import { FaCopy } from 'react-icons/fa'
 import { Link } from "react-router-dom";
 import { colors } from '../others/Colors';
-import { roundAmont } from "../others/GetDate";
+import { roundAmount } from "../others/GetDate";
 import { notify } from "../others/Notify";
 import { COIN_SYMBOL } from "../Strings";
 
@@ -57,7 +57,7 @@ export default function UserTransactions({ myTx, UTXO }) {
                                     }
                                 </tr>
                                 <tr> <td>Confirmations</td> <td>{tx.confirmations}</td></tr>
-                                <tr><td>Amount</td> <td style={{ color: tx.to ? 'red' : null }}>{roundAmont(tx.amount)} {COIN_SYMBOL}</td></tr>
+                                <tr><td>Amount</td> <td style={{ color: tx.to ? 'red' : null }}>{roundAmount(tx.amount)} {COIN_SYMBOL}</td></tr>
                                 {tx.fee ? <tr><td>Fee</td> <td style={{ color: 'red' }}>{tx.fee} {COIN_SYMBOL}</td></tr> : null}
                             </div>
                         ))
@@ -74,7 +74,7 @@ export default function UserTransactions({ myTx, UTXO }) {
                                         navigator.clipboard.writeText(key)
                                         notify('✔️ Transaction hash copied!')
                                     }} /></td></tr>
-                                <tr><td>Amount</td> <td>{roundAmont(UTXO[key])} {COIN_SYMBOL}</td></tr>
+                                <tr><td>Amount</td> <td>{roundAmount(UTXO[key])} {COIN_SYMBOL}</td></tr>
                             </div>
                         ))
                         :

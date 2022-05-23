@@ -1,12 +1,15 @@
 const express = require('express')
 const Gun = require('gun');
 const app = express()
-const port = 3030
-app.use(Gun.serve);
 require('gun/sea')
 
+const port = 3030
+app.use(Gun.serve);
 const gun = Gun({
   peers: 'http://localhost:3030/gun'
+})
+const server = app.listen(port, () => {
+  console.log(`BC-JNTUH listening at http://localhost:${port}`)
 })
 
 async function getLastBlock() {
@@ -27,9 +30,6 @@ function getTDate(date) {
   return newDate;
 }
 
-const server = app.listen(port, () => {
-  console.log(`BC-JNTUH listening at http://localhost:${port}`)
-})
 
 //get username
 app.get('/username', (req, res) => {
@@ -57,6 +57,102 @@ app.get('/blocks', (req, res) => {
         )
     }
     return res.send(blocks);
+  })
+});
+
+//pending blocks
+app.get('/pendingBlocks', (req, res) => {
+  const miner = req.query.miner;
+  gun.get('pending-blocks').once(async (pBlocks) => {
+    if (!pBlocks || !miner)
+      return res.send({});
+    let pendingBlocks = {};
+    let keys = Object.keys(pBlocks);
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i] !== '_' && pBlocks[keys[i]]) {
+        pendingBlocks[keys[i]] = await gun.get('pending-blocks').get(keys[i]).then(async (block) => {
+          if (block) {
+            await gun.get(`pending-blocks/${keys[i]}/coinBase`).once((cb) => {
+              block.coinBaseTx = cb
+            })
+            await gun.get(`pending-blocks/${keys[i]}/transactions`).once((tx) => {
+              if (tx)
+                block.txsTemp = Object.keys(tx).map((key) => {
+                  if (key !== '_')
+                    return tx[key]
+                });
+              else
+                block.txsTemp = []
+            })
+            await gun.get(`pending-blocks/${keys[i]}/accepted`).once(async (accepted) => {
+              await gun.get(`pending-blocks/${keys[i]}/rejected`).once(async (rejected) => {
+                block.accept = accepted;
+                block.reject = rejected
+                block.key = keys[i];
+                block.fee = 0;
+                await gun.get(`pending-blocks/${keys[i]}/transactions`).once(async (txs) => {
+                  block.txs = [];
+                  if (txs) {
+                    Object.keys(txs).map(async (key) => {
+                      if (key !== '_') {
+                        await gun.get(`transactions/${txs[key]}`).once(async (tx) => {
+                          let tempTx = {
+                            hash: tx.hash,
+                            block: block.height,
+                            amount: tx.amount,
+                            fee: tx.fee,
+                            from: tx.from,
+                            to: tx.to,
+                            timestamp: tx.timestamp,
+                            inputs: {},
+                            outputs: {}
+                          }
+                          await gun.get(`transactions/${txs[key]}/inputs`).once(async (txIPs) => {
+                            Object.keys(txIPs).map(async (index) => {
+                              if (index !== '_')
+                                await gun.get(`transactions/${txs[key]}/inputs/${index}`).once(async (txIP) => {
+                                  if (txIP.fee)
+                                    block.fee += txIP.fee
+                                  tempTx.inputs[index] = txIP
+                                })
+                            })
+                          })
+                          await gun.get(`transactions/${txs[key]}/outputs`).once(async (txOPs) => {
+                            Object.keys(txOPs).map(async (index) => {
+                              if (index !== '_')
+                                await gun.get(`transactions/${txs[key]}/outputs/${index}`).once(async (txOP) => {
+                                  tempTx.outputs[index] = txOP
+                                })
+                            })
+                          })
+                          block.txs.push(tempTx)
+                        })
+                      }
+                    })
+                  }
+                })
+              })
+            })
+            return block
+          }
+        })
+      }
+    }
+    return res.send(pendingBlocks);
+  })
+});
+
+//validate pending block
+app.get('/validateBlock', async (req, res) => {
+  const key = req.query.key;
+  const action = req.query.action;
+  if (!key || !action)
+    return res.send({ message: 'error - key and action required' });
+  await gun.get(`pending-blocks/${key}/${action}`).then(async (count) => {
+    const rt = await gun.get('miners').then(async (miners) => {
+      return [count, miners]
+    })
+    return res.send(rt);
   })
 });
 
@@ -227,7 +323,7 @@ app.get('/userTXs', (req, res) => {
         const tx = await gun.get(`transactions/${allTxs[i]}`);
         const txOP = await gun.get(`transactions/${allTxs[i]}/outputs/0`)
         const txIP = await gun.get(`transactions/${allTxs[i]}/inputs/0`)
-        if (txOP.address === address) {
+        if (txOP && txOP.address === address) {
           if (!userTXs[allTxs[i]])
             userTXs[allTxs[i]] = { hash: allTxs[i] }
           userTXs[allTxs[i]].from = txIP.address;
@@ -235,7 +331,7 @@ app.get('/userTXs', (req, res) => {
           if (!isNaN(tx.block))
             userTXsStats.received += txIP.amount;
         }
-        if (txIP.address === address) {
+        if (txIP && txIP.address === address) {
           if (!userTXs[allTxs[i]])
             userTXs[allTxs[i]] = { hash: allTxs[i] }
           userTXs[allTxs[i]].to = txOP.address;

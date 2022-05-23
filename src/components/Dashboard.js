@@ -13,7 +13,7 @@ import { getAddressUTXO } from './transactions/UTXO';
 import { getUserTx } from './transactions/GetUserTx';
 import { notify } from './others/Notify';
 import { COIN_NAME } from './Strings';
-import { roundAmont } from './others/GetDate';
+import { roundAmount } from './others/GetDate';
 
 const coinToDollar = 2;
 
@@ -71,7 +71,7 @@ export default function Dashboard({ user, gun }) {
         let amount = totalUTXO / coinToDollar;
         if (cur !== 'usd')
             amount = Math.round(exchangeRate[cur].rate * amount);
-        setAmount(<>{cur === 'inr' ? '₹' : '$'}{roundAmont(amount)}</>)
+        setAmount(<>{cur === 'inr' ? '₹' : '$'}{roundAmount(amount)}</>)
     }
 
     function logout() {
@@ -117,7 +117,7 @@ export default function Dashboard({ user, gun }) {
                             <br />
                             <div style={{ textAlign: 'left' }}>
                                 <b>Type</b>: {acctType}<br />
-                                <b>{COIN_NAME}</b>: {roundAmont(totalUTXO)} <FaCoins color='#8edcda' /><br />
+                                <b>{COIN_NAME}</b>: {roundAmount(totalUTXO)} <FaCoins color='#8edcda' /><br />
                                 <b>Amount</b>: {amount}<br />
                                 <b>Address</b>: *** <FaCopy onClick={() => {
                                     navigator.clipboard.writeText(address)

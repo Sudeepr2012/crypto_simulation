@@ -6,6 +6,7 @@ import { FaReceipt } from 'react-icons/fa'
 import { colors } from '../others/Colors';
 import { useEffect, useState } from 'react';
 import { notify } from '../others/Notify';
+import { roundAmount } from '../others/GetDate'
 import { API_URL, COIN_SYMBOL } from '../Strings';
 
 export default function ViewTX() {
@@ -69,8 +70,8 @@ export default function ViewTX() {
                         </tr>
                         <tr><td>Confirmations</td>
                             <td>{tx.confirmations}</td></tr>
-                        <tr><td>Total Input</td><td>{tx.totalIP} {COIN_SYMBOL}</td></tr>
-                        <tr><td>Total Output</td><td>{tx.totalOP} {COIN_SYMBOL}</td></tr>
+                        <tr><td>Total Input</td><td>{roundAmount(tx.totalIP)} {COIN_SYMBOL}</td></tr>
+                        <tr><td>Total Output</td><td>{roundAmount(tx.totalOP)} {COIN_SYMBOL}</td></tr>
                         <tr><td>Fee</td><td>{tx.fee} {COIN_SYMBOL}</td></tr>
                     </table>
 
@@ -85,7 +86,7 @@ export default function ViewTX() {
                                         navigator.clipboard.writeText(transaction.hash)
                                         notify('✔️ Address copied!')
                                     }} /></td></tr>
-                                <tr><td>Amount</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr>
+                                <tr><td>Amount</td> <td>{roundAmount(transaction.amount)} {COIN_SYMBOL}</td></tr>
                             </table>
                         ))
                         :
@@ -102,7 +103,7 @@ export default function ViewTX() {
                                     navigator.clipboard.writeText(transaction.address)
                                     notify('✔️ Address copied!')
                                 }} /></td></tr>
-                            <tr><td>Amount</td> <td>{transaction.amount} {COIN_SYMBOL}</td></tr>
+                            <tr><td>Amount</td> <td>{roundAmount(transaction.amount)} {COIN_SYMBOL}</td></tr>
                         </table>
                     ))}
                 </div>

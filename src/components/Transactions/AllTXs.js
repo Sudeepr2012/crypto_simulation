@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaReceipt } from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
 import { colors } from '../others/Colors';
-import { getTDate, roundAmont } from '../others/GetDate';
+import { getTDate, roundAmount } from '../others/GetDate';
 import { API_URL, COIN_SYMBOL } from '../Strings';
 
 export default function AllTXs({ gun }) {
@@ -64,7 +64,7 @@ export default function AllTXs({ gun }) {
                                             }
                                         </td>
                                         <td data-label="Timestamp">{getTDate(new Date(tx.timestamp))}</td>
-                                        <td data-label="Amount">{roundAmont(tx.amount)} {COIN_SYMBOL}</td>
+                                        <td data-label="Amount">{roundAmount(tx.amount)} {COIN_SYMBOL}</td>
                                         <td data-label="Fee">{tx.fee} {COIN_SYMBOL}</td>
                                     </tr>
                                 ))

@@ -22,6 +22,9 @@ import ViewAddress from './components/ViewAddress';
 import ValidateBlock from './components/miner/ValidateBlock';
 import { PEERS } from './components/others/Peers';
 import AllTXs from './components/transactions/AllTXs';
+import { notify } from './components/others/Notify';
+import { API_URL } from './components/Strings';
+import { getAcctType } from './components/others/GetAcctType';
 require('gun/sea')
 
 const gun = Gun({
@@ -35,6 +38,20 @@ function Index() {
 
   useEffect(() => {
     setTimeout(() => setShowLoading(false), LOADING_TIME)
+    // async function getPendingBlocks() {
+    //   if (await getAcctType(true)) {
+    //     const res = await fetch(`${API_URL}/pendingBlocks?${new URLSearchParams({ miner: user.is.pub }).toString()}`);
+    //     const data = await res.json();
+    //     Object.keys(data).map((key) => {
+    //       if (!data[key])
+    //         delete data[key];
+    //     })
+    //     if (Object.keys(data).length > 0) {
+    //       notify('New pending block')
+    //     }
+    //   }
+    // }
+    // gun.get('pending-blocks').on(() => getPendingBlocks())
   }, [])
 
   function pathChanged() {
@@ -111,8 +128,6 @@ function PathTracker({ pathChangedFun }) {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    //no. of miners in our network
-    gun.get('miners').then((miners) => console.log(Object.keys(miners).length - 1))
     let authPaths = ['dashboard', 'send', 'me', 'miner']
     let path = pathname.split('/')
     if (path.some((p) => { return authPaths.includes(p); }) && !user.is)

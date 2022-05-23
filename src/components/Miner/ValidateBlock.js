@@ -7,11 +7,13 @@ import { putAllUTXO } from "../transactions/UTXO";
 import { addToBC } from "../blocks/AddBlockToBC";
 import { confirmTx } from "../transactions/PutUserTx";
 import { getTDate } from "../others/GetDate";
+import { API_URL } from "../Strings";
 
 export default function ValidateBlock({ gun, user }) {
 
     const [validateLoading, setValidateLoading] = useState({})
     const [loading, setLoading] = useState(true)
+    const [userAddress, setUserAddress] = useState(user.is.pub)
     const [validationTracker, setValidationTracker] = useState(false)
     const [pendingBlocks, setPendingBlocks] = useState()
     const [sortedPendingBlock, setSortedPendingBlock] = useState()
@@ -21,81 +23,12 @@ export default function ValidateBlock({ gun, user }) {
     useEffect(() => {
         setLoading(true)
         setPendingBlocks()
-        gun.get('pending-blocks').once((blocks) => {
-            setPendingBlocks({})
-            if (blocks)
-                Object.keys(blocks).map((key) => {
-                    if (key !== '_' && blocks[key]) {
-                        gun.get('pending-blocks').get(key).then((block) => {
-                            gun.get(`pending-blocks/${key}/coinBase`).once((cb) => {
-                                block.coinBaseTx = cb
-                            })
-                            gun.get(`pending-blocks/${key}/transactions`).once((tx) => {
-                                if (tx)
-                                    block.txsTemp = Object.keys(tx).map((key) => {
-                                        if (key !== '_')
-                                            return tx[key]
-                                    });
-                                else
-                                    block.txsTemp = []
-                            })
-                            gun.get(`pending-blocks/${key}/accepted`).once((accepted) => {
-                                if (!accepted || !accepted[user.is.pub]) {
-                                    gun.get(`pending-blocks/${key}/rejected`).once((rejected) => {
-                                        if (!rejected || !rejected[user.is.pub]) {
-                                            block.key = key;
-                                            block.fee = 0;
-                                            gun.get(`pending-blocks/${key}/transactions`).once((txs) => {
-                                                block.txs = [];
-                                                if (txs) {
-                                                    Object.values(txs).map((key) => {
-                                                        if (key !== '_') {
-                                                            gun.get(`transactions/${key}`).once(async (tx) => {
-                                                                let tempTx = {
-                                                                    hash: tx.hash,
-                                                                    block: block.height,
-                                                                    amount: tx.amount,
-                                                                    fee: tx.fee,
-                                                                    from: tx.from,
-                                                                    to: tx.to,
-                                                                    timestamp: tx.timestamp,
-                                                                    inputs: {},
-                                                                    outputs: {}
-                                                                }
-                                                                await gun.get(`transactions/${key}/inputs`).once((txIPs) => {
-                                                                    Object.keys(txIPs).map((index) => {
-                                                                        if (index !== '_')
-                                                                            gun.get(`transactions/${key}/inputs/${index}`).once((txIP) => {
-                                                                                if (txIP.fee)
-                                                                                    block.fee += txIP.fee
-                                                                                tempTx.inputs[index] = txIP
-                                                                            })
-                                                                    })
-                                                                })
-                                                                await gun.get(`transactions/${key}/outputs`).once((txOPs) => {
-                                                                    Object.keys(txOPs).map((index) => {
-                                                                        if (index !== '_')
-                                                                            gun.get(`transactions/${key}/outputs/${index}`).once((txOP) => {
-                                                                                tempTx.outputs[index] = txOP
-                                                                            })
-                                                                    })
-                                                                })
-                                                                block.txs.push(tempTx)
-                                                            })
-                                                        }
-                                                    })
-                                                }
-                                            })
-                                            setPendingBlocks(pendingBlocks => ({ ...pendingBlocks, [key]: block }))
-                                        }
-                                    })
-                                }
-                            })
-                        })
-                    }
-                })
-        })
-
+        async function getPendingBlocks() {
+            const res = await fetch(`${API_URL}/pendingBlocks?${new URLSearchParams({ miner: userAddress }).toString()}`);
+            const data = await res.json();
+            setPendingBlocks(data)
+        }
+        getPendingBlocks()
     }, [validationTracker])
 
     useEffect(() => {
@@ -108,8 +41,11 @@ export default function ValidateBlock({ gun, user }) {
                     [key]: false
                 }))
             ))
-            const sortPendingBlocks = Object.entries(pendingBlocks)
-                .sort(([, b1], [, b2]) => b2.timestamp - b1.timestamp)
+            Object.keys(pendingBlocks).map((key) => {
+                if (!pendingBlocks[key] || (pendingBlocks[key].accept[userAddress] || pendingBlocks[key].reject[userAddress]))
+                    delete pendingBlocks[key];
+            })
+            const sortPendingBlocks = Object.entries(pendingBlocks).sort(([, b1], [, b2]) => b2.timestamp - b1.timestamp)
             const sorted = Object.fromEntries(sortPendingBlocks)
             setSortedPendingBlock(sorted)
         }
@@ -126,70 +62,70 @@ export default function ValidateBlock({ gun, user }) {
         }
     }, [acctType])
 
-    function validateBlock(key, action) {
+    async function validateBlock(key, action) {
         setValidateLoading(validateLoading => ({
             ...validateLoading,
             [key]: true
         }));
         gun.get(`pending-blocks/${key}/${action}`).put({
-            [user.is.pub]: true
-        }).then(() =>
-            gun.get(`pending-blocks/${key}/${action}`).once((count) => {
-                gun.get('miners').then(async (miners) => {
-                    if ((((Object.keys(count).length - 1) / (Object.keys(miners).length - 1)) * 100) > 50) {
-                        if (action === 'accepted') {
-                            let txOP = {
-                                0: {
-                                    address: pendingBlocks[key].coinBaseTx.to,
-                                    amount: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
-                                }
-                            }
-                            let txIP = {
-                                0: {
-                                    address: 'CoinBase Reward',
-                                    amount: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
-                                    fee: 0,
-                                    hash: pendingBlocks[key].coinBaseTx.hash,
-                                }
-                            }
-                            let blockTx = pendingBlocks[key].txs;
-                            blockTx.unshift(
-                                {
-                                    hash: pendingBlocks[key].coinBaseTx.hash,
-                                    amount: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
-                                    fee: 0,
-                                    block: pendingBlocks[key].height,
-                                    from: 'CoinBase Reward',
-                                    to: pendingBlocks[key].coinBaseTx.to,
-                                    timestamp: pendingBlocks[key].coinBaseTx.timestamp,
-                                    inputs: txIP,
-                                    outputs: txOP
-                                })
-                            const blockToAdd = {
-                                hash: pendingBlocks[key].hash,
-                                height: pendingBlocks[key].height,
-                                nonce: pendingBlocks[key].nonce,
-                                timestamp: pendingBlocks[key].timestamp,
-                                miner: pendingBlocks[key].miner,
-                                difficulty: pendingBlocks[key].difficulty,
-                                merkleRoot: pendingBlocks[key].merkleRoot,
-                                txCount: blockTx.length,
-                                prevHash: pendingBlocks[key].prevHash,
-                                blockReward: pendingBlocks[key].coinBaseTx.reward + pendingBlocks[key].fee,
-                                feeReward: pendingBlocks[key].fee,
-                            }
-                            await confirmTx(blockTx, pendingBlocks[key].height)
-                            await addToBC(blockToAdd, blockTx);
-                            await putAllUTXO(blockTx);
+            [userAddress]: true
+        }).then(async () => {
+            const res = await fetch(`${API_URL}/validateBlock?${new URLSearchParams({ key: key, action: action }).toString()}`);
+            const data = await res.json();
+            const count = data[0]
+            const miners = data[1]
+            if ((((Object.keys(count).length - 1) / (Object.keys(miners).length - 1)) * 100) > 50) {
+                if (action === 'accepted') {
+                    let txOP = {
+                        0: {
+                            address: pendingBlocks[key].coinBaseTx.to,
+                            amount: pendingBlocks[key].coinBaseTx.reward,
                         }
-                        gun.get('pending-blocks').put({ [key]: null }).then(() => {
-                            setValidationTracker(!validationTracker)
+                    }
+                    let txIP = {
+                        0: {
+                            address: 'CoinBase Reward',
+                            amount: pendingBlocks[key].coinBaseTx.reward,
+                            fee: 0,
+                            hash: pendingBlocks[key].coinBaseTx.hash,
+                        }
+                    }
+                    let blockTx = pendingBlocks[key].txs;
+                    blockTx.unshift(
+                        {
+                            hash: pendingBlocks[key].coinBaseTx.hash,
+                            amount: pendingBlocks[key].coinBaseTx.reward,
+                            fee: 0,
+                            block: pendingBlocks[key].height,
+                            from: 'CoinBase Reward',
+                            to: pendingBlocks[key].coinBaseTx.to,
+                            timestamp: pendingBlocks[key].coinBaseTx.timestamp,
+                            inputs: txIP,
+                            outputs: txOP
                         })
-                    } else
-                        setValidationTracker(!validationTracker)
+                    const blockToAdd = {
+                        hash: pendingBlocks[key].hash,
+                        height: pendingBlocks[key].height,
+                        nonce: pendingBlocks[key].nonce,
+                        timestamp: pendingBlocks[key].timestamp,
+                        miner: pendingBlocks[key].miner,
+                        difficulty: pendingBlocks[key].difficulty,
+                        merkleRoot: pendingBlocks[key].merkleRoot,
+                        txCount: blockTx.length,
+                        prevHash: pendingBlocks[key].prevHash,
+                        blockReward: pendingBlocks[key].coinBaseTx.reward,
+                        feeReward: pendingBlocks[key].fee,
+                    }
+                    await confirmTx(blockTx, pendingBlocks[key].height)
+                    await addToBC(blockToAdd, blockTx);
+                    await putAllUTXO(blockTx);
+                }
+                await gun.get('pending-blocks').put({ [key]: null }).then(() => {
+                    setValidationTracker(!validationTracker)
                 })
-            })
-        )
+            } else
+                setValidationTracker(!validationTracker)
+        })
     }
     return (
         loading ?
@@ -214,11 +150,6 @@ export default function ValidateBlock({ gun, user }) {
                             </tr>
                             <tr><td>Timestamp</td> <td>{getTDate(new Date(block.timestamp))}</td></tr>
                             <tr><td>Transactions</td> <td>
-                                {/* {block.transactions.map((tx, ind) => (
-                            <div key={ind}>
-                                <Link to={`/tx/${tx}`}>{tx}</Link>
-                            </div>
-                        ))} */}
                                 {block.txsTemp.length > 0 ? block.txsTemp.map((tx, ind) => (
                                     <div key={ind}>
                                         <Link to={`/tx/${tx}`}>{tx ? `${tx.substring(1, 20)}...` : tx}</Link>

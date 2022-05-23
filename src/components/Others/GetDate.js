@@ -27,7 +27,7 @@ function getTime(time) {
     return `${s}s`;
 }
 
-function roundAmont(amount) {
+function roundAmount(amount) {
     return Math.round((amount + Number.EPSILON) * 100) / 100
 }
-export { getTDate, getTime, roundAmont }
+export { getTDate, getTime, roundAmount }

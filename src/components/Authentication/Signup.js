@@ -31,10 +31,10 @@ export default function SignUp({ user, gun }) {
                     acctType: acctType
                 }).then(async () => {
                     if (acctType === 'miner') {
-                        await gun.get('miners').put({
+                        gun.get('miners').put({
                             [ack.pub]: {}
-                        })
-                        window.location.href = '/login'
+                        }).then(() => window.location.href = '/login')
+
                     }
                     else
                         window.location.href = '/login'
