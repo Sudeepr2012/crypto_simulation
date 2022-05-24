@@ -1,4 +1,4 @@
-# Blockchain and cryptocurrency Simulation
+# Blockchain and Cryptocurrency Simulation
 
 By:
  [Charitha](https://linkedin.com/), [William](https://linkedin.com/), [Dhriti](https://linkedin.com/), and [Sudeep](https://linkedin.com/)
@@ -27,11 +27,6 @@ By:
 ## Getting Started
  <img src="/src/images/preview.png" alt="Logo" width="100%">
 
-### Prerequisites
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
 ### Installation
 
 1. Clone the repo
@@ -51,6 +46,7 @@ By:
    npm run start
    ```
 
+
 ## Usage
 
 <ol>
@@ -58,9 +54,12 @@ By:
 <li>Sign up and login using different details</li>
 <li>Play around...</li>
 <ol>
-The data will be stored in your browser's localstorage
+
+<p>The data will be stored in your browser's localstorage</p>
 
 _Note: On validate block page (Miners), you might need to reload the page if you encounter the error: `reading 'to' of undefined`_
+
+
 
 ## ToDo
 
@@ -70,7 +69,7 @@ _Note: On validate block page (Miners), you might need to reload the page if you
 - [ ] Implement listener for candidate block
 
 
-<!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 * [GUN](https://github.com/amark/gun)
