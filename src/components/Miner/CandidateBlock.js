@@ -183,30 +183,29 @@ export default function CandidateBlock({ user, gun }) {
         return hash.substr(0, DIFFICULTY) === "0".repeat(DIFFICULTY)
     }
 
-    function BroadcastBlock(e) {
+    async function BroadcastBlock(e) {
         e.preventDefault();
         setLoading(true)
         let tempCB = candidateBlock;
-        delete tempCB['_'];
+        // delete tempCB['_'];
         tempCB.accepted = {
-            [userKU]: true
+            block: false
         };
-        tempCB.rejected = { [userKU]: false };
+        tempCB.rejected = { block: false };
+        tempCB.coinBase = blockCBTx;
+        tempCB.transactions = Object.assign({}, blockTx);
+
+
         gun.get('pending-blocks').put({ [tempCB.hash]: tempCB }).then(() => {
-            gun.get('pending-blocks').get(tempCB.hash).put({
-                coinBase: blockCBTx,
-                transactions: Object.assign({}, blockTx),
-            }).then(async () => {
-                await gun.get('miners').get(userKU).put({
-                    candidateBlock: null
-                }).then(() => {
-                    notify('Block broadcast successful!')
-                    setCandidateBlock(null)
-                    setNonce(0)
-                    setBlockTx([])
-                    setLoading(false)
-                })
+            gun.get('miners').get(userKU).put({
+                candidateBlock: null
             })
+        }).then(() => {
+            notify('Block broadcast successful!')
+            setCandidateBlock(null)
+            setNonce(0)
+            setBlockTx([])
+            setLoading(false)
         })
     }
 

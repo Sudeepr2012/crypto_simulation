@@ -72,8 +72,8 @@ app.get('/pendingBlocks', (req, res) => {
       if (keys[i] !== '_' && pBlocks[keys[i]]) {
         pendingBlocks[keys[i]] = await gun.get('pending-blocks').get(keys[i]).then(async (block) => {
           if (block) {
-            await gun.get(`pending-blocks/${keys[i]}/coinBase`).once((cb) => {
-              block.coinBaseTx = cb
+            block.coinBaseTx = await gun.get(`pending-blocks/${keys[i]}/coinBase`).once((cb) => {
+              return cb
             })
             await gun.get(`pending-blocks/${keys[i]}/transactions`).once((tx) => {
               if (tx)

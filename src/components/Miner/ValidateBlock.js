@@ -67,14 +67,14 @@ export default function ValidateBlock({ gun, user }) {
             ...validateLoading,
             [key]: true
         }));
-        gun.get(`pending-blocks/${key}/${action}`).put({
+        await gun.get(`pending-blocks/${key}/${action}`).put({
             [userAddress]: true
         }).then(async () => {
             const res = await fetch(`${API_URL}/validateBlock?${new URLSearchParams({ key: key, action: action }).toString()}`);
             const data = await res.json();
             const count = data[0]
             const miners = data[1]
-            if ((((Object.keys(count).length - 1) / (Object.keys(miners).length - 1)) * 100) > 50) {
+            if ((((Object.keys(count).length - 2) / (Object.keys(miners).length - 1)) * 100) > 50) {
                 if (action === 'accepted') {
                     let txOP = {
                         0: {
