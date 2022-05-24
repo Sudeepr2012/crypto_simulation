@@ -49,11 +49,9 @@ By:
 
 ## Usage
 
-<ol>
 <li>Open 2 or more different browsers</li>
 <li>Sign up and login using different details</li>
 <li>Play around...</li>
-<ol>
 
 <p>The data will be stored in your browser's localstorage</p>
 
