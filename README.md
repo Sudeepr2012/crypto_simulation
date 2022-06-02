@@ -39,7 +39,7 @@ By:
    ```
 3. Start the server
    ```sh
-   cd server; node index
+   cd server; npm install; node index
    ```
 4. Open a new terminal and run the project
      ```sh
