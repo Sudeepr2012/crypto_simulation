@@ -17,7 +17,7 @@ import { roundAmount } from './others/GetDate';
 
 const coinToDollar = 2;
 
-export default function Dashboard({ user, gun }) {
+export default function Dashboard({ user }) {
     const address = user.is.pub;
     const [username, setUsername] = useState('');
     const [acctType, setAcctType] = useState(false);

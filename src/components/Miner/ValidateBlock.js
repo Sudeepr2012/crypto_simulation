@@ -152,7 +152,7 @@ export default function ValidateBlock({ gun, user }) {
                             <tr><td>Transactions</td> <td>
                                 {block.txsTemp.length > 0 ? block.txsTemp.map((tx, ind) => (
                                     <div key={ind}>
-                                        <Link to={`/tx/${tx}`}>{tx ? `${tx.substring(1, 20)}...` : tx}</Link>
+                                        <Link to={`/tx/${tx}`}>{tx ? `${tx.substring(0, 20)}...` : tx}</Link>
                                     </div>
                                 ))
                                     :
